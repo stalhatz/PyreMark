@@ -1,0 +1,92 @@
+{% macro tr(prop) -%}
+{% if prop is mapping -%}
+  {% if prop[lang]  is defined -%}
+    {{ prop[lang] }}
+  {%- else -%}
+    {{ prop["def"] }}
+  {%- endif %}
+{%- else -%}
+  {{ prop }}
+{%- endif %}
+{%- endmacro %}
+<!DOCTYPE html>
+<html lang="">
+
+  <link rel="stylesheet" type="text/css" href="../css/resume.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family={{tr(styles.gFontFamily)}}:ital,wght@0,300;0,500;0,800;1,200;1,500&display=swap" rel="stylesheet">   <body>
+    <div class="canvas-container">
+      <div class="preambule">
+        <div class="titleName">
+          <h1> {{tr(details.firstName)}} {{tr(details.surname)}} </h1>
+          <h2> {{tr(details.title)}} </h2>
+        </div>
+        <div class="personal-info">
+          <div class="v-sep"></div>
+          <div class="details-list">
+            <div class="age"> <span id="ageLogo" class="logo">  </span> <p> {{tr(details.age)}}</p> </div>
+            <div class="address"> <span id="addressLogo" class="logo">  </span> <p>  {{tr(details.address)}} </p></div>
+            <div class="phone-number"> <span id="phoneLogo" class="logo">  </span> <p>  {{tr(details.phoneNumber)}}</p> </div>
+            <div class="email"> <span id="emailLogo" class="logo">  </span> <p>  {{tr(details.email)}}</p> </div>
+            <div class="drivers-licence"> <span id="driversLicenseLogo" class="logo">  </span> <p>  {{tr(details.driversLicence)}}</p> </div>
+          </div>
+          <div class="photo">
+            <img class="profile-photo" src="../img/profile_high_comp_800p.jpg">
+          </div>
+        </div>
+      </div>
+      
+      {%- for chapterName, chapter in chapters.items() %}
+      <div class="cv-chapter">
+        <h2> {{ tr(chapter.title) }} </h2>
+        <div class="grid-element">
+          {%- for lineName, line in chapter.lines.items() %}
+          <div class = date> {{ tr(line.date) }} </div>
+          <div class = rhs-element>
+            {%- if line.title is defined %}
+            <h3> {{ tr(line.title) }} </h3>
+            {% endif -%}
+            <p> {{ tr(line.text) }} </p>
+          </div>
+          {% endfor -%}
+        </div>
+      </div>
+      {% endfor -%}
+
+      <!-- Competences -->
+      <div class="cv-chapter">
+        <h2> {{tr(competences.title)}} </h2>
+        <div class="grid-element">
+          {%- for competence in competences.lines %}
+          <div class = date> {{ tr(competence.domain) }} </div>
+          <div class = "rhs-element taglist">
+            <ul>
+              {%- for skill in competence.list %}
+              <li> {{ skill }}</li>
+              {%- endfor -%}
+            </ul>
+          </div>
+          {% endfor -%}
+        </div>
+      </div>
+      <!-- Languages -->
+      <div class="cv-chapter">
+        <h2> {{tr(languages.title)}} </h2>
+        <div class="grid-element">
+          <div class = date>  </div>
+          <div class = rhs-element>
+            <p>
+            {%- for language in languages.lines%}
+              <strong>{{tr(language.name)}}:</strong> {{tr(language.capacity)}}
+              {% if not loop.last %}
+              ,
+              {% endif %}
+            {% endfor %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

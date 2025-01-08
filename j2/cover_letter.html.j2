@@ -1,0 +1,46 @@
+{% macro tr(prop) -%}
+{% if prop is mapping -%}
+  {% if prop[lang]  is defined -%}
+    {{ prop[lang] }}
+  {%- else -%}
+    {{ prop["def"] }}
+  {%- endif %}
+{%- else -%}
+  {{ prop }}
+{%- endif %}
+{%- endmacro %}
+<!DOCTYPE html>
+<html lang="">
+  
+  <link rel="stylesheet" type="text/css" href="../css/cover_letter.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family={{tr(styles.gFontFamily)}}:ital,wght@0,300;0,500;0,800;1,200;1,500&display=swap" rel="stylesheet">   
+  
+  <body>
+    <div class="canvas-container">
+        <div class="addresses">
+            <div class="senderAddress">
+                <p> <strong>{{tr(sender.name)}} </strong> <br> {{tr(sender.address1)}} <br> {{tr(sender.address2)}}</p>
+            </div>
+        
+            <div class="receiverAddress">
+                <p> <strong>{{tr(receiver.name)}} </strong> <br> {{tr(receiver.fullPosition)}} <br> {{tr(receiver.address1)}} <br> {{tr(receiver.address2)}}</p>
+            </div>
+        </div>
+        <div class="date">
+            <p> Bussy-Saint-Georges, le {{tr(date)}} </p>
+        </div>
+        
+        <div class="salutation">
+            <p>{{tr(receiver.call)}} {{tr(receiver.genderedCall)}} {{tr(receiver.position)}},</p>
+        </div>
+
+        <div class="text">
+          {%- for l in text %}
+            <p> {{ tr(l) -}} </p>
+          {% endfor %}
+        </div>
+    </div>
+  </body>
+</html>

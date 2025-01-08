@@ -1,0 +1,11 @@
+.directory
+cv/
+yaml/
+pdf/
+.venv/
+*.pdf
+*.html
+poetry.lock
+*__pycache__
+.vscode/
+img/

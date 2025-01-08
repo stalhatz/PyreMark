@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "css-resume"
+version = "0.1.0"
+description = "Resume creation from html and css"
+authors = ["stalhatz <stalhatz@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.11"
+jinja2-cli = "^0.8"
+hiyapyco = "^0.5"
+markdown2="^2.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
