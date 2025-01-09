@@ -14,6 +14,8 @@ import yaml
 
 from transform_md_to_yaml_html import tranformMD
 
+from platformdirs import user_config_dir
+
 class DocumentType(str, Enum):
     resume = 'resume'
     coverLetter = 'coverLetter'
@@ -71,19 +73,35 @@ logger = logging.getLogger(__name__)
 FORMAT = '[%(funcName)s] : %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 
+def renderTemplateAndWriteToFile(template, data, filename):
+    with open(template,"r") as tf:
+        template = tf.read()
+
+    template = jinja2.Template(template)
+    rendered = template.render(data)
+
+    with open(filename,"w") as hf:
+        logger.info(f"Writing rendered template to {filename}")
+        hf.write(rendered)
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-m","--md", help=".md file containing data and metadata for creating a cover letter and customizing a cv")
 parser.add_argument("-y","--yaml", help="(a series of) .yaml file(s) containing data for creating a cover letter or cv",nargs='+')
-parser.add_argument("-t","--template",type = DocumentType,help="the type of document to output", choices=[dt.value for dt in DocumentType])
-parser.add_argument("-l","--lang",help="language to be used for the output document")
+parser.add_argument("-t","--template",help="the html jinja2 template (.j2) to be customized. If not present, we will search for a config file.")
+parser.add_argument("-c","--css",help="the css jinja2 template (.j2) to be customized. If not present, we will search for a config file.")
+parser.add_argument("-l","--lang",help="language to be used for the output document. Defaults to English", default="en")
 parser.add_argument("-o","--output",help="location of the output file. A .pdf suffix will be added if not already present in the filename")
 parser.add_argument("-s","--showHtml",help="If set, shows html in browser",action='store_true')
 
 
+
+#if not os.path.exists(user_config_dir("ProgCV","stalhatz")):
+#    os.makedirs(user_config_dir("ProgCV","stalhatz"))
+    
 args = parser.parse_args()
 
-yamlFile = None
+yamlFiles = []
 outputName = None
 if (args.md is not None):
     if os.path.splitext(args.md)[1] != ".md":
@@ -91,7 +109,8 @@ if (args.md is not None):
     yamlFiles = [tempfile.mkstemp(suffix=".yaml")[1]]
     logger.info(f"Using {yamlFiles[0]} as temporary .yaml file")
     tranformMD(["None",args.md , yamlFiles[0]])
-    args.template = DocumentType.coverLetter
+    args.template   = "./j2/cover_letter.html.j2"
+    args.css        = "./j2/cover_letter.css.j2"
     outputName = args.md
 
 if (args.yaml is not None):
@@ -100,24 +119,22 @@ if (args.yaml is not None):
     yamlFiles = args.yaml
     if outputName is None: outputName = args.yaml[0]
 
-if (args.lang is None):
-    logger.info("No output language argument provided. Setting output language to english (EN)")
-    lang = "en"
-else:
-    lang = args.lang
-
-templateFilesDict = {DocumentType.resume:"./j2/resume.html.j2", DocumentType.coverLetter:"./j2/cover_letter.html.j2"}
+lang = args.lang
 
 if (args.template is None):
-    logger.info("No output document type provided. Setting template to " + DocumentType.resume)
-templateFilename = templateFilesDict[args.template]
+    logger.error("No html template provided. Exiting " + DocumentType.resume)
+    exit()
+template = args.template
+
+cssTemplateFile = args.css
+
 
 assert(outputName is not None)
 
 outputName = os.path.basename(outputName)
 print(outputName)
 
-htmlFile="./html/tmp.html"
+
 
 #Read yaml file
 data = {}
@@ -128,15 +145,18 @@ for yamlFile in yamlFiles:
 ## Done to get the linter satisfied
 data = dict(data)
 data["lang"] = lang
+htmlFile="./html/tmp.html"
 
-with open(templateFilename,"r") as tf:
-    template = tf.read()
+if cssTemplateFile:
+    cssFile="./css/tmp.css"
+    renderTemplateAndWriteToFile(cssTemplateFile,data,cssFile)
+    ## Get relative css path
+    cssFile = os.path.relpath(cssFile,os.path.dirname(htmlFile))
+    print(cssFile)
+    data["styles"]["cssfile"] = cssFile
 
-template = jinja2.Template(template)
-html = template.render(data)
 
-with open(htmlFile,"w") as hf:
-    hf.write(html)
+renderTemplateAndWriteToFile(template,data,htmlFile)
 
 if args.showHtml:
     showHTML(htmlFile)
