@@ -9,7 +9,6 @@ import subprocess
 import tempfile
 
 import jinja2
-from jinja2 import Environment, PackageLoader
 import yaml
 
 from transform_md_to_yaml_html import tranformMD
@@ -100,9 +99,6 @@ parser.add_argument("-s","--show",help="Show rendered html pdf or None",default=
 parser.add_argument("-v","--verbose",help="set to one of warn, info , debug",default="info", choices=["info","warn","debug"])
 
 
-#if not os.path.exists(user_config_dir("ProgCV","stalhatz")):
-#    os.makedirs(user_config_dir("ProgCV","stalhatz"))
-    
 args = parser.parse_args()
 
 if (args.verbose == "info"):
