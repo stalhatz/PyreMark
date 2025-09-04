@@ -4,7 +4,7 @@ import argparse
 from enum import Enum
 import logging
 import os
-from re import template
+from re import compile
 import subprocess
 import tempfile
 
@@ -74,10 +74,13 @@ FORMAT = '[%(funcName)s] : %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 
 def renderTemplateAndWriteToFile(template, data, filename):
+    logger.info(f"Using template file : {template}")
+
     with open(template,"r") as tf:
         template = tf.read()
 
     template = jinja2.Template(template)
+    logger.info(f"Merging template with data : {data}")
     rendered = template.render(data)
 
     with open(filename,"w") as hf:
@@ -117,9 +120,11 @@ if (args.yaml is not None):
     if any( [ os.path.splitext(k)[1]!= ".yaml" for k in args.yaml] ):
         raise ValueError("Expected only .yaml files as input but was given : " + str(args.yaml))
     yamlFiles = args.yaml
+    logger.info("Received the following yaml files as input :" + str(yamlFiles))
     if outputName is None: outputName = args.yaml[0]
 
 lang = args.lang
+assert(lang == "en" or lang == "fr" or lang=="gr")
 
 if (args.template is None):
     logger.error("No html template provided. Exiting " + DocumentType.resume)
@@ -128,13 +133,10 @@ template = args.template
 
 cssTemplateFile = args.css
 
+if args.output is not None:
+    outputName = args.output
 
 assert(outputName is not None)
-
-outputName = os.path.basename(outputName)
-print(outputName)
-
-
 
 #Read yaml file
 data = {}
@@ -162,6 +164,6 @@ if args.showHtml:
     showHTML(htmlFile)
 
 if args.output is not None:
-    pdfFile="./pdf/test.pdf"
+    pdfFile= args.output
     renderPDF(htmlFile,pdfFile)
     viewPDF(pdfFile)
