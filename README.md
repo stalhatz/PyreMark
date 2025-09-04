@@ -1,30 +1,21 @@
-# Web CV tool
+# PyreMark
 
-Let's quickly go over the project folders
+PYthon REsume for Markdown  : Customizable CV based on a template
 
-## `./css`
-Here we store the `.css` files for the different `.j2` templates
+# Introduction
+Do you have multiple job profiles you need to switch between? Do you have experiences that better suit each profile that need to be highlighted differently? Do you need to have the same CV in multiple languages?
 
-## `./html`
+PyreMark is a python backend that support CV creation via a pipeline of YAML -> Jinja2 -> HTML/CSS -> Chromium -> pdf. 
 
-This is were the `.html` output is stored. This is either temporary in order to create the `.pdf` file or it could be the end result and alongside the stylesheet it could be incorporated in a page.
+# Uses
+The end goal is to have plugins for most markdown apps where a note corresponding to a job listing can come with it's corresponding CV and/or Cover letter. This way a record of correspondance between job applications and CVs/Cover Letters is kept from the input elements used to produce the documents.
 
-## `./img`
+YAML can be written and maintained with your favorite note-taking program 
 
-Different image assets used. Icons and profile pictures.
+# What this project isn't
+A universal CV design creator. This has no need to go down the canvas / drag n' drop / create your own design path. This could be a different project using this one.
 
-## `./j2`
+That means that the user needs to be able to write some html and css to create their design. In my eyes, this makes sense: A cv is something quite personal and a cookie-cutter manner of going about it shouldn't cut it for most people given the plethora of tools out there making custom design accessible.
 
-The jinja2 template file used to customize html
-
-## `./pdf`
-
-This is were the `.pdf` output files are stored.
-
-## `./src`
-
-This is were scripts are kept.
-
-## `./yaml`
-
-The `.yaml` files hold the data to customize the jinja templates. `.yaml` files can be composed via the `./src/merge_yaml.py` script.
+# Future features
+- Obsidian plugin
