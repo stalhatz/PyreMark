@@ -74,13 +74,13 @@ FORMAT = '[%(funcName)s] : %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 
 def renderTemplateAndWriteToFile(template, data, filename):
-    logger.info(f"Using template file : {template}")
+    logger.debug(f"Using template file : {template}")
 
     with open(template,"r") as tf:
         template = tf.read()
 
     template = jinja2.Template(template)
-    logger.info(f"Merging template with data : {data}")
+    logger.debug(f"Merging template with data : {data}")
     rendered = template.render(data)
 
     with open(filename,"w") as hf:
@@ -97,12 +97,20 @@ parser.add_argument("-l","--lang",help="language to be used for the output docum
 parser.add_argument("-o","--output",help="location of the output file. A .pdf suffix will be added if not already present in the filename")
 parser.add_argument("-s","--showHtml",help="If set, shows html in browser",action='store_true')
 
+parser.add_argument("-v","--verbose",help="set to one of warn, info , debug",default="info", choices=["info","warn","debug"])
 
 
 #if not os.path.exists(user_config_dir("ProgCV","stalhatz")):
 #    os.makedirs(user_config_dir("ProgCV","stalhatz"))
     
 args = parser.parse_args()
+
+if (args.verbose == "info"):
+    logging.basicConfig(level=logging.INFO)
+if (args.verbose == "debug"):
+    logging.basicConfig(level=logging.DEBUG)
+if (args.verbose == "warn"):
+    logging.basicConfig(level=logging.WARN)
 
 yamlFiles = []
 outputName = None
@@ -154,7 +162,7 @@ if cssTemplateFile:
     renderTemplateAndWriteToFile(cssTemplateFile,data,cssFile)
     ## Get relative css path
     cssFile = os.path.relpath(cssFile,os.path.dirname(htmlFile))
-    print(cssFile)
+    logger.debug(cssFile)
     data["styles"]["cssfile"] = cssFile
 
 
