@@ -19,9 +19,9 @@ def tranformMD(args):
         outputLines = metadata.split("\n")
         logger.debug(outputLines)
 
-    htmlLines = []
+    
     with ( open(args[1] , "r" )) as input:
-        ## Find the second line with a "---" string. 
+        ## Find the second line with a "---" string to avoid the YAML preambule
         ## (Not the actual rule, but good enough for the time being)
         lines = input.readlines()
         numYamlString = 0
@@ -34,11 +34,12 @@ def tranformMD(args):
         logger.debug(numYamlString)
         lines = lines[numYamlString+1:]
         lines = [line for line in lines if line != "\n"]
+        htmlLines = []
         for line in lines:
             if line != "":
                 outputLine = md.markdown(line)
-                outputLine = outputLine.partition("<p>")[2]
-                outputLine = outputLine.rpartition("</p>")[0]
+                outputLine = outputLine.strip()
+                outputLine = outputLine.replace("\n","")
                 htmlLines.append(outputLine)
         logger.debug(htmlLines[0])
         dictObject = {"text":htmlLines}
