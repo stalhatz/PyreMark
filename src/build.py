@@ -95,7 +95,7 @@ parser.add_argument("-t","--template",help="the html jinja2 template (.j2) to be
 parser.add_argument("-c","--css",help="the css jinja2 template (.j2) to be customized. If not present, we will search for a config file.")
 parser.add_argument("-l","--lang",help="language to be used for the output document. Defaults to English", default="en")
 parser.add_argument("-o","--output",help="location of the output file. A .pdf suffix will be added if not already present in the filename")
-parser.add_argument("-s","--showHtml",help="If set, shows html in browser",action='store_true')
+parser.add_argument("-s","--show",help="Show rendered html pdf or None",default= "None",choices=["pdf","html","None"])
 
 parser.add_argument("-v","--verbose",help="set to one of warn, info , debug",default="info", choices=["info","warn","debug"])
 
@@ -168,10 +168,11 @@ if cssTemplateFile:
 
 renderTemplateAndWriteToFile(template,data,htmlFile)
 
-if args.showHtml:
+if args.show == "html":
     showHTML(htmlFile)
 
 if args.output is not None:
     pdfFile= args.output
     renderPDF(htmlFile,pdfFile)
-    viewPDF(pdfFile)
+    if args.show == "pdf":
+        viewPDF(pdfFile)
