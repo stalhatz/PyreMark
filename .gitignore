@@ -3,6 +3,7 @@ css/
 cv/
 yaml/
 pdf/
+scripts/
 .venv/
 *.pdf
 *.html
@@ -10,3 +11,4 @@ poetry.lock
 *__pycache__
 .vscode/
 img/
+*sync-conflict*
