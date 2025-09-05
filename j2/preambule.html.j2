@@ -1,0 +1,22 @@
+<div class="preambule">
+<div class="titleName">
+    <h1> {{tr(details.firstName)}} {{tr(details.surname)}} </h1>
+    <h2> {{tr(details.title)}} </h2>
+</div>
+<div class="personal-info">
+    <div class="v-sep"></div>
+    <div class="details-list">
+    <div class="age"> <span id="ageLogo" class="logo">  </span> <p> {{tr(details.age)}}</p> </div>
+    <div class="address"> <span id="addressLogo" class="logo">  </span> <p>  {{tr(details.address)}} </p></div>
+    <div class="phone-number"> <span id="phoneLogo" class="logo">  </span> <p>  {{tr(details.phoneNumber)}}</p> </div>
+    <div class="email"> <span id="emailLogo" class="logo">  </span> <p>  {{tr(details.email)}}</p> </div>
+    <div class="drivers-licence"> <span id="driversLicenseLogo" class="logo">  </span> <p>  {{tr(details.driversLicence)}}</p> </div>
+    </div>
+    
+    {% if details.photo is defined -%}
+        <div class="photo">
+        <img class="profile-photo" src="{{tr(details.photo)}}">
+        </div>
+    {%- endif %}
+</div>
+</div>

@@ -9,11 +9,26 @@ import subprocess
 import tempfile
 
 import jinja2
+from jinja2 import Environment, BaseLoader, TemplateNotFound
 import yaml
 
 from transform_md_to_yaml_html import tranformMD
+from os.path import join, exists, getmtime
+from itertools import batched
 
-from platformdirs import user_config_dir
+class MyLoader(BaseLoader):
+
+    def __init__(self, path):
+        self.path = path
+
+    def get_source(self, environment, template):
+        path = join(self.path, template)
+        if not exists(path):
+            raise TemplateNotFound(template)
+        mtime = getmtime(path)
+        with open(path) as f:
+            source = f.read()
+        return source, path, lambda: mtime == getmtime(path)
 
 class DocumentType(str, Enum):
     resume = 'resume'
@@ -86,7 +101,7 @@ def renderTemplateAndWriteToFile(template, data, filename):
     with open(template,"r") as tf:
         template = tf.read()
 
-    template = jinja2.Template(template)
+    template = Environment(loader=MyLoader(".")).from_string(template)
     logger.debug(f"Merging template with data : {data}")
     rendered = template.render(data)
 
@@ -96,10 +111,7 @@ def renderTemplateAndWriteToFile(template, data, filename):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-m","--md", help=".md file containing data and metadata for creating a cover letter and customizing a cv")
-parser.add_argument("-y","--yaml", help="(a series of) .yaml file(s) containing data for creating a cover letter or cv",nargs='+')
-parser.add_argument("-t","--template",help="the html jinja2 template (.j2) to be customized. If not present, we will search for a config file.")
-parser.add_argument("-c","--css",help="the css jinja2 template (.j2) to be customized. If not present, we will search for a config file.")
+parser.add_argument("--layout",help="String with dictionary values to define layout and customize the default template", nargs='+')
 parser.add_argument("-l","--lang",help="language to be used for the output document. Defaults to English", default="en")
 parser.add_argument("-o","--output",help="location of the output file. A .pdf suffix will be added if not already present in the filename")
 parser.add_argument("-s","--show",help="Show rendered html pdf or None",default= "None",choices=["pdf","html","None"])
@@ -108,6 +120,13 @@ parser.add_argument("-v","--verbose",help="set to one of warn, info , debug",def
 
 
 args = parser.parse_args()
+
+# Create dictionary out of layout arguments
+layout = None
+if args.layout is not None:
+    layout = {}
+    for i,j in batched(args.layout,2):
+        layout[i] = j
 
 if (args.verbose == "info"):
     logging.basicConfig(level=logging.INFO)
@@ -152,6 +171,8 @@ assert(outputName is not None)
 
 #Read yaml file
 data = {}
+if layout is not None:
+    data["layout"] = layout
 for yamlFile in yamlFiles:
     with open(yamlFile,"r") as yf:
         data = update_merge(data,yaml.load(yf, Loader=yaml.SafeLoader))

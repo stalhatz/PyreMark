@@ -1,0 +1,16 @@
+<!-- Competences -->
+<div class="cv-chapter">
+<h2> {{tr(competences.title)}} </h2>
+<div class="grid-element">
+    {%- for competence in competences.lines %}
+    <div class = date> {{ tr(competence.domain) }} </div>
+    <div class = "rhs-element taglist">
+    <ul>
+        {%- for skill in competence.list %}
+        <li> {{ skill }}</li>
+        {%- endfor -%}
+    </ul>
+    </div>
+    {% endfor -%}
+</div>
+</div>

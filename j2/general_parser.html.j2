@@ -1,0 +1,17 @@
+<!-- General chapter parser -->
+{%- for chapterName, chapter in chapters.items() %}
+<div class="cv-chapter {{chapterName}}-chapter">
+<h2> {{ tr(chapter.title) }} </h2>
+<div class="grid-element">
+    {%- for lineName, line in chapter.lines.items() %}
+    <div class = date> {{ tr(line.date) }} </div>
+    <div class = rhs-element>
+    {%- if line.title is defined %}
+        <h3> {{ tr(line.title) }} </h3>
+    {% endif -%}
+    <p> {{ tr(line.text) }} </p>
+    </div>
+    {% endfor -%}
+</div>
+</div>
+{% endfor -%}

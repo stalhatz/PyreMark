@@ -33,7 +33,7 @@ p{
 }
 
 .stronger{
-  font-weight:800;
+  font-weight:600;
 }
 
 .svg-image{
@@ -60,7 +60,12 @@ p{
   transform: rotate(var(--rotation));
   margin-left:30px;
   margin-right:20px;
-  margin-top:30px;
+  margin-block:auto;
+  padding-bottom:20px;
+}
+
+.titleName h1{
+  white-space: nowrap
 }
 
 .titleName h2{
@@ -74,8 +79,8 @@ p{
 .v-sep{
   border-left: 1px solid rgba(0, 0, 0, 0.3);
   transform: rotate(var(--rotation));
-  max-height: 69%;
-  margin-top: 17%;
+  max-height: 85%;
+  margin-top: 3%;
   margin-bottom: 3%;
 }
 .details{
@@ -106,6 +111,7 @@ p{
 .details-list>div p{
   margin:0;
   margin-inline-start: 1rem;
+  white-space: nowrap;
 }
 
 .logo{
@@ -116,6 +122,7 @@ p{
   margin-inline: 0.3rem;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
+  opacity:0.99; /* Chromium bug showing blurred svgs */
 }
 
 #ageLogo{
@@ -223,7 +230,13 @@ p{
   float: inline-end;
 }
 
+h2{
+  font-size : 1.4rem;
+}
 
+h3{
+  font-size : 1.1rem;
+}
 
 .cv-chapter:first-child > h2 {
   margin-top: 0mm;
@@ -254,10 +267,6 @@ p{
   margin-top :0;
   margin-bottom: 1mm;
 }
-
-/* .rhs-element p:first-child{
-  margin-top:0;
-} */
 
 .taglist{
   margin-bottom: 1mm;
@@ -312,3 +321,7 @@ em{
     box-shadow: none;
   }
 }
+
+{% if layout.microcredentials == "cards" -%}
+  {% include "./j2/microcredits_cards.css.j2" %}
+{%- endif %}
