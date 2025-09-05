@@ -111,7 +111,14 @@ def renderTemplateAndWriteToFile(template, data, filename):
 
 
 parser = argparse.ArgumentParser()
+
+parser.add_argument("-m","--md", help=".md file containing data and metadata for creating the document")
+parser.add_argument("-y","--yaml", help="(a series of) .yaml file(s) containing data for creating the document",nargs='+')
+parser.add_argument("--type",help="The type of document required. This is mutually exclusive with --template and --css.",choices = ["coverletter","CV"])
 parser.add_argument("--layout",help="String with dictionary values to define layout and customize the default template", nargs='+')
+parser.add_argument("--metadata",help="Extra metadata")
+parser.add_argument("--template",help="the html jinja2 template (.j2) to be customized.")
+parser.add_argument("-c","--css",help="the css jinja2 template (.j2) to be customized.")
 parser.add_argument("-l","--lang",help="language to be used for the output document. Defaults to English", default="en")
 parser.add_argument("-o","--output",help="location of the output file. A .pdf suffix will be added if not already present in the filename")
 parser.add_argument("-s","--show",help="Show rendered html pdf or None",default= "None",choices=["pdf","html","None"])
@@ -120,6 +127,20 @@ parser.add_argument("-v","--verbose",help="set to one of warn, info , debug",def
 
 
 args = parser.parse_args()
+
+# Argument validation
+if args.type is not None:
+    if args.template is not None:
+        print("--template is mutually exclusive with --type. Exiting")
+        exit(1)
+    if args.type == "CV":
+        args.template = "./j2/resume.html.j2"
+        if args.css is None:
+            args.css = "./j2/resume.css.j2"
+    if args.type == "coverletter":
+        args.template = "./j2/cover_letter.html.j2"
+        if args.css is None:
+            args.css = "./j2/cover_letter.css.j2"
 
 # Create dictionary out of layout arguments
 layout = None
@@ -138,6 +159,7 @@ if (args.verbose == "warn"):
 yamlFiles = []
 outputName = None
 if (args.md is not None):
+    args.type = "coverletter"
     if os.path.splitext(args.md)[1] != ".md":
         raise ValueError("Expected a .md file as input")
     yamlFiles = [tempfile.mkstemp(suffix=".yaml")[1]]
