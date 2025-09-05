@@ -12,3 +12,4 @@ poetry.lock
 .vscode/
 img/
 *sync-conflict*
+**/old/
