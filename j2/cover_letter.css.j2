@@ -70,6 +70,26 @@ ul{
   box-shadow: 0 3px 8px -3px rgba(0, 0, 0, 0.7);
 }
 
+.signature{
+  {% if sender.signaturePhoto is defined -%}
+    margin-top: 1rem;
+  {%- else -%}
+    margin-top: 4rem;
+  {%- endif %}
+  margin-right: 4rem;
+  text-align: end;
+  display:flex;
+  flex-flow:column;
+}
+
+.signature_wrapper{
+  text-align:center;
+  margin-left:auto;
+}
+
+.signature-photo_{
+  height : 6rem;
+}
 
 em{
   font-weight: 300;

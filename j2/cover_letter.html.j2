@@ -46,6 +46,18 @@
             <p> {{ tr(l) -}} </p>
           {% endfor %}
         </div>
+        <div class="signature">
+          <div class="signature_wrapper">
+          {% if sender.signaturePhoto is defined -%}
+            <div class="signature-photo">
+              <img class="signature-photo_" src="{{tr(sender.signaturePhoto)}}">
+            </div>
+          {%- endif %}
+            <div>
+              {{tr(sender.name)}}
+            </div>
+          </div>
+        </div>
     </div>
   </body>
 </html>
