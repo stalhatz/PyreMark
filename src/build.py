@@ -23,8 +23,10 @@ def showHTML(htmlFile):
     htmlViewerArgs = []
     htmlViewerArgs += ["chromium"]
     htmlViewerArgs += [htmlFile]
-    print(" ".join(htmlViewerArgs))
-    subprocess.run(htmlViewerArgs)
+    logger.info(" ".join(htmlViewerArgs))
+    result = subprocess.run(htmlViewerArgs, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    logger.debug(result.stdout)
+    logger.debug(result.stderr)
 
 
 def viewPDF(pdfFile):
@@ -32,7 +34,10 @@ def viewPDF(pdfFile):
     pdfViewerArgs += ["okular"]
     pdfViewerArgs += ["--unique"]
     pdfViewerArgs += [pdfFile]
-    subprocess.run(pdfViewerArgs)
+    logger.info(" ".join(pdfViewerArgs))
+    result = subprocess.run(pdfViewerArgs, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    logger.debug(result.stdout)
+    logger.debug(result.stderr)
 
 def renderPDF(htmlFile, pdfFile):
     pdfRendererArgs = []
@@ -44,8 +49,11 @@ def renderPDF(htmlFile, pdfFile):
     pdfRendererArgs += ["--no-pdf-header-footer"]
     pdfRendererArgs += ["--virtual-time-budget=42000"]
     pdfRendererArgs += [htmlFile]
-    print(" ".join(pdfRendererArgs))
-    subprocess.run(pdfRendererArgs)
+    logger.info(" ".join(pdfRendererArgs))
+    result = subprocess.run(pdfRendererArgs, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    logger.debug(result.stdout)
+    logger.debug(result.stderr)
+    
 
 # Copied from https://stackoverflow.com/a/50441142
 def update_merge(d1, d2):
