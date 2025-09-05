@@ -1,4 +1,4 @@
-{% macro tr(prop,default = "Undefined property") -%}
+{% macro tr(prop,default = "<strong> Undefined property </strong>") -%}
 {% if prop is mapping -%}
   {% if prop[lang]  is defined -%}
     {{ prop[lang] }}
@@ -26,7 +26,13 @@
     <div class="canvas-container">
         <div class="addresses">
             <div class="senderAddress">
-                <p> <strong>{{tr(sender.name)}} </strong> <br> {{tr(sender.address1)}} <br> {{tr(sender.address2)}}</p>
+                <p> <strong>{{tr(sender.name)}} </strong> 
+                <br> {{tr(sender.streetNameAndNumber)}} 
+                <br> {{tr(sender.postalCode)}}, {{tr(sender.city)}}
+                {% if sender.country is defined -%}
+                  <br> {{tr(sender.country)}}
+                {%- endif %}      
+                </p>
             </div>
         
             <div class="receiverAddress">
@@ -34,16 +40,24 @@
             </div>
         </div>
         <div class="date">
-            <p> Bussy-Saint-Georges, le {{tr(date)}} </p>
+            <p> {{tr(sender.city)}}, {{tr(date)}} </p>
         </div>
         
         <div class="salutation">
+          {% if receiver.position is defined -%}
             <p>{{tr(receiver.call)}} {{tr(receiver.genderedCall)}} {{tr(receiver.position)}},</p>
+          {%- else -%}
+            {% if receiver.call is defined -%}
+              <p>{{tr(receiver.call)}} {{tr(receiver.genderedCall)}},</p>
+            {%- else -%}
+              <p>{{tr(receiver.genderedCall)}},</p>
+            {%- endif %}
+          {%- endif %}
         </div>
 
         <div class="text">
           {%- for l in text %}
-            <p> {{ tr(l) -}} </p>
+            {{ tr(l) -}}
           {% endfor %}
         </div>
         <div class="signature">
