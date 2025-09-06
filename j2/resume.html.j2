@@ -19,11 +19,11 @@
   <link rel="stylesheet" type="text/css" href="{{tr(styles.cssfile,"./css/resume.css")}}"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family={{tr(styles.gFontFamily)}}:ital,wght@0,300;0,500;0,800;1,200;1,500&display=swap" rel="stylesheet">   <body>
+  <link href="https://fonts.googleapis.com/css2?family={{tr(styles.gFontFamily)}}:ital,wght@0,300;0,500;0,800;1,200;1,500&display=swap" rel="stylesheet">
+  <script type="text/javascript" src="../js/multipage.js"></script>
+  <body>
     <div class="canvas-container">
-
       {% include "./j2/preambule.html.j2" %}
-      
       {% include "./j2/general_parser.html.j2" %}
 
       {% if layout.microcredentials == "cards" -%}
@@ -31,11 +31,9 @@
       {%- else -%}
         {% include "./j2/microcredits_list.html.j2" %}
       {%- endif %}
-      
+
       {% include "./j2/competences.html.j2" %}
-
       {% include "./j2/languages.html.j2" %}
-
     </div>
   </body>
 </html>
