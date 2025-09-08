@@ -21,10 +21,10 @@ A universal CV design creator. This project has no need to go down the canvas / 
 That means that the user needs to be able to write some html and css to create a design that *exactly* fits their needs. In my eyes, this makes sense: A cv is a personal production and a cookie-cutter manner of going about it shouldn't cut it for most people given the plethora of tools out there making custom design accessible. Nonetheless, a set of modular chapter/element designs combined with CSS customization (local elementwise and global) could fit some use cases
 
 # Concerns
-A major concern at this moment is the schema of the yaml that describes the resume which is essentially in an ad-hoc state. There exists schemas like (JSON Resume)[https://jsonresume.org/] but it also feels rather ad-hoc-ish while not taking into account translations which was a key motivation for developing PyreMark. That said, extending JSON Resume should be take under consideration.
+A major concern at this moment is the schema of the yaml that describes the resume which is essentially in an ad-hoc state. There exists schemas like [JSON Resume](https://jsonresume.org/) but it also feels rather ad-hoc-ish while not taking into account translations which was a key motivation for developing PyreMark. That said, extending JSON Resume should be take under consideration.
 
 # Similar projects
-1. (Yaml Resume)[https://yamlresume.dev/]
+1. [Yaml Resume](https://yamlresume.dev/)
     - Hard to customize appearance (Latex based rendering), not multilingual
 
 # Future features
