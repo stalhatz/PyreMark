@@ -109,117 +109,118 @@ def renderTemplateAndWriteToFile(template, data, filename):
         logger.info(f"Writing rendered template to {filename}")
         hf.write(rendered)
 
+if __name__ == "__main__":
 
-parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()
 
-parser.add_argument("-m","--md", help=".md file containing data and metadata for creating the document")
-parser.add_argument("-y","--yaml", help="(a series of) .yaml file(s) containing data for creating the document",nargs='+')
-parser.add_argument("--type",help="The type of document required. This is mutually exclusive with --template and --css.",choices = ["coverletter","CV"])
-parser.add_argument("--layout",help="String with dictionary values to define layout and customize the default template", nargs='+')
-parser.add_argument("--metadata",help="Extra metadata")
-parser.add_argument("--template",help="the html jinja2 template (.j2) to be customized.")
-parser.add_argument("-c","--css",help="the css jinja2 template (.j2) to be customized.")
-parser.add_argument("-l","--lang",help="language to be used for the output document. Defaults to English", default="en")
-parser.add_argument("-o","--output",help="location of the output file. A .pdf suffix will be added if not already present in the filename")
-parser.add_argument("-s","--show",help="Show rendered html pdf or None",default= "None",choices=["pdf","html","None"])
+    parser.add_argument("-m","--md", help=".md file containing data and metadata for creating the document")
+    parser.add_argument("-y","--yaml", help="(a series of) .yaml file(s) containing data for creating the document",nargs='+')
+    parser.add_argument("--type",help="The type of document required. This is mutually exclusive with --template and --css.",choices = ["coverletter","CV"])
+    parser.add_argument("--layout",help="String with dictionary values to define layout and customize the default template", nargs='+')
+    parser.add_argument("--metadata",help="Extra metadata")
+    parser.add_argument("--template",help="the html jinja2 template (.j2) to be customized.")
+    parser.add_argument("-c","--css",help="the css jinja2 template (.j2) to be customized.")
+    parser.add_argument("-l","--lang",help="language to be used for the output document. Defaults to English", default="en")
+    parser.add_argument("-o","--output",help="location of the output file. A .pdf suffix will be added if not already present in the filename")
+    parser.add_argument("-s","--show",help="Show rendered html pdf or None",default= "None",choices=["pdf","html","None"])
 
-parser.add_argument("-v","--verbose",help="set to one of warn, info , debug",default="info", choices=["info","warn","debug"])
-
-
-args = parser.parse_args()
-
-# Argument validation
-if args.type is not None:
-    if args.template is not None:
-        print("--template is mutually exclusive with --type. Exiting")
-        exit(1)
-    if args.type == "CV":
-        args.template = "./j2/resume.html.j2"
-        if args.css is None:
-            args.css = "./j2/resume.css.j2"
-    if args.type == "coverletter":
-        args.template = "./j2/cover_letter.html.j2"
-        if args.css is None:
-            args.css = "./j2/cover_letter.css.j2"
-
-# Create dictionary out of layout arguments
-layout = None
-if args.layout is not None:
-    layout = {}
-    for i,j in batched(args.layout,2):
-        layout[i] = j
-
-if (args.verbose == "info"):
-    logging.basicConfig(level=logging.INFO)
-if (args.verbose == "debug"):
-    logging.basicConfig(level=logging.DEBUG)
-if (args.verbose == "warn"):
-    logging.basicConfig(level=logging.WARN)
-
-yamlFiles = []
-outputName = None
-if (args.md is not None):
-    args.type = "coverletter"
-    if os.path.splitext(args.md)[1] != ".md":
-        raise ValueError("Expected a .md file as input")
-    yamlFiles = [tempfile.mkstemp(suffix=".yaml")[1]]
-    logger.info(f"Using {yamlFiles[0]} as temporary .yaml file")
-    tranformMD(["None",args.md , yamlFiles[0]])
-    args.template   = "./j2/cover_letter.html.j2"
-    args.css        = "./j2/cover_letter.css.j2"
-    outputName = args.md
-
-if (args.yaml is not None):
-    if any( [ os.path.splitext(k)[1]!= ".yaml" for k in args.yaml] ):
-        raise ValueError("Expected only .yaml files as input but was given : " + str(args.yaml))
-    yamlFiles = args.yaml
-    logger.info("Received the following yaml files as input :" + str(yamlFiles))
-    if outputName is None: outputName = args.yaml[0]
-
-lang = args.lang
-assert(lang == "en" or lang == "fr" or lang=="gr")
-
-if (args.template is None):
-    logger.error("No html template provided. Exiting " + DocumentType.resume)
-    exit()
-template = args.template
-
-cssTemplateFile = args.css
-
-if args.output is not None:
-    outputName = args.output
-
-assert(outputName is not None)
-
-#Read yaml file
-data = {}
-if layout is not None:
-    data["layout"] = layout
-for yamlFile in yamlFiles:
-    with open(yamlFile,"r") as yf:
-        data = update_merge(data,yaml.load(yf, Loader=yaml.SafeLoader))
-
-## Done to get the linter satisfied
-data = dict(data)
-data["lang"] = lang
-htmlFile="./html/tmp.html"
-
-if cssTemplateFile:
-    cssFile="./css/tmp.css"
-    renderTemplateAndWriteToFile(cssTemplateFile,data,cssFile)
-    ## Get relative css path
-    cssFile = os.path.relpath(cssFile,os.path.dirname(htmlFile))
-    logger.debug(cssFile)
-    data["styles"]["cssfile"] = cssFile
+    parser.add_argument("-v","--verbose",help="set to one of warn, info , debug",default="info", choices=["info","warn","debug"])
 
 
-renderTemplateAndWriteToFile(template,data,htmlFile)
+    args = parser.parse_args()
 
-if args.show == "html":
-    showHTML(htmlFile)
+    # Argument validation
+    if args.type is not None:
+        if args.template is not None:
+            print("--template is mutually exclusive with --type. Exiting")
+            exit(1)
+        if args.type == "CV":
+            args.template = "./j2/resume.html.j2"
+            if args.css is None:
+                args.css = "./j2/resume.css.j2"
+        if args.type == "coverletter":
+            args.template = "./j2/cover_letter.html.j2"
+            if args.css is None:
+                args.css = "./j2/cover_letter.css.j2"
 
-if args.output is not None:
-    pdfFile= args.output
-    renderPDF(htmlFile,pdfFile)
-    if args.show == "pdf":
-        viewPDF(pdfFile)
+    # Create dictionary out of layout arguments
+    layout = None
+    if args.layout is not None:
+        layout = {}
+        for i,j in batched(args.layout,2):
+            layout[i] = j
+
+    if (args.verbose == "info"):
+        logging.basicConfig(level=logging.INFO)
+    if (args.verbose == "debug"):
+        logging.basicConfig(level=logging.DEBUG)
+    if (args.verbose == "warn"):
+        logging.basicConfig(level=logging.WARN)
+
+    yamlFiles = []
+    outputName = None
+    if (args.md is not None):
+        args.type = "coverletter"
+        if os.path.splitext(args.md)[1] != ".md":
+            raise ValueError("Expected a .md file as input")
+        yamlFiles = [tempfile.mkstemp(suffix=".yaml")[1]]
+        logger.info(f"Using {yamlFiles[0]} as temporary .yaml file")
+        tranformMD(["None",args.md , yamlFiles[0]])
+        args.template   = "./j2/cover_letter.html.j2"
+        args.css        = "./j2/cover_letter.css.j2"
+        outputName = args.md
+
+    if (args.yaml is not None):
+        if any( [ os.path.splitext(k)[1]!= ".yaml" for k in args.yaml] ):
+            raise ValueError("Expected only .yaml files as input but was given : " + str(args.yaml))
+        yamlFiles = args.yaml
+        logger.info("Received the following yaml files as input :" + str(yamlFiles))
+        if outputName is None: outputName = args.yaml[0]
+
+    lang = args.lang
+    assert(lang == "en" or lang == "fr" or lang=="gr")
+
+    if (args.template is None):
+        logger.error("No html template provided. Exiting " + DocumentType.resume)
+        exit()
+    template = args.template
+
+    cssTemplateFile = args.css
+
+    if args.output is not None:
+        outputName = args.output
+
+    assert(outputName is not None)
+
+    #Read yaml file
+    data = {}
+    if layout is not None:
+        data["layout"] = layout
+    for yamlFile in yamlFiles:
+        with open(yamlFile,"r") as yf:
+            data = update_merge(data,yaml.load(yf, Loader=yaml.SafeLoader))
+
+    ## Done to get the linter satisfied
+    data = dict(data)
+    data["lang"] = lang
+    htmlFile="./html/tmp.html"
+
+    if cssTemplateFile:
+        cssFile="./css/tmp.css"
+        renderTemplateAndWriteToFile(cssTemplateFile,data,cssFile)
+        ## Get relative css path
+        cssFile = os.path.relpath(cssFile,os.path.dirname(htmlFile))
+        logger.debug(cssFile)
+        data["styles"]["cssfile"] = cssFile
+
+
+    renderTemplateAndWriteToFile(template,data,htmlFile)
+
+    if args.show == "html":
+        showHTML(htmlFile)
+
+    if args.output is not None:
+        pdfFile= args.output
+        renderPDF(htmlFile,pdfFile)
+        if args.show == "pdf":
+            viewPDF(pdfFile)
