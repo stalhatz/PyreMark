@@ -26,7 +26,8 @@
       {% include "./j2/preambule.html.j2" %}
       {% include "./j2/general_parser.html.j2" %}
 
-      {% if layout.microcredentials == "cards" -%}
+
+      {% if layout is defined and layout.microcredentials == "cards" -%}
         {% include "./j2/microcredits_cards.html.j2" %}
       {%- else -%}
         {% include "./j2/microcredits_list.html.j2" %}

@@ -1,5 +1,6 @@
 <!-- General chapter parser -->
 {%- for chapterName, chapter in chapters.items() %}
+{%- if chapter.lines is defined %}
 <div class="cv-chapter {{chapterName}}-chapter">
 <h2> {{ tr(chapter.title) }} </h2>
 <div class="grid-element">
@@ -14,4 +15,5 @@
     {% endfor -%}
 </div>
 </div>
+{% endif -%}
 {% endfor -%}

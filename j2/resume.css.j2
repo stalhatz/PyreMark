@@ -327,6 +327,6 @@ em{
   }
 }
 
-{% if layout.microcredentials == "cards" -%}
+{% if layout is defined and layout.microcredentials == "cards" -%}
   {% include "./j2/microcredits_cards.css.j2" %}
 {%- endif %}

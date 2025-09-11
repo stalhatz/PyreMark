@@ -1,4 +1,5 @@
 <!-- Microcredentials -->      
+{% if microcredits.lines is defined %}
 <div class="cv-chapter microcredits-chapter">
 <h2> {{ tr(microcredits.title) }} </h2>
 <div class="grid-element card-container">
@@ -28,3 +29,4 @@
     {% endfor -%}
 </div>
 </div>
+{% endif -%}
