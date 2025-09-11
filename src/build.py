@@ -109,6 +109,43 @@ def renderTemplateAndWriteToFile(template, data, filename):
         logger.info(f"Writing rendered template to {filename}")
         hf.write(rendered)
 
+import re
+
+
+def yearInDateString(s):
+    matches = re.findall(r'\d{4}', s)
+    if len(matches) == 0:
+        return None
+    else:
+        return matches[0]
+
+def findDateField(x):
+    d = x[1]["date"]
+    # First element without caring about key should give the date
+    if type(d) is dict:
+        dateString = list(d.items())[0][1]
+    else:
+        dateString = d
+    return int(yearInDateString(dateString))
+
+# The argument of this funciton should be a dictionary with elements that need to be sorted 
+# since a dictionary maintains order of iterms since Python 3.6
+def sortDict(lines,dsc,key):
+    linesList = list(lines.items())
+    linesList.sort(key=key,reverse = dsc)
+    return dict(linesList)
+    
+# Sort data inplace
+def sortData(data, dsc=False):
+    # Find all lines
+    if type(data) is dict:
+        for k in data.keys():
+            if k == "lines":
+                if (type(data["lines"]) is dict):
+                    data["lines"] = sortDict(data["lines"],dsc,findDateField)
+            else:
+                sortData(data[k],dsc)
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
@@ -199,6 +236,10 @@ if __name__ == "__main__":
     for yamlFile in yamlFiles:
         with open(yamlFile,"r") as yf:
             data = update_merge(data,yaml.load(yf, Loader=yaml.SafeLoader))
+
+    # Sort data inplace
+    sortData(data,True)
+
 
     ## Done to get the linter satisfied
     data = dict(data)

@@ -11,6 +11,7 @@ python = "^3.11"
 jinja2-cli = "^0.8"
 hiyapyco = "^0.5"
 markdown2="^2.5"
+pytest = "^8.1"
 
 [build-system]
 requires = ["poetry-core"]
