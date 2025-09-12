@@ -111,6 +111,21 @@ def renderTemplateAndWriteToFile(template, data, filename):
 
 import re
 
+def readYamlData(yamlFiles,layout = None):
+    if any( [ os.path.splitext(k)[1]!= ".yaml" for k in yamlFiles] ):
+        raise ValueError("Expected only .yaml files as input but was given : " + str(args.yaml))
+    logger.info("Received the following yaml files as input :" + str(yamlFiles))
+    #Read yaml file
+    data = {}
+    if layout is not None:
+        data["layout"] = layout
+    for yamlFile in yamlFiles:
+        with open(yamlFile,"r") as yf:
+            data = update_merge(data,yaml.load(yf, Loader=yaml.SafeLoader))
+    return data
+
+
+
 
 def yearInDateString(s):
     matches = re.findall(r'\d{4}', s)
@@ -194,12 +209,15 @@ if __name__ == "__main__":
     if (args.verbose == "warn"):
         logging.basicConfig(level=logging.WARN)
 
-    yamlFiles = []
+    yamlFiles = args.yaml
     outputName = None
     if (args.md is not None):
         args.type = "coverletter"
         if os.path.splitext(args.md)[1] != ".md":
             raise ValueError("Expected a .md file as input")
+        if yamlFiles is not None:
+            logger.error("Args --yaml and args -m are incompatible")
+            exit(1)
         yamlFiles = [tempfile.mkstemp(suffix=".yaml")[1]]
         logger.info(f"Using {yamlFiles[0]} as temporary .yaml file")
         tranformMD(["None",args.md , yamlFiles[0]])
@@ -207,12 +225,12 @@ if __name__ == "__main__":
         args.css        = "./j2/cover_letter.css.j2"
         outputName = args.md
 
-    if (args.yaml is not None):
-        if any( [ os.path.splitext(k)[1]!= ".yaml" for k in args.yaml] ):
-            raise ValueError("Expected only .yaml files as input but was given : " + str(args.yaml))
-        yamlFiles = args.yaml
-        logger.info("Received the following yaml files as input :" + str(yamlFiles))
-        if outputName is None: outputName = args.yaml[0]
+    # if (args.yaml is not None):
+    #     if any( [ os.path.splitext(k)[1]!= ".yaml" for k in args.yaml] ):
+    #         raise ValueError("Expected only .yaml files as input but was given : " + str(args.yaml))
+    #     yamlFiles = args.yaml
+    #     logger.info("Received the following yaml files as input :" + str(yamlFiles))
+    #     if outputName is None: outputName = args.yaml[0]
 
     lang = args.lang
     assert(lang == "en" or lang == "fr" or lang=="gr")
@@ -231,11 +249,13 @@ if __name__ == "__main__":
 
     #Read yaml file
     data = {}
-    if layout is not None:
-        data["layout"] = layout
-    for yamlFile in yamlFiles:
-        with open(yamlFile,"r") as yf:
-            data = update_merge(data,yaml.load(yf, Loader=yaml.SafeLoader))
+    # if layout is not None:
+    #     data["layout"] = layout
+    # for yamlFile in yamlFiles:
+    #     with open(yamlFile,"r") as yf:
+    #         data = update_merge(data,yaml.load(yf, Loader=yaml.SafeLoader))
+    if (yamlFiles is not None):
+        data = readYamlData(yamlFiles)
 
     # Sort data inplace
     sortData(data,True)
