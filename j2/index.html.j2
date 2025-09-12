@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,500;0,800;1,200;1,500&display=swap" rel="stylesheet">    
+    <link rel="stylesheet" type="text/css" href="{{ url_for('css_static', filename='webapp.css') }}")}}"/>
+    <title>PyreMark : Customizable yaml CVs</title>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="{{ url_for('static', filename='resumeViewer.js') }}"></script>
+    <script src="{{ url_for('static', filename='index.js') }}" defer type="module"></script>
+</head>
+<body>
+    <header>
+        <h1> PyreMark </h1>
+        <h2> Multi-lingual customizable CV based on yaml templates </h2>
+    </header>
+
+<!-- overlay (clicking it won't close the menu for accessibility reasons unless checkbox is toggled) -->
+<div class="overlay" aria-hidden="true"></div>
+    <main x-data="checkboxComponent">
+        <div id="controls">
+            <label for="lang-select">CV language</label>
+            <select name="lang" aria-label="Select" x-model="lang" id="lang-select" required>
+                <option selected disabled value="">Select</option>
+                <option value="en">English</option>
+                <option value="fr">French</option>
+                <option value="gr">Greek</option>
+            </select>
+            
+            <div id="checkboxes">
+                <label x-text="hello">Resume chapters to include</label>
+                <template x-for="(item, index) in items" :key="index">
+                <ul>
+                    <div>
+                        <input
+                        type="checkbox"
+                        :value="item.val"
+                        :id="'checkbox-' + index"
+                        x-model="checkeditems"
+                        class="custom-checkbox"
+                        >
+                        <label :for="'checkbox-' + index" x-text="item.label"></label>
+                    </div>
+                </ul>
+                </template>
+            </div>
+        </div>
+        <div>
+            <resume-viewer 
+                :checkeditems="checkeditems"
+                :lang="lang"
+                id="resume-viewer"
+            >
+            </resume-viewer>
+        </div>
+    </main>
+    <footer>
+        <div>
+            <h3> PyreMark</h3>
+            The Multi-lingual customizable CV based on yaml templates
+        </div>
+        <div>
+            <h3> About </h3>
+            Copyright etc.
+        </div>
+        <div>
+            <h3> Social media </h3>
+            Twitter, Facebook , Pokemon
+        </div>
+    </footer>
+</body>
+</html>

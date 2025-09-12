@@ -1,0 +1,21 @@
+{% macro tr(prop,default = "Undefined property") -%}
+{% if prop is mapping -%}
+  {% if prop[lang]  is defined -%}
+    {{ prop[lang] }}
+  {%- else -%}
+    {{ prop["def"] }}
+  {%- endif %}
+{%- else -%}
+  {% if prop is defined -%}
+    {{prop}}
+  {%- else -%}
+    {{default}}
+  {%- endif %}
+{%- endif %}
+{%- endmacro %}
+
+<div class="canvas-container">
+  {%- for htmlTemplate in htmlTemplates %}
+    {% include htmlTemplate %}
+  {% endfor -%}
+</div>
