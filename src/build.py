@@ -268,13 +268,29 @@ if __name__ == "__main__":
 
     if cssTemplateFile:
         cssFile="./css/tmp.css"
+        cssTemplates = []
+        if layout is not None and layout["microcredentials"] == "cards":
+            cssTemplates.append("./j2/microcredits_cards.css.j2")
+        data["cssTemplates"] = cssTemplates
         renderTemplateAndWriteToFile(cssTemplateFile,data,cssFile)
         ## Get relative css path
         cssFile = os.path.relpath(cssFile,os.path.dirname(htmlFile))
         logger.debug(cssFile)
         data["styles"]["cssfile"] = cssFile
 
-
+    htmlTemplates = []
+    htmlTemplates.append("./j2/preambule.html.j2")
+    htmlTemplates.append("./j2/experience.html.j2")
+    htmlTemplates.append("./j2/education.html.j2")
+    htmlTemplates.append("./j2/patents.html.j2")
+    htmlTemplates.append("./j2/publications.html.j2")
+    if layout is not None and layout["microcredentials"] == "cards":
+        htmlTemplates.append("./j2/microcredits_cards.html.j2")
+    else:
+        htmlTemplates.append("./j2/microcredits_list.html.j2")
+    htmlTemplates.append("./j2/competences.html.j2")
+    htmlTemplates.append("./j2/languages.html.j2")
+    data["htmlTemplates"] = htmlTemplates
     renderTemplateAndWriteToFile(template,data,htmlFile)
 
     if args.show == "html":

@@ -1,0 +1,17 @@
+<!-- General chapter parser -->
+{%- if experience.lines is defined %}
+<div class="cv-chapter publications-chapter">
+<h2> {{ tr(experience.title) }} </h2>
+<div class="grid-element">
+    {%- for lineName, line in experience.lines.items() %}
+    <div class = date> {{ tr(line.date) }} </div>
+    <div class = rhs-element>
+    {%- if line.title is defined %}
+        <h3> {{ tr(line.title) }} </h3>
+    {% endif -%}
+    <p> {{ tr(line.text) }} </p>
+    </div>
+    {% endfor -%}
+</div>
+</div>
+{% endif -%}
