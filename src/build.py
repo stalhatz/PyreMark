@@ -189,6 +189,7 @@ if __name__ == "__main__":
     parser.add_argument("--metadata",help="Extra metadata")
     parser.add_argument("--template",help="the html jinja2 template (.j2) to be customized.")
     parser.add_argument("-c","--css",help="the css jinja2 template (.j2) to be customized.")
+    parser.add_argument("-j","--js",help="the js jinja2 template (.j2) to be customized.")
     parser.add_argument("-l","--lang",help="language to be used for the output document. Defaults to English", default="en")
     parser.add_argument("-o","--output",help="location of the output file. A .pdf suffix will be added if not already present in the filename")
     parser.add_argument("-s","--show",help="Show rendered html pdf or None",default= "None",choices=["pdf","html","None"])
@@ -215,17 +216,13 @@ if __name__ == "__main__":
             args.template = "./j2/resume.html.j2"
             if args.css is None:
                 args.css = "./j2/resume.css.j2"
+            if args.js is None:
+                args.js = "./j2/resume.js.j2"
         if args.type == "coverletter":
             args.template = "./j2/cover_letter.html.j2"
             if args.css is None:
                 args.css = "./j2/cover_letter.css.j2"
 
-    # Create dictionary out of layout arguments
-    layout = None
-    if args.layout is not None:
-        layout = {}
-        for i,j in batched(args.layout,2):
-            layout[i] = j
 
     if (args.verbose == "info"):
         logging.basicConfig(level=logging.INFO)
@@ -266,6 +263,7 @@ if __name__ == "__main__":
     template = args.template
 
     cssTemplateFile = args.css
+    jsTemplateFile  = args.js
 
     if args.output is not None:
         outputName = args.output
@@ -290,6 +288,15 @@ if __name__ == "__main__":
     data = dict(data)
     data["lang"] = lang
     htmlFile="./html/tmp.html"
+
+    if jsTemplateFile:
+        jsFile="./js/tmp.js"
+        data["jsTemplates"] = args.layout["jsTemplates"]
+        renderTemplateAndWriteToFile(jsTemplateFile,data,jsFile)
+        ## Get relative js path
+        jsFile = os.path.relpath(jsFile,os.path.dirname(htmlFile))
+        logger.debug(jsFile)
+        data["script"]["jsfile"] = jsFile
 
     if cssTemplateFile:
         cssFile="./css/tmp.css"

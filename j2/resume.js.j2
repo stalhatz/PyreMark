@@ -1,0 +1,12 @@
+{% macro tr(prop,default = "Undefined property") -%}
+  {% if prop is defined -%}
+    {{prop}}
+  {%- else -%}
+    {{default}}
+  {%- endif %}
+{%- endmacro %}
+
+
+{%- for jsTemplate in jsTemplates %}
+    {% include jsTemplate %}
+{% endfor -%}
