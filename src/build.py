@@ -1,5 +1,5 @@
 
-
+import tomllib
 import argparse
 from enum import Enum
 import logging
@@ -15,6 +15,7 @@ import yaml
 from transform_md_to_yaml_html import tranformMD
 from os.path import join, exists, getmtime
 from itertools import batched
+from types import SimpleNamespace
 
 class MyLoader(BaseLoader):
 
@@ -161,10 +162,26 @@ def sortData(data, dsc=False):
             else:
                 sortData(data[k],dsc)
 
+# second argument takes precedence 
+# None values get overwritten
+# return value is shallow copy
+def mergeDicts(l,h):
+    n = l
+    for (k,v) in h.items():
+        # We may overwrite
+        if v is not None:
+            n[k] = v
+        # We don't want to overwrite l, only propagate None keys
+        if v is None and k not in n:
+            n[k] = None
+    return n
+
+
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
 
+    parser.add_argument("--cv", help=".toml file containing a configuration to create a cv. Parameters specified via cli argument take precedence in order to easily tweek a configuration file.")
     parser.add_argument("-m","--md", help=".md file containing data and metadata for creating the document")
     parser.add_argument("-y","--yaml", help="(a series of) .yaml file(s) containing data for creating the document",nargs='+')
     parser.add_argument("--type",help="The type of document required. This is mutually exclusive with --template and --css.",choices = ["coverletter","CV"])
@@ -180,13 +197,21 @@ if __name__ == "__main__":
 
 
     args = parser.parse_args()
+    
+
+    if args.cv is not None:
+        with open(args.cv,"rb") as fd:
+            tomlArgs = tomllib.load(fd)
+            # cli args  overwrite .toml defined ones
+            args = mergeDicts(tomlArgs,vars(args))
+            args = SimpleNamespace(args)
 
     # Argument validation
     if args.type is not None:
         if args.template is not None:
             print("--template is mutually exclusive with --type. Exiting")
             exit(1)
-        if args.type == "CV":
+        if str.lower(args.type) == "cv":
             args.template = "./j2/resume.html.j2"
             if args.css is None:
                 args.css = "./j2/resume.css.j2"
@@ -268,29 +293,14 @@ if __name__ == "__main__":
 
     if cssTemplateFile:
         cssFile="./css/tmp.css"
-        cssTemplates = []
-        if layout is not None and layout["microcredentials"] == "cards":
-            cssTemplates.append("./j2/microcredits_cards.css.j2")
-        data["cssTemplates"] = cssTemplates
+        data["cssTemplates"] = args.layout["cssTemplates"]
         renderTemplateAndWriteToFile(cssTemplateFile,data,cssFile)
         ## Get relative css path
         cssFile = os.path.relpath(cssFile,os.path.dirname(htmlFile))
         logger.debug(cssFile)
         data["styles"]["cssfile"] = cssFile
 
-    htmlTemplates = []
-    htmlTemplates.append("./j2/preambule.html.j2")
-    htmlTemplates.append("./j2/experience.html.j2")
-    htmlTemplates.append("./j2/education.html.j2")
-    htmlTemplates.append("./j2/patents.html.j2")
-    htmlTemplates.append("./j2/publications.html.j2")
-    if layout is not None and layout["microcredentials"] == "cards":
-        htmlTemplates.append("./j2/microcredits_cards.html.j2")
-    else:
-        htmlTemplates.append("./j2/microcredits_list.html.j2")
-    htmlTemplates.append("./j2/competences.html.j2")
-    htmlTemplates.append("./j2/languages.html.j2")
-    data["htmlTemplates"] = htmlTemplates
+    data["htmlTemplates"] = args.layout["htmlTemplates"]
     renderTemplateAndWriteToFile(template,data,htmlFile)
 
     if args.show == "html":
