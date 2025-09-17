@@ -1,22 +1,20 @@
 {% macro tr(prop,default = "Undefined property") -%}
-{% if prop is mapping -%}
-  {% if prop[lang]  is defined -%}
-    {{ prop[lang] }}
-  {%- else -%}
-    {{ prop["def"] }}
-  {%- endif %}
-{%- else -%}
   {% if prop is defined -%}
     {{prop}}
   {%- else -%}
     {{default}}
   {%- endif %}
-{%- endif %}
 {%- endmacro %}
 
+*{
+  {# border : 1px solid red !important; #}
+  box-sizing : border-box;
+}
+
 :root{
-  --rotation : 0deg;
-} 
+  --pageHeight: {{tr(styles.pageHeightInMM,"297")}}mm;
+  --pageWidth: {{tr(styles.pageWidthInMM,"210")}}mm;
+}
 
 html{
   font-size: {{tr(styles.fontSize,"10.9px")}} ;
@@ -26,6 +24,20 @@ html{
   font-size: {{tr(styles.fontSize,"10.9px")}} ;
   font-family: 'Montserrat', 'Fira Sans Extra Condensed' , "Futura","EB Garamond","Clarendon","Bodoni Moda","Libre Bodoni","Avenir","DIN","Akzidenz Grotesk","Frutiger","Univers","Sabon","Mrs Eaves","Meta","News Cycle",'Roboto Condensed', "Helvetica",sans-serif;
 }
+
+.page{
+  display:flex;
+  flex-flow:column;
+  justify-content: space-between;
+  width: var(--pageWidth);
+  height: var(--pageHeight);
+  background-color: white;
+  box-shadow: 0 3px 8px -3px rgba(0, 0, 0, 0.7);
+  margin-block: auto; /* for centering, feel free to use flexbox or some other method*/
+  margin-bottom: 10mm;
+  border: 1px solid rgba(0,0,0,0.2);
+}
+
 h1{
   font-size: 2.9rem;
   margin-bottom: 0.2rem;
@@ -44,24 +56,17 @@ p{
   width: 15px;
 }
 .canvas-container {
-  margin: 0 auto; /* for centering, feel free to use flexbox or some other method*/
-  box-sizing: border-box;
-  /* padding-inline: 1cm; 
-  padding-top: 0.8cm;
-  padding-bottom: 2cm; */
-  width: 210mm;
-  height: 297mm;
-  background-color: white;
-  box-shadow: 0 3px 8px -3px rgba(0, 0, 0, 0.7);
+  width: var(--pageWidth);
+  margin: 0 auto;
 }
 
 .grid-element{
   display:grid;
-  grid-template-columns: 3cm 18cm;
+  /* We'll try to keep for the time being a 1:6 ratio*/
+  grid-template-columns: calc(var(--pageWidth) * 0.14) calc(var(--pageWidth) * 0.86);
 }
 
 .titleName{
-  transform: rotate(var(--rotation));
   margin-left:30px;
   margin-right:20px;
   margin-block:auto;
@@ -76,17 +81,6 @@ p{
   text-align: center;
 }
 
-.titleName :is(h1,h2){
-  transform: rotate(calc(-1 * var(--rotation)));
-}
-
-.v-sep{
-  border-left: 1px solid rgba(0, 0, 0, 0.3);
-  transform: rotate(var(--rotation));
-  max-height: 85%;
-  margin-top: 3%;
-  margin-bottom: 3%;
-}
 .details{
     display:grid;
     grid-template-columns: 5mm auto;
@@ -97,16 +91,14 @@ p{
 }
 
 .details-list{
-  transform: rotate(var(--rotation));
   padding-inline: 5px;
   margin-top: auto;
   margin-right: 16mm;
-  /* margin-left: 1mm; */
+  border-left: 1px solid rgba(0,0,0,0.3); */
 }
 
 .details-list>div{
-  transform: rotate(calc(-1 * var(--rotation)));
-  margin-bottom: 0.5rem;
+  margin-bottom: {{tr(styles.preambule_detailsBottomMargin,"0.5rem")}};
   display: flex;
   align-items: center;
 
@@ -251,7 +243,9 @@ h3{
 }
 
 .cv-chapter > h2 {
-  margin-top: 1mm;
+  padding-top : 0mm;
+  padding-bottom : 0mm;
+  margin-top: 0mm;
   margin-bottom: 1mm;
   border-bottom: 1px solid rgba(0, 0, 0, 0.4);
 }
@@ -322,6 +316,11 @@ em{
 
   body {
     margin: 0;
+  }
+
+  .page{
+    box-shadow: none;
+    border:none;
   }
 
   .canvas-container {
