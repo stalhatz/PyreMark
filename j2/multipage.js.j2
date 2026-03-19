@@ -60,7 +60,7 @@ function createMultiPageLayout(){
             freeSpace.push(pageHeight - thisPageHeight)
             thisPageHeight = elementHeight
         }
-        else if (c === numChildren - 1){
+        if (c === numChildren - 1){
             console.log("Creating new page as this is the last element")
             pageElements.push(children[c])
             pages.push(pageElements)
