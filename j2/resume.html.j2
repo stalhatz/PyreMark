@@ -33,7 +33,7 @@
               {% if chapter.classes is defined -%}
                 <div class="grid-element {{chapter.classes}}">
               {%- else -%}
-              <div class="grid-element">
+                <div class="grid-element">
               {%- endif %}
               {% include "./j2/" + data[sectionName].template %}
               </div>
