@@ -1,19 +1,17 @@
 <!-- Languages -->
+
+{%set languages = chapter%}
+
 {% if languages.lines is defined %}
-<div class="cv-chapter">
-    <h2> {{tr(languages.title)}} </h2>
-    <div class="grid-element">
-        <div class = date>  </div>
-        <div class = rhs-element>
-        <p>
-        {%- for language in languages.lines%}
-            <strong>{{tr(language.name)}}:</strong> {{tr(language.capacity)}}
-            {% if not loop.last %}
-            ,
-            {% endif %}
-        {% endfor %}
-        </p>
-        </div>
-    </div>
-    </div>
+<div class = date>  </div>
+<div class = rhs-element>
+<p>
+{%- for language in languages.lines%}
+    <strong>{{tr(language.name)}}:</strong> {{tr(language.capacity)}}
+    {% if not loop.last %}
+    ,
+    {% endif %}
+{% endfor %}
+</p>
+</div>
 {% endif %}

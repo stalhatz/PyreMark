@@ -23,8 +23,22 @@
   <script type="text/javascript" src="{{tr(script.jsfile,"./js/script.js")}}"></script>
   <body>
     <div class="canvas-container">
-      {%- for htmlTemplate in htmlTemplates %}
-        {% include htmlTemplate %}
+      {%- for sectionName in sections %}
+        {% if data[sectionName] is defined -%}
+          {% with chapterName=sectionName, chapter=data[sectionName] %}
+            
+            {% if chapter.title is defined -%}
+              <div class="cv-chapter {{chapterName}}">
+              <h2> {{ tr(chapter.title) }} </h2>
+              <div class="grid-element">
+              {% include "./j2/" + data[sectionName].template %}
+              </div>
+              </div>
+            {%- else -%}
+              {% include "./j2/" + data[sectionName].template %}
+            {%- endif %}
+          {% endwith %}
+        {%- endif %}
       {% endfor -%}
     </div>
   </body>

@@ -8,7 +8,6 @@ from re import compile
 import subprocess
 import tempfile
 
-import jinja2
 from jinja2 import Environment, BaseLoader, TemplateNotFound
 import yaml
 
@@ -157,8 +156,11 @@ def sortData(data, dsc=False):
     if type(data) is dict:
         for k in data.keys():
             if k == "lines":
-                if (type(data["lines"]) is dict):
-                    data["lines"] = sortDict(data["lines"],dsc,findDateField)
+                if type(data["lines"]) is dict:
+                    try:
+                        data["lines"] = sortDict(data["lines"],dsc,findDateField)
+                    except (TypeError,KeyError):
+                        pass
             else:
                 sortData(data[k],dsc)
 
@@ -268,8 +270,6 @@ if __name__ == "__main__":
     if args.output is not None:
         outputName = args.output
 
-    assert(outputName is not None)
-
     #Read yaml file
     data = {}
     # if layout is not None:
@@ -288,7 +288,6 @@ if __name__ == "__main__":
     data = dict(data)
     data["lang"] = lang
     htmlFile="./html/tmp.html"
-
     if jsTemplateFile:
         jsFile="./js/tmp.js"
         data["jsTemplates"] = args.layout["jsTemplates"]
@@ -300,14 +299,33 @@ if __name__ == "__main__":
 
     if cssTemplateFile:
         cssFile="./css/tmp.css"
-        data["cssTemplates"] = args.layout["cssTemplates"]
+
+        try:
+            if args.styles is not None:
+                for key in args.styles.keys():
+                    data["styles"][key] = args.styles[key]
+        except KeyError as e:
+            print(e)
+            pass
+
+        try:
+            if args.layout is not None:
+                data["cssTemplates"] = args.layout["cssTemplates"]
+        except KeyError as e:
+            print(e)
+            pass
         renderTemplateAndWriteToFile(cssTemplateFile,data,cssFile)
         ## Get relative css path
         cssFile = os.path.relpath(cssFile,os.path.dirname(htmlFile))
         logger.debug(cssFile)
         data["styles"]["cssfile"] = cssFile
 
-    data["htmlTemplates"] = args.layout["htmlTemplates"]
+        try:
+            if args.layout is not None:
+                data["sections"] = args.layout["sections"]
+        except KeyError as e:
+            print(e)
+            pass
     renderTemplateAndWriteToFile(template,data,htmlFile)
 
     if args.show == "html":
