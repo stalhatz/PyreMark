@@ -1,0 +1,13 @@
+<!-- Knowhow -->
+
+{%set knowhow = chapter %}
+
+{% if knowhow.lines is defined %}
+<div class="taglist knowhow-container">
+    <ul>
+    {%- for competence in knowhow.lines.values() %}
+        <li> <span id="{{competence.icon}}" class="logo"> </span>{{ tr(competence) }}</li>
+    {% endfor -%}
+    </ul>
+</div>
+{% endif %}

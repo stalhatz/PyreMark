@@ -1,0 +1,27 @@
+{% set knowhow = data.knowhow %}
+
+{% set soft_skills = data.soft_skills %}
+
+{% if knowhow is defined and soft_skills is defined %}
+<div class = "competencies card-container">
+
+    <div class = "card-wrapper">
+    <div class = "card-date"> {{ tr(knowhow.title) }} </div>
+    <div class = "card-element competence-category">
+        {% with chapter = knowhow%}
+            {%include "./j2/" + knowhow.template%}
+        {% endwith %}
+    </div>
+    </div>
+
+    <div class = "card-wrapper">
+    <div class = "card-date"> {{ tr(soft_skills.title) }} </div>
+    <div class = "card-element competence-category">
+        {% with chapter = soft_skills%}
+            {%include "./j2/" + soft_skills.template%}
+        {% endwith %}
+    </div>
+    </div>
+
+</div>
+{%endif%}
