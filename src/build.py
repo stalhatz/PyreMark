@@ -54,21 +54,32 @@ def viewPDF(pdfFile):
     logger.debug(result.stdout)
     logger.debug(result.stderr)
 
-def renderPDF(htmlFile, pdfFile):
-    pdfRendererArgs = []
-    pdfRendererArgs += ["chromium"]
-    pdfRendererArgs += ["--enable-logging=stderr"]
-    pdfRendererArgs += ["--headless"]
-    pdfRendererArgs += ["--disable-gpu"]
-    pdfRendererArgs += [f"--print-to-pdf={pdfFile}"]
-    pdfRendererArgs += ["--no-pdf-header-footer"]
-    pdfRendererArgs += ["--virtual-time-budget=42000"]
-    pdfRendererArgs += [htmlFile]
-    logger.info(" ".join(pdfRendererArgs))
-    result = subprocess.run(pdfRendererArgs, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    logger.debug(result.stdout)
-    logger.debug(result.stderr)
-    
+import asyncio
+from playwright.async_api import async_playwright
+
+async def html_to_pdf_chromium(html_path, output_path):
+    async with async_playwright() as p:
+        # Launch Chromium (default)
+        browser = await p.chromium.launch(headless=True)
+        page = await browser.new_page()
+        
+        # Load local HTML file
+        await page.goto(f'file://{html_path}', wait_until='networkidle')
+        
+        # Generate PDF with no margins
+        await page.pdf(
+            path=output_path,
+            format='A4',
+            margin={
+                'top': '0mm',
+                'right': '0mm',
+                'bottom': '0mm',
+                'left': '0mm'
+            },
+            print_background=True  # Include background colors/images
+        )
+        
+        await browser.close()
 
 # Copied from https://stackoverflow.com/a/50441142
 def update_merge(d1, d2):
@@ -333,6 +344,6 @@ if __name__ == "__main__":
 
     if args.output is not None:
         pdfFile= args.output
-        renderPDF(htmlFile,pdfFile)
+        asyncio.run(html_to_pdf_chromium(os.path.abspath(htmlFile),os.path.abspath(pdfFile)))
         if args.show == "pdf":
             viewPDF(pdfFile)
