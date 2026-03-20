@@ -1,8 +1,16 @@
 {% set details = chapter %}
 <div class="preambule">
 <div class="titleName">
-    <h1> {{tr(details.firstName)}} {{tr(details.surname)}} </h1>
-    <h2> {{tr(details.title)}} </h2>
+    <div> <h1> {{tr(details.firstName)}} {{tr(details.surname)}} </h1> </div>
+    <div> <h2> {{tr(details.candidateTitle)}} </h2> </div>
+
+    {% if details.pitch is defined -%}
+    <div class="pitch">
+        {# <p class="pitch"> {{tr(details.pitch)}} </p> #}
+        {{tr(details.pitch)}}
+    </div>
+    {%- endif %}
+
 </div>
 <div class="personal-info">
     <div class="details-list">
@@ -11,7 +19,8 @@
     {% if details.phoneNumber is defined %} <div class="phone-number"> <span id="phoneLogo" class="logo">  </span> <p>  {{tr(details.phoneNumber)}}</p> </div>                      {% endif -%}
     {% if details.email is defined %} <div class="email"> <span id="emailLogo" class="logo">  </span> <p>  {{tr(details.email)}}</p> </div>                                         {% endif -%}
     {% if details.driversLicence is defined %} <div class="drivers-licence"> <span id="driversLicenseLogo" class="logo">  </span> <p>  {{tr(details.driversLicence)}}</p> </div>    {% endif -%}
-    {% if details.personalRepo is defined %} <div class="personal-repo"> <span id="codingLogo" class="logo">  </span> <p> <a href="{{tr(details.personalRepo.link)}}">  {{tr(details.personalRepo.host)}}</a> </p> </div>                  {% endif -%}
+    {% if details.personalRepo is defined %} <div class="personal-repo"> <span id="codingLogo" class="logo">  </span> <p> <a href="{{tr(details.personalRepo.link)}}">  {{tr(details.personalRepo.text)}}</a> </p> </div>                  {% endif -%}
+    {% if details.linkedin is defined %} <div class="linkedin-link"> <span id="linkedinLogo" class="logo">  </span> <p> <a href="{{tr(details.linkedin.link)}}">  {{tr(details.linkedin.text)}}</a> </p> </div>                  {% endif -%}
     </div>
     
     {% if details.photo is defined -%}
@@ -21,3 +30,4 @@
     {%- endif %}
 </div>
 </div>
+
