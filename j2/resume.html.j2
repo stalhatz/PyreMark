@@ -30,7 +30,11 @@
             {% if chapter.title is defined -%}
               <div class="cv-chapter {{chapterName}}">
               <h2> {{ tr(chapter.title) }} </h2>
+              {% if chapter.classes is defined -%}
+                <div class="grid-element {{chapter.classes}}">
+              {%- else -%}
               <div class="grid-element">
+              {%- endif %}
               {% include "./j2/" + data[sectionName].template %}
               </div>
               </div>
