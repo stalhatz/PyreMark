@@ -82,7 +82,7 @@ async def html_to_pdf_chromium(html_path, output_path):
         await browser.close()
 
 # Copied from https://stackoverflow.com/a/50441142
-def update_merge(d1, d2):
+def update_merge(d1, d2 , replace = False):
     if isinstance(d1, dict) and isinstance(d2, dict):
         # Unwrap d1 and d2 in new dictionary to keep non-shared keys with **d1, **d2
         # Next unwrap a dict that treats shared keys
@@ -90,10 +90,10 @@ def update_merge(d1, d2):
         # If the values are not equal, we recursively merge them
         return {
             **d1, **d2,
-            **{k: d1[k] if d1[k] == d2[k] else update_merge(d1[k], d2[k])
+            **{k: d1[k] if d1[k] == d2[k] else update_merge(d1[k], d2[k],replace)
             for k in {*d1} & {*d2}}
         }
-    else:
+    elif not replace:
         # This case happens when values are merged
         # It bundle values in a list, making sure
         # to flatten them if they are already lists
@@ -101,6 +101,8 @@ def update_merge(d1, d2):
             *(d1 if isinstance(d1, list) else [d1]),
             *(d2 if isinstance(d2, list) else [d2])
         ]
+    else:
+        return d2
 
 logger = logging.getLogger(__name__)
 FORMAT = '[%(funcName)s] : %(message)s'
@@ -294,6 +296,7 @@ if __name__ == "__main__":
     # Sort data inplace
     sortData(data,True)
 
+    data["data"] = update_merge(data["data"],args.data,replace = True)
 
     ## Done to get the linter satisfied
     data = dict(data)
