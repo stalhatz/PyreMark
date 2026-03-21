@@ -14,6 +14,7 @@
 :root{
   --pageHeight: {{tr(styles.pageHeightInMM,"297")}}mm;
   --pageWidth: {{tr(styles.pageWidthInMM,"210")}}mm;
+  --textBackgroundColor : rgb(230, 230, 230)
 }
 
 html{
@@ -91,7 +92,7 @@ p{
 }
 
 .pitch{
-  background-color: rgb(220, 220, 220);
+  background-color: var(--textBackgroundColor);
   padding-inline: 1rem;
   padding-block: 0.5rem;
   margin-block: 0.3rem;
@@ -361,7 +362,7 @@ h3{
   align-items: anchor-center;
   padding-inline: 1mm;
   padding-block: 0.3mm;
-  background-color: lightgray;
+  background-color: var(--textBackgroundColor);
   border-radius: 7px;
   border: 0.4mm solid black;
   margin-right: 1mm;
