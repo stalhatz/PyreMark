@@ -14,3 +14,4 @@ poetry.lock
 img/
 *sync-conflict*
 **/old/
+userdata/
