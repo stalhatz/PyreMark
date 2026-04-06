@@ -32,19 +32,21 @@
     top: -15px;
     left: 4px;
     background-color: white;
-    border: 0.4mm black solid;
+    border: var(--darkBorder);
     position: absolute;
 }
 
 .card-element{
   display: flex;
   flex-direction: column;
-  border: 0.4mm solid black;
+  border: var(--darkBorder);
   padding: 0.7rem;
   {# justify-content: space-around; #}
   min-height: 100%;
   background-color: white;
   position: relative;
+  border-radius : 10px;
+  box-shadow: var(--shadow);
 }
 
 .card-wrapper{

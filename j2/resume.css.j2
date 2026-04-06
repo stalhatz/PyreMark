@@ -14,7 +14,9 @@
 :root{
   --pageHeight: {{tr(styles.pageHeightInMM,"297")}}mm;
   --pageWidth: {{tr(styles.pageWidthInMM,"210")}}mm;
-  --textBackgroundColor : rgb(230, 230, 230)
+  --textBackgroundColor : rgb(230, 230, 230);
+  --darkBorder    : 0.3mm solid rgb(70,70,70);
+  --shadow        : 1px 1px 1.5px 0.2px rgb(100,100,100);
 }
 
 html{
@@ -97,7 +99,7 @@ p{
   padding-block: 0.5rem;
   margin-block: 0.3rem;
   border-radius: 1rem;
-  box-shadow: 1px 1px 1px black;
+  box-shadow: var(--shadow);
   font-style: italic;
   font-weight: 300;
   align-self: anchor-center;
@@ -294,7 +296,7 @@ h3{
   padding-bottom : 0mm;
   margin-top: 0mm;
   margin-bottom: 1mm;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.4);
+  border-bottom: var(--darkBorder);
 }
 
 .line-element{
