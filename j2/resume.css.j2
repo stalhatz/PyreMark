@@ -143,7 +143,8 @@ p{
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
   opacity:0.99; /* Chromium bug showing blurred svgs */
-  filter: brightness(0)
+  filter: brightness(0);
+  display:inline-block;
 }
 
 #ageLogo{
@@ -239,6 +240,25 @@ p{
   background-image: url("../img/handshake.svg");
 }
 
+.flag{
+  filter: grayscale(1);
+  width: 1.5em;
+  position:relative;
+  top:0.1em;
+  border: 0.5px solid black;
+}
+
+#fr-flag{
+  background-image: url("../img/fr.svg");
+}
+
+#gb-flag{
+  background-image: url("../img/gb.svg");
+}
+
+#gr-flag{
+  background-image: url("../img/gr.svg");
+}
 
 .preambule{
   justify-content: space-between;
