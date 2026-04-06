@@ -21,6 +21,7 @@
     {% if details.driversLicence is defined %} <div class="drivers-licence"> <span id="driversLicenseLogo" class="logo">  </span> <p>  {{tr(details.driversLicence)}}</p> </div>    {% endif -%}
     {% if details.personalRepo is defined %} <div class="personal-repo"> <span id="codingLogo" class="logo">  </span> <p> <a href="{{tr(details.personalRepo.link)}}">  {{tr(details.personalRepo.text)}}</a> </p> </div>                  {% endif -%}
     {% if details.linkedin is defined %} <div class="linkedin-link"> <span id="linkedinLogo" class="logo">  </span> <p> <a href="{{tr(details.linkedin.link)}}">  {{tr(details.linkedin.text)}}</a> </p> </div>                  {% endif -%}
+    {% if details.CVtypeset is defined %} <div class="cv-typeset"> <span id="codingLogo" class="logo">  </span> <p> {{tr(details.CVtypeset)}} </p> </div> {% endif -%}
     </div>
     
     {% if details.photo is defined -%}
