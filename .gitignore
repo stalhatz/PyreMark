@@ -5,9 +5,11 @@ cv/
 yaml/
 pdf/
 scripts/
+output/
 .venv/
 *.pdf
 *.html
+*.sh
 poetry.lock
 *__pycache__
 .vscode/
@@ -15,3 +17,4 @@ img/
 *sync-conflict*
 **/old/
 userdata/
+.aider*
