@@ -23,6 +23,8 @@ html{
   font-size: {{tr(styles.fontSize,"10.9px")}} ;
 }
 
+
+
 .canvas-container{
   font-size: {{tr(styles.fontSize,"10.9px")}} ;
   font-family: 'Montserrat', 'Fira Sans Extra Condensed' , "Futura","EB Garamond","Clarendon","Bodoni Moda","Libre Bodoni","Avenir","DIN","Akzidenz Grotesk","Frutiger","Univers","Sabon","Mrs Eaves","Meta","News Cycle",'Roboto Condensed', "Helvetica",sans-serif;
@@ -367,6 +369,7 @@ h3{
 }
 
 .taglist{
+  font-size: 0.9rem;
   margin-bottom: 1mm;
 }
 
@@ -386,8 +389,12 @@ h3{
   padding-block: 0.3mm;
   background-color: var(--textBackgroundColor);
   border-radius: 7px;
-  border: 0.4mm solid black;
+  border: 0.3mm solid gray;
   margin-right: 1mm;
+}
+
+strong{
+  font-weight: bold;
 }
 
 .date:has(+ .taglist){
