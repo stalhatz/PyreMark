@@ -1,0 +1,51 @@
+<!-- Projects -->      
+<!--
+Variables:
+- title
+- text
+- tags (optional)
+- repo-link
+- demo-link (optional)
+-->
+{%set projects = chapter%}
+
+{% if projects.lines is defined %}
+<div class="card-container min-top-padding justify-content">
+    {%- for lineName, line in projects.lines.items() %}
+    <div class = "card-wrapper max-width">
+    
+    <div class = "card-element">
+        <div class="title"> <h3> {{ tr(line.title) }} </h3> </div>
+        <div class="text"> {{ tr(line.text) }} </div>
+
+        {%- if line.tags is defined %}
+            <div class="taglist smaller-text block-margins">
+                <ul>
+                {%- for tag in line.tags %}
+                    <li class = "thinner-borders"> {{ tag }}</li>
+                {%- endfor -%}
+                </ul>              
+            </div>
+        {% endif -%}
+
+        <div class="divider"> </div>
+
+        <div class="issuer-and-id">
+
+        <div>
+            <a href="{{line.repoLink}}"> <span class="repo-link"> code  </span> </a> &nbsp
+        </div>
+
+        {%- if line.demoLink is defined %}
+            <div>
+                <a href="{{line.demoLink}}"> <span class="demo-link"> demo  </span> </a> &nbsp
+            </div>
+        {% endif -%}
+
+        </div>
+    </div>
+    </div>
+    {% endfor -%}
+</div>
+
+{% endif -%}
