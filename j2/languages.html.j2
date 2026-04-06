@@ -7,6 +7,7 @@
 <div class = rhs-element>
 <p>
 {%- for language in languages.lines%}
+    <span id="{{language.icon}}" class="logo flag"> </span>
     <strong>{{tr(language.name)}}:</strong> {{tr(language.capacity)}}
     {% if not loop.last %}
     ,
