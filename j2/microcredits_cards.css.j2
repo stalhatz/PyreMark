@@ -62,3 +62,19 @@
   flex-direction: row;
   margin-right: 5px;
 }
+a[href^="http://"]:after, a[href^="https://"]:after {
+  content: "";
+  background-size: cover;
+  --size:1.05em;
+  width:var(--size);
+  height:var(--size);
+  margin-inline: 0.2em;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  opacity:0.99; /* Chromium bug showing blurred svgs */
+  filter: brightness(0);
+  display: inline-block;
+  background-image: url("../img/external-link.svg");
+  position:relative;
+  top:0.2em;
+}
