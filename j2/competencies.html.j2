@@ -5,7 +5,7 @@
 {% if knowhow is defined and soft_skills is defined %}
 <div class = "competencies card-container">
 
-    <div class = "card-wrapper">
+    <div class = "card-wrapper" style="flex-grow:1.5;">
     <div class = "card-date"> {{ tr(knowhow.title) }} </div>
     <div class = "card-element competence-category">
         {% with chapter = knowhow%}
