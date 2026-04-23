@@ -4,6 +4,8 @@ import argparse
 from enum import Enum
 import logging
 import os
+import hashlib
+import qrcode
 from re import compile
 import subprocess
 import tempfile
@@ -191,6 +193,58 @@ def mergeDicts(l,h):
             n[k] = None
     return n
 
+def generate_qr_code(url, output_path):
+    """Generate a QR code image for the given URL and save to output_path."""
+    qr = qrcode.QRCode(
+        version=3,
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    img.save(output_path)
+    logger.debug(f"Generated QR code for {url} at {output_path}")
+
+def tr(prop, lang=None, default=None):
+    if isinstance(prop, dict):
+        if lang is not None and lang in prop:
+            return prop[lang]
+        elif "def" in prop:
+            return prop["def"]
+        else:
+            return default
+    else:
+        if prop is not None:
+            return prop
+        else:
+            return default
+
+def createQRCode(data,lang):
+    # Process QR code sections: generate QR images and attach paths
+    img_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'img'))
+    os.makedirs(img_dir, exist_ok=True)
+
+    # Access the nested data dict where sections are stored
+    sections_data = data.get("data", {})
+    for section_name in data.get("sections", []):
+        section = sections_data.get(section_name)
+        if isinstance(section, dict) and section.get("template") == "qr-code.html.j2":
+            linkSection = section.get("link")
+            link = tr(linkSection,lang)
+            if link:
+                url_hash = hashlib.sha256(link.encode()).hexdigest()[:16]
+                filename = f"qr_{url_hash}.png"
+                output_path = os.path.join(img_dir, filename)
+                generate_qr_code(link, output_path)
+                # Relative path from html output to img directory
+                section["qr_image"] = f"../img/{filename}"
+                logger.info(f"Generated QR code for section '{section_name}': {filename}")
+            else:
+                logger.warning(f"QR section '{section_name}' missing 'link', skipping QR generation.")
+
+
 
 if __name__ == "__main__":
 
@@ -340,6 +394,9 @@ if __name__ == "__main__":
         except KeyError as e:
             print(e)
             pass
+
+    createQRCode(data,lang)
+
     renderTemplateAndWriteToFile(template,data,htmlFile)
 
     if args.show == "html":

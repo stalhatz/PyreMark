@@ -13,20 +13,67 @@ Data (Yaml) related to this template should be:
 - (optional) a header text to put over the qr code. 
     - `tr()` and corresponding yaml fields convention to be translated in supported languages
 - Layout / appearance option
-    - Either "page" or "section" or "container"
+    - Either "page" or "section"
 
-The Layoute/appearance that the template renders should be either:
+The layout/appearance that the template renders should be either:
 - "section"
     - Opportunistically take up as much space as possible within the page it is placed in (flex layout)
-    - It's up to the user to place it, just like any other section
 - "page"
-    - A separate page at the end of the document that it will consume all by itself
-- "container"
-    - Placed within a specific container class (let's say `.qr-container`) where it will take the size of the container
+    - The template is rendered in a separated page. This page is inserted at the place of the document it is inserted per the existing template ordering mechanism
+        - The intended use is to be placed at the back of the CV but nothing should stop the user from putting it at the fronto r in the middle
+
 
 All this must be controlled by parameterizing the yaml corresponding to the qr-code. 
 
-As it is convention it should be better to parameterize such an impactful variable directly from the .conf file.
+As it is convention it should be better to parameterize such an impactful variable directly from a .toml configuration file.
 
 # Technical 
-The `qrcode` python package should be well suited for this job
+- Read [CONTRIBUTING.md](../../CONTRIBUTING.md) if you haven't already
+- The `qrcode` python package should be well suited for this job
+- QR codes are created at build time using python and stored as images in the `/img` directory
+- QR codes are inserted via specifying the corresponding image names in the yaml section and inserting it into the code via the jinja2 template
+- The QR-code template tries to encapsulate implementation details as much as possible. Avoid significantly modifying the root template (resume.html.j2) and its css classes  as that would have larger effects on the other sections. 
+    - If that is not possible make explicit the changes that need to happen: This could generalize and lead to a separate commit
+
+# Configuration Example
+
+To use the QR code feature, create a YAML file (e.g., `userdata/yaml/qr_code.yaml`) with the following structure:
+
+```yaml
+data:
+  qrcode:
+    title:
+      fr: Version Numérique
+      en: Digital Version
+      gr: Ψηφιακή Έκδοση
+    link: "https://example.com/your-cv.pdf"
+    header:
+      fr: Scannez pour consulter la version en ligne
+      en: Scan to view the online version
+      gr: Σαρώστε για να δείτε την online έκδοση
+    layout: "page"   # or "section"
+    template: "qr-code.html.j2"
+```
+
+Then, in your TOML configuration (e.g., `userdata/cv/your_cv.toml`):
+
+- Add the YAML file to the `yaml` list:
+  ```toml
+  yaml = [
+    # ... other yaml files ...,
+    './userdata/yaml/qr_code.yaml',
+  ]
+  ```
+
+- Add the section name `'qrcode'` to the `layout.sections` array at the desired position:
+  ```toml
+  [layout]
+  sections = [
+    # ... other sections ...,
+    'qrcode'
+  ]
+  ```
+
+- Ensure the CSS template includes any required styles (the default `resume.css.j2` already includes the necessary `.qr-code-section` and `.qr-code-page` styles when using the standard build).
+
+The QR code will be generated automatically at build time and embedded in the output document. For `layout: "page"`, the QR code will occupy a full page; for `layout: "section"`, it will appear inline within the page content.

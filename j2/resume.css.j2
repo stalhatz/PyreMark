@@ -407,7 +407,7 @@ em{
 
 @media print {
   @page { 
-    margin : 0.0cm
+    margin : 0.0cm;
     size: a4 portrait;
   }
 
@@ -430,6 +430,58 @@ em{
     width: 100%;
     box-shadow: none;
   }
+}
+
+/* QR Code Styles */
+.qr-code-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 0;
+    gap: 0.8rem;
+}
+
+.qr-code-page {
+    /* Full page layout for QR code */
+    min-height: var(--pageHeight);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    break-before: page;
+    break-after: page;
+    page-break-before: always;
+    page-break-after: always;
+    border : var(--darkBorder);
+}
+
+.qr-code-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 75%
+}
+
+.qr-code-header {
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 0.4rem;
+    color: #333;
+}
+
+.qr-code-page .qr-code-header {
+    font-size: 3.0rem;
+}
+
+.qr-code-image {
+    object-fit: contain;
+    min-width: 30mm;
+    min-height: 30mm;
+}
+
+.qr-code-section .qr-code-image{
+  max-width: 150px;
 }
 
 {%- for cssTemplate in cssTemplates %}

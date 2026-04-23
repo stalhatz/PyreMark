@@ -1,0 +1,24 @@
+{% set qr = chapter %}
+{% set layout = qr.layout | default('section') %}
+{% set header = qr.header %}
+{% set qr_image = chapter.qr_image %}
+
+{% if layout == 'page' %}
+<div class="qr-code-page">
+    {% if header is defined %}
+        <div class="qr-code-header">{{ tr(header) }}</div>
+    {% endif %}
+    <div class="qr-code-container">
+        <img src="{{ qr_image }}" alt="QR Code" class="qr-code-image"/>
+    </div>
+</div>
+{% else %}
+<div class="qr-code-section">
+    {% if header is defined %}
+        <div class="qr-code-header">{{ tr(header) }}</div>
+    {% endif %}
+    <div class="qr-code-container">
+        <img src="{{ qr_image }}" alt="QR Code" class="qr-code-image"/>
+    </div>
+</div>
+{% endif %}
