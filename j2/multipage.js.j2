@@ -53,15 +53,15 @@ function createMultiPageLayout(){
         
         // Does element c fit in the page?
         if (newPageHeight > pageHeight){
-            console.log("Creating new page to fit content")
+            console.log("The next element does not fit in the current page. Creating new page to place element.")
             pages.push(pageElements)
             pageElements = []
-            pageElements.push(children[c])
             freeSpace.push(pageHeight - thisPageHeight)
-            thisPageHeight = elementHeight
+            newPageHeight = elementHeight
         }
+
         if (c === numChildren - 1){
-            console.log("Creating new page as this is the last element")
+            console.log("Adding all elements to last page as this is the last element")
             pageElements.push(children[c])
             pages.push(pageElements)
             freeSpace.push(pageHeight - newPageHeight)
