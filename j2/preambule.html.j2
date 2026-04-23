@@ -31,34 +31,3 @@
     {%- endif %}
 </div>
 </div>
-<script>
-
-  function shrinkWrapText(el) {
-  const style = getComputedStyle(el);
-  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-  let maxWidth = 0;
-  let node;
-  while ((node = walker.nextNode())) {
-    const range = document.createRange();
-    range.selectNodeContents(node);
-    for (const rect of range.getClientRects()) {
-      maxWidth = Math.max(maxWidth, rect.width);
-    }
-  }
-
-  // Compensate for border-box
-  if (style.boxSizing === 'border-box') {
-    maxWidth +=
-      parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) +
-      parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth);
-  }
-
-  el.style.width = `${Math.ceil(maxWidth)}px`;
-}
-  document.fonts.ready.then(() => {
-    document.querySelectorAll('.pitch').forEach(el => {
-      shrinkWrapText(el);
-      // or shrinkWrapBinarySearch(el) for mixed content
-    });
-  });
-</script>
