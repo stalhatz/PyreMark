@@ -1,0 +1,44 @@
+.taglist {
+  font-size: 0.9rem;
+  margin-bottom: 1mm;
+}
+
+.taglist ul {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+
+.taglist li {
+  display: flex;
+  align-items: anchor-center;
+  padding-inline: 1mm;
+  padding-block: 0.3mm;
+  background-color: var(--textBackgroundColor);
+  border-radius: 7px;
+  border: 0.3mm solid var(--colorBorderMedium);
+  margin-right: 1mm;
+}
+
+.grid-element.knowhow-container {
+  display: flex;
+  flex-direction: column;
+  margin-right: 5px;
+}
+
+.grid-element.soft-skills-container {
+  display: flex;
+  flex-direction: column;
+  margin-right: 5px;
+}
+
+.grid-element.soft-skills-container ul {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}

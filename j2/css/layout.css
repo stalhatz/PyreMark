@@ -1,0 +1,60 @@
+.canvas-container {
+  font-size: var(--fontSize);
+  font-family: var(--fontFamily);
+  width: var(--pageWidth);
+  margin: 0 auto;
+}
+
+.page {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  width: var(--pageWidth);
+  height: var(--pageHeight);
+  background-color: var(--colorSurface);
+  box-shadow: 0 3px 8px -3px var(--colorShadowPage);
+  margin-block: auto;
+  margin-bottom: 10mm;
+  border: 1px solid var(--colorBorderPage);
+}
+
+.grid-element {
+  display: grid;
+  grid-template-columns: calc(var(--pageWidth) * 0.14) calc(var(--pageWidth) * 0.86);
+}
+
+.subgrid {
+  display: grid;
+  grid-template-columns: calc(var(--pageWidth) * 0.14) calc(var(--pageWidth) * 0.36) calc(var(--pageWidth) * 0.14) calc(var(--pageWidth) * 0.36);
+}
+
+.grid-element > *:only-child {
+  grid-column: 1 / -1;
+}
+
+@media print {
+  @page {
+    margin: 0.0cm;
+    size: var(--pageWidth) var(--pageHeight);
+  }
+
+  html {
+    width: var(--pageWidth);
+    height: var(--pageHeight);
+    overflow: hidden;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  .page {
+    box-shadow: none;
+    border: none;
+  }
+
+  .canvas-container {
+    width: 100%;
+    box-shadow: none;
+  }
+}

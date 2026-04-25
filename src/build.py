@@ -284,7 +284,7 @@ if __name__ == "__main__":
         if str.lower(args.type) == "cv":
             args.template = "./j2/resume.html.j2"
             if args.css is None:
-                args.css = "./j2/resume.css.j2"
+                args.css = "./j2/styles.css.j2"
             if args.js is None:
                 args.js = "./j2/resume.js.j2"
         if args.type == "coverletter":
@@ -366,7 +366,7 @@ if __name__ == "__main__":
         data["script"]["jsfile"] = jsFile
 
     if cssTemplateFile:
-        cssFile="./css/tmp.css"
+        cssFile="./css/styles.css"
 
         try:
             if args.styles is not None:

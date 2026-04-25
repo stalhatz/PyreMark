@@ -1,0 +1,43 @@
+.cv-chapter {
+  padding-top: 1px;
+}
+
+.cv-chapter:first-child > h2 {
+  margin-top: 0mm;
+}
+
+.cv-chapter > h2 {
+  padding-top: 0mm;
+  padding-bottom: 0mm;
+  margin-top: 0mm;
+  margin-bottom: 1mm;
+  border-bottom: var(--darkBorder);
+}
+
+.line-element {
+  display: flex;
+  flex-direction: row;
+}
+
+.rhs-element h3 {
+  margin-top: 0;
+  margin-bottom: 0.0mm;
+}
+
+.rhs-element p {
+  margin-top: 0;
+  margin-bottom: 2mm;
+}
+
+.rhs-element h3 + p {
+  margin-top: 0;
+  margin-bottom: 1mm;
+}
+
+.grid-element:has(h3) .date {
+  margin-top: 0.4mm;
+}
+
+.date:has(+ .taglist) {
+  padding-top: 0.7mm;
+}

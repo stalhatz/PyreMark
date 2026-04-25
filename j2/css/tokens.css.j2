@@ -1,0 +1,29 @@
+:root {
+  /* Page dimensions */
+  --pageHeight: {{ styles.pageHeightInMM | default('297') }}mm;
+  --pageWidth: {{ styles.pageWidthInMM | default('210') }}mm;
+
+  /* Typography */
+  --fontSize: {{ styles.fontSize | default('10.9px') }};
+  --fontFamily: {{styles.fontFamily | default("'Montserrat', 'Fira Sans Extra Condensed', 'Futura', 'EB Garamond', 'Clarendon', 'Bodoni Moda', 'Libre Bodoni', 'Avenir', 'DIN', 'Akzidenz Grotesk', 'Frutiger', 'Univers', 'Sabon', 'Mrs Eaves', 'Meta', 'News Cycle', 'Roboto Condensed', 'Helvetica', sans-serif")}};
+
+  /* Colors */
+  --textBackgroundColor: {{ styles.textBackgroundColor | default('rgb(230, 230, 230)') }};
+  --colorSurface: {{ styles.colorSurface| default("white")}};
+  --colorBorderDark: {{ styles.BorderDark| default("rgb(70, 70, 70)")}};
+  --colorShadow: {{ styles.colorShadow| default("rgb(100, 100, 100)")}};
+  --colorBorderPage: {{ styles.colorBorderPage| default("rgba(0, 0, 0, 0.2)")}};
+  --colorShadowPage: {{ styles.colorShadowPage | default("rgba(0, 0, 0, 0.7)")}};
+  --colorShadowPhoto: {{ styles.colorShadowPhoto | default("rgba(0, 0, 0, 0.4)")}};
+  --colorBorderDetails: {{ styles.colorBorderDetails |default("rgba(0, 0, 0, 0.3)")}};
+  --colorTextHeading: {{ styles.colorTextHeading | default("#333")}};
+  --colorDivider: {{ styles.colorDivider | default("#000000")}};
+  --colorBorderMedium: {{ styles.colorBorderMedium | default("gray")}};
+
+  /* Spacing */
+  --preambule_detailsBottomMargin: {{ styles.preambule_detailsBottomMargin | default('0.5rem') }};
+
+  /* Borders & Shadows */
+  --darkBorder: 0.3mm solid var(--colorBorderDark);
+  --shadow: 1px 1px 1.5px 0.2px var(--colorShadow);
+}

@@ -2,29 +2,38 @@
 
 ## Content-based modularity
 ### Current state:
-All variables are declared in the same file grouped per class. Hard to maintain, track changes or edit
+All declarations and variables are declared in an ad hoc manner between three style files 
+- `resume.css.j2`
+- `microcredits_cards.css.j2`
+- `cover_letter.html.j2`
+
+Hard to maintain, track changes or edit
+
 ### Target state:
 Break up declarations into files corresponding to components we are using:
-- tokens.css
-- card.css
-- pill.css
-- pillbox.css
+- tokens.j2.css 
+    - implement all css variables as jinja2 overridable values
+        - example: ` --primaryColor : {styles.primaryColor | default(#aabbcc)}`
 - primitives.css (html elements : <p>, <h1>...<h5>, etc.)
-- details.css (concerning the `.details-list` class in `preambule.html.j2`)
-- icon.css
-- photo.css
+- Components
+    - card.css
+    - pillbox.css
+    - details.css (concerning the `.details-list` class in `preambule.html.j2`)
+    - icon.css
+    - photo.css
+    - <any other component you can identify>.css
 
-In `tokens.css`, define semantic tokens (name for what they do, not for how the look like) not utility ones. We should allow for utility classes to exist but only for specific customization, like for example the specialization of a card element:
+In `tokens.css`, define semantic tokens (name for what they do, not for how the look like). We should allow for utility classes to exist but only for specific customization, like for example the specialization of a card element:
 ```html
 <div class="card top-margin-0">
     ...
 </div>
 ```
-So we allow utility classes but reserve them for special, well defined, need-only occasions to permit modularity and clarity of html code not as a structuring technique.
+This means that we allow utility classes but reserve them for special, well defined, need-only occasions to permit modularity and clarity of html code not as a styles structuring technique.
 
 Everytime we build, merge all the `.css` files into a single `.css` (`/css/styles.css`) to include in the html
 
-Reproduce perfectly the current theme within the new system, don't change a single declaration, just regroup declarations and use variables for better maintainability.
+Reproduce perfectly the current theme within the new system. Just regroup declarations in files and introduce variables for better maintainability.
 
 
 ## Template-based modularity

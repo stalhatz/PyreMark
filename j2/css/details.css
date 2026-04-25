@@ -1,0 +1,24 @@
+.details {
+  display: grid;
+  grid-template-columns: 5mm auto;
+  padding-inline: 5mm;
+}
+
+.details-list {
+  padding-inline: 5px;
+  margin-block: auto;
+  padding-right: 3mm;
+  border-left: 1px solid var(--colorBorderDetails);
+}
+
+.details-list > div {
+  margin-bottom: var(--preambule_detailsBottomMargin);
+  display: flex;
+  align-items: center;
+}
+
+.details-list > div p {
+  margin: 0;
+  margin-inline-start: 1rem;
+  white-space: nowrap;
+}
