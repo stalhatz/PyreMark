@@ -21,8 +21,22 @@
 | `/userdata` | Contains user data (`.yaml` + `.toml` files )              |
 
 
-# Architecture
+# Version Control
+- Try to roughly base commit messages on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+    - Let's try to stick as a rule of thumb to:
+        - `fix: `
+        - `feat: `
+        - `build:`
+        - `chore:`
+        - `ci:`
+        - `docs:`
+        - `style:`
+        - `refactor:`
+        - `perf: `
+        - `test:`
+        - `spec:`
 
+# Architecture
 - Build configuration declares data files to be included in the current build
     - Build configuration can overwrite data variables: This way we are surfacing the most impactful parts of data to the topmost file so with some appropriate commentary we can quickly show the decisions made in this particular configuration
 - Data declares templates to render it
@@ -41,6 +55,8 @@
 - Single column cv supported
 - Each `html.j2` template is a section (or subsection) of the cv
     - `resume.j2.html` is the root template for cv documents
+
+
 
 # TODO
 ## Necessary for functionality / maintainability / ease of use
