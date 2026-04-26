@@ -8,9 +8,9 @@
 .titleName {
   display: flex;
   flex-direction: column;
-  margin-left: 3rem;
   margin-block: auto;
   width: min-content;
+  flex-grow: 1;
 }
 
 .titleName h1 {
