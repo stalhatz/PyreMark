@@ -1,0 +1,30 @@
+data:
+  patents:
+    title:
+      en: Patents
+      fr: Brevets
+      es: Patentes
+      de: Patente
+    template: general_parser.html.j2
+    lines:
+      patent_2022:
+        date: "2022"
+        text:
+          en: <em>Method and apparatus for dynamic load balancing in distributed stream processing</em> A. Demo, B. Sample, US Patent 10,999,999 B2.
+          fr: <em>Méthode et appareil pour l'équilibrage de charge dynamique dans le traitement de flux distribué</em> A. Demo, B. Sample, Brevet US 10 999 999 B2.
+          es: <em>Método y aparato para equilibrio de carga dinámico en procesamiento de flujos distribuido</em> A. Demo, B. Sample, Patente US 10,999,999 B2.
+          de: <em>Verfahren und Vorrichtung für dynamisches Load Balancing in verteilter Stromverarbeitung</em> A. Demo, B. Sample, US-Patent 10.999.999 B2.
+      patent_2020:
+        date: "2020"
+        text:
+          en: <em>System for autonomous failure recovery in container orchestration platforms</em> A. Demo, C. Placeholder, WO2020/123456 A1.
+          fr: <em>Système de récupération autonome après défaillance dans les plateformes d'orchestration de conteneurs</em> A. Demo, C. Placeholder, WO2020/123456 A1.
+          es: <em>Sistema para recuperación autónoma de fallos en plataformas de orquestación de contenedores</em> A. Demo, C. Placeholder, WO2020/123456 A1.
+          de: <em>System für autonome Fehlerwiederherstellung in Container-Orchestrierungsplattformen</em> A. Demo, C. Placeholder, WO2020/123456 A1.
+      patent_2018:
+        date: "2018"
+        text:
+          en: <em>Privacy-preserving data aggregation using homomorphic encryption</em> A. Demo, D. Example, EP 3 333 333 B1.
+          fr: <em>Agrégation de données préservant la confidentialité à l'aide du chiffrement homomorphe</em> A. Demo, D. Example, EP 3 333 333 B1.
+          es: <em>Agregación de datos con preservación de privacidad mediante cifrado homomórfico</em> A. Demo, D. Example, EP 3 333 333 B1.
+          de: <em>Privatsphäre-wahrende Datenaggregation mittels homomorpher Verschlüsselung</em> A. Demo, D. Example, EP 3 333 333 B1.

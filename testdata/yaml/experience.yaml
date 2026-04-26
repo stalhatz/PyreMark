@@ -1,0 +1,69 @@
+data:
+  experience:
+    title:
+      en: Professional Experience
+      fr: Expérience Professionnelle
+      es: Experiencia Profesional
+      de: Berufserfahrung
+    template: general_parser.html.j2
+    lines:
+      senior_engineer:
+        date: 2022 - Present
+        title:
+          en: Senior Software Engineer, TechCorp Global
+          fr: Ingénieur Logiciel Senior, TechCorp Global
+          es: Ingeniero de Software Senior, TechCorp Global
+          de: Senior Softwareingenieur, TechCorp Global
+        text:
+          en: Led development of cloud-native microservices architecture serving 2M+ daily users. <strong>Reduced API latency by 40%</strong> through optimized caching strategies and asynchronous processing pipelines. Mentored a team of 5 junior developers and established CI/CD best practices.
+          fr: Direction du développement d'une architecture microservices cloud-native desservant plus de 2 millions d'utilisateurs quotidiens. <strong>Réduction de la latence API de 40%</strong> grâce à des stratégies de cache optimisées et des pipelines de traitement asynchrone. Encadrement d'une équipe de 5 développeurs juniors et mise en place des meilleures pratiques CI/CD.
+          es: Lideré el desarrollo de una arquitectura de microservicios nativa en la nube que sirve a más de 2 millones de usuarios diarios. <strong>Reduje la latencia de la API en un 40%</strong> mediante estrategias de caché optimizadas y pipelines de procesamiento asíncrono. Mentoría a un equipo de 5 desarrolladores junior y establecimiento de mejores prácticas de CI/CD.
+          de: Leitung der Entwicklung einer cloud-nativen Microservices-Architektur für über 2 Millionen tägliche Nutzer. <strong>API-Latenz um 40% reduziert</strong> durch optimierte Caching-Strategien und asynchrone Verarbeitungspipelines. Mentoring eines Teams von 5 Junior-Entwicklern und Etablierung von CI/CD-Best-Practices.
+      fullstack_dev:
+        date: 2019 - 2022
+        title:
+          en: Full-Stack Developer, InnovateSoft
+          fr: Développeur Full-Stack, InnovateSoft
+          es: Desarrollador Full-Stack, InnovateSoft
+          de: Full-Stack-Entwickler, InnovateSoft
+        text:
+          en: Designed and implemented responsive web applications using React, Node.js, and PostgreSQL. Built real-time data visualization dashboards that improved executive decision-making speed by 25%. Collaborated with UX designers to deliver accessible, mobile-first interfaces.
+          fr: Conception et mise en œuvre d'applications web réactives avec React, Node.js et PostgreSQL. Création de tableaux de bord de visualisation de données en temps réel qui ont amélioré la vitesse de prise de décision des dirigeants de 25%. Collaboration avec des designers UX pour livrer des interfaces accessibles et mobile-first.
+          es: Diseñé e implementé aplicaciones web responsivas usando React, Node.js y PostgreSQL. Construí paneles de visualización de datos en tiempo real que mejoraron la velocidad de toma de decisiones ejecutivas en un 25%. Colaboré con diseñadores UX para entregar interfaces accesibles y mobile-first.
+          de: Entwurf und Implementierung responsiver Webanwendungen mit React, Node.js und PostgreSQL. Aufbau von Echtzeit-Datenvisualisierungs-Dashboards, die die Entscheidungsgeschwindigkeit des Managements um 25% verbesserten. Zusammenarbeit mit UX-Designern zur Bereitstellung barrierefreier, mobile-first-Oberflächen.
+      backend_dev:
+        date: 2017 - 2019
+        title:
+          en: Backend Developer, DataFlow Systems
+          fr: Développeur Backend, DataFlow Systems
+          es: Desarrollador Backend, DataFlow Systems
+          de: Backend-Entwickler, DataFlow Systems
+        text:
+          en: Developed RESTful APIs and event-driven microservices handling 500K+ requests per day. Implemented distributed tracing and monitoring with Prometheus and Grafana, reducing mean time to resolution (MTTR) by 30%. Migrated legacy monolith to containerized services using Docker and Kubernetes.
+          fr: Développement d'APIs RESTful et de microservices pilotés par les événements traitant plus de 500 000 requêtes par jour. Mise en œuvre du traçage distribué et du monitoring avec Prometheus et Grafana, réduisant le MTTR de 30%. Migration d'un monolithe legacy vers des services conteneurisés avec Docker et Kubernetes.
+          es: Desarrollé APIs RESTful y microservicios orientados a eventos que manejaban más de 500,000 solicitudes por día. Implementé trazabilidad distribuida y monitoreo con Prometheus y Grafana, reduciendo el MTTR en un 30%. Migré un monolito legacy a servicios contenerizados usando Docker y Kubernetes.
+          de: Entwicklung von RESTful APIs und ereignisgesteuerten Microservices mit über 500.000 Anfragen pro Tag. Implementierung von Distributed Tracing und Monitoring mit Prometheus und Grafana, Reduzierung der MTTR um 30%. Migration eines Legacy-Monolithen zu containerisierten Services mit Docker und Kubernetes.
+      data_analyst:
+        date: 2015 - 2017
+        title:
+          en: Data Analyst, Insight Analytics
+          fr: Analyste de Données, Insight Analytics
+          es: Analista de Datos, Insight Analytics
+          de: Datenanalyst, Insight Analytics
+        text:
+          en: Built predictive models using Python and scikit-learn to forecast customer churn with 85% accuracy. Automated reporting pipelines that saved 15 hours per week of manual work. Presented findings to stakeholders through interactive Tableau dashboards.
+          fr: Construction de modèles prédictifs avec Python et scikit-learn pour prévoir l'attrition client avec 85% de précision. Automatisation de pipelines de reporting qui ont économisé 15 heures de travail manuel par semaine. Présentation des résultats aux parties prenantes via des tableaux de bord Tableau interactifs.
+          es: Construí modelos predictivos usando Python y scikit-learn para predecir la pérdida de clientes con un 85% de precisión. Automatizé pipelines de reportes que ahorraron 15 horas de trabajo manual por semana. Presenté hallazgos a stakeholders a través de dashboards interactivos de Tableau.
+          de: Entwicklung prädiktiver Modelle mit Python und scikit-learn zur Vorhersage der Kundenabwanderung mit 85% Genauigkeit. Automatisierung von Reporting-Pipelines, die 15 Stunden manuelle Arbeit pro Woche einsparten. Präsentation von Ergebnissen an Stakeholder durch interaktive Tableau-Dashboards.
+      junior_dev:
+        date: 2013 - 2015
+        title:
+          en: Junior Developer, StartUp Hub
+          fr: Développeur Junior, StartUp Hub
+          es: Desarrollador Junior, StartUp Hub
+          de: Junior-Entwickler, StartUp Hub
+        text:
+          en: Contributed to the development of an e-commerce platform serving 50K+ monthly transactions. Fixed critical security vulnerabilities and implemented payment gateway integrations. Gained foundational experience in agile methodologies and test-driven development.
+          fr: Contribution au développement d'une plateforme e-commerce traitant plus de 50 000 transactions mensuelles. Correction de vulnérabilités de sécurité critiques et mise en œuvre d'intégrations de passerelles de paiement. Acquisition d'une expérience fondamentale en méthodologies agiles et développement piloté par les tests.
+          es: Contribuí al desarrollo de una plataforma de comercio electrónico que procesaba más de 50,000 transacciones mensuales. Corregí vulnerabilidades de seguridad críticas e implementé integraciones de pasarelas de pago. Adquirí experiencia fundamental en metodologías ágiles y desarrollo orientado a pruebas.
+          de: Mitarbeit an der Entwicklung einer E-Commerce-Plattform mit über 50.000 monatlichen Transaktionen. Behebung kritischer Sicherheitslücken und Implementierung von Zahlungsgateway-Integrationen. Grundlagenwissen in agilen Methoden und testgetriebener Entwicklung erworben.

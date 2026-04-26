@@ -1,0 +1,63 @@
+data:
+  knowledge:
+    id: knowledge
+    title:
+      en: Technical Knowledge
+      fr: Savoirs Techniques
+      es: Conocimientos Técnicos
+      de: Technisches Wissen
+    lines:
+      - domain:
+          en: "Languages"
+          fr: "Langages"
+          es: "Lenguajes"
+          de: "Sprachen"
+        list:
+          - Python 
+          - Django 
+          - FastAPI
+          - TypeScript
+          - Go 
+          - Rust
+      - domain: Frameworks
+        list:
+          - FastAPI
+          - React
+          - PostgreSQL
+      - domain: Cloud
+        list:
+          - AWS
+          - Azure
+          - Kubernetes 
+          - Terraform
+          - Datadog
+      - domain: DevOps
+        list:
+          - Git
+          - Github Actions
+          - Docker
+      - domain:
+          en: "Data & ML:"
+          fr: "Données & ML:"
+          es: "Datos y ML:"
+          de: "Daten & ML:"
+        list:
+          - PyTorch 
+          - scikit-learn
+          - Pandas 
+          - Spark
+          - Kafka 
+          - dbt
+      - domain:
+          en: "Security"
+          fr: "Sécurité"
+          es: "Seguridad"
+          de: "Sicherheit"
+        list:
+          - OAuth 2.0 
+          - OIDC
+          - VPC
+          - AWS KMS
+          - SAST / DAST
+    template: knowledge.html.j2
+    classes: subgrid

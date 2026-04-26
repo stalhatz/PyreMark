@@ -1,0 +1,57 @@
+data:
+  publications:
+    title:
+      en: Publications
+      fr: Publications
+      es: Publicaciones
+      de: Veröffentlichungen
+    template: general_parser.html.j2
+    lines:
+      pub_2024:
+        date: "2024"
+        text:
+          en: "<em>Scalable Neural Architectures for Edge Computing</em> A. Demo, B. Sample, C. Placeholder, International Conference on Machine Learning (ICML) 2024."
+          fr: "<em>Architectures neuronales évolutives pour l'informatique en périphérie</em> A. Demo, B. Sample, C. Placeholder, Conférence internationale sur l'apprentissage automatique (ICML) 2024."
+          es: "<em>Arquitecturas neuronales escalables para computación en el borde</em> A. Demo, B. Sample, C. Placeholder, Conferencia Internacional de Aprendizaje Automático (ICML) 2024."
+          de: "<em>Skalierbare neuronale Architekturen für Edge Computing</em> A. Demo, B. Sample, C. Placeholder, Internationale Konferenz für maschinelles Lernen (ICML) 2024."
+        link: https://example.com/paper2024
+      pub_2023:
+        date: "2023"
+        text:
+          en: "<em>Fault-Tolerant Consensus in Partially Synchronous Networks</em> A. Demo, D. Example, IEEE Transactions on Distributed Systems, Vol. 34, No. 5."
+          fr: "<em>Consensus tolérant aux pannes dans les réseaux partiellement synchrones</em> A. Demo, D. Example, IEEE Transactions on Distributed Systems, Vol. 34, No. 5."
+          es: "<em>Consenso tolerante a fallos en redes parcialmente síncronas</em> A. Demo, D. Example, IEEE Transactions on Distributed Systems, Vol. 34, No. 5."
+          de: "<em>Fehlertoleranter Konsens in teilsynchronen Netzwerken</em> A. Demo, D. Example, IEEE Transactions on Distributed Systems, Vol. 34, No. 5."
+        link: https://example.com/paper2023
+      pub_2022:
+        date: "2022"
+        text:
+          en: "<em>Energy-Efficient Scheduling for Kubernetes Clusters</em> A. Demo, E. Test, ACM Symposium on Cloud Computing (SoCC) 2022 / Oral presentation."
+          fr: "<em>Planification écoénergétique pour les clusters Kubernetes</em> A. Demo, E. Test, ACM Symposium on Cloud Computing (SoCC) 2022 / Présentation orale."
+          es: "<em>Programación energéticamente eficiente para clústeres de Kubernetes</em> A. Demo, E. Test, ACM Symposium on Cloud Computing (SoCC) 2022 / Presentación oral."
+          de: "<em>Energieeffizientes Scheduling für Kubernetes-Cluster</em> A. Demo, E. Test, ACM Symposium on Cloud Computing (SoCC) 2022 / Mündliche Präsentation."
+        link: https://example.com/paper2022
+      pub_2021:
+        date: "2021"
+        text:
+          en: "<em>Differential Privacy in Federated Learning: A Practical Survey</em> A. Demo, F. Mock, NeurIPS Workshop on Privacy-Preserving Machine Learning 2021."
+          fr: "<em>Confidentialité différentielle dans l'apprentissage fédéré : une étude pratique</em> A. Demo, F. Mock, Atelier NeurIPS sur l'apprentissage automatique préservant la confidentialité 2021."
+          es: "<em>Privacidad diferencial en aprendizaje federado: una encuesta práctica</em> A. Demo, F. Mock, Taller NeurIPS sobre Aprendizaje Automático con Preservación de Privacidad 2021."
+          de: "<em>Differenzielle Privatsphäre im föderierten Lernen: Eine praktische Übersicht</em> A. Demo, F. Mock, NeurIPS Workshop on Privacy-Preserving Machine Learning 2021."
+        link: https://example.com/paper2021
+      pub_2020:
+        date: "2020"
+        text:
+          en: "<em>Real-Time Anomaly Detection in High-Frequency Trading Streams</em> A. Demo, G. Fake, Journal of Financial Data Science, Vol. 2, No. 4."
+          fr: "<em>Détection d'anomalies en temps réel dans les flux de trading à haute fréquence</em> A. Demo, G. Fake, Journal of Financial Data Science, Vol. 2, No. 4."
+          es: "<em>Detección de anomalías en tiempo real en flujos de trading de alta frecuencia</em> A. Demo, G. Fake, Journal of Financial Data Science, Vol. 2, No. 4."
+          de: "<em>Echtzeit-Anomalieerkennung in Hochfrequenzhandelsströmen</em> A. Demo, G. Fake, Journal of Financial Data Science, Vol. 2, No. 4."
+        link: https://example.com/paper2020
+      pub_2019:
+        date: "2019"
+        text:
+          en: "<em>Composable UI Components for Accessibility-First Design Systems</em> A. Demo, H. Dummy, ACM Conference on Human Factors in Computing Systems (CHI) 2019."
+          fr: "<em>Composants UI composables pour les systèmes de conception axés sur l'accessibilité</em> A. Demo, H. Dummy, ACM Conférence sur les facteurs humains dans les systèmes informatiques (CHI) 2019."
+          es: "<em>Componentes UI componibles para sistemas de diseño centrados en accesibilidad</em> A. Demo, H. Dummy, ACM Conferencia sobre Factores Humanos en Sistemas Informáticos (CHI) 2019."
+          de: "<em>Komponierbare UI-Komponenten für Accessibility-First-Designsysteme</em> A. Demo, H. Dummy, ACM Konferenz über menschliche Faktoren in Computersystemen (CHI) 2019."
+        link: https://example.com/paper2019

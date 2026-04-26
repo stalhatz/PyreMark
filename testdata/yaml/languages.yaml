@@ -1,0 +1,49 @@
+data:
+  languages:
+    id: languages
+    lines:
+      - name:
+          en: English
+          fr: Anglais
+          es: Inglés
+          de: Englisch
+        capacity:
+          en: Native
+          fr: Natif
+          es: Nativo
+          de: Muttersprache
+        icon: gb-flag
+      - name:
+          en: French
+          fr: Français
+          es: Francés
+          de: Französisch
+        capacity:
+          en: Fluent
+          fr: Courant
+          es: Fluido
+          de: Fließend
+        icon: fr-flag
+      - name:
+          en: Spanish
+          fr: Espagnol
+          es: Español
+          de: Spanisch
+        capacity:
+          en: Professional working proficiency
+          fr: Compétence professionnelle
+          es: Competencia profesional
+          de: Berufliche Kompetenz
+        icon: es-flag
+      - name:
+          en: German
+          fr: Allemand
+          es: Alemán
+          de: Deutsch
+        capacity:
+          en: Professional working proficiency
+          fr: Compétence professionnelle
+          es: Competencia profesional
+          de: Berufliche Kompetenz
+        icon: de-flag
+    template: languages.html.j2

@@ -2,4 +2,5 @@
   max-width: 3.5cm;
   width: 100%;
   float: inline-end;
+  filter: grayscale(1.0);
 }

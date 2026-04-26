@@ -1,11 +1,12 @@
 .directory
 js/
 /css/
-cv/
-yaml/
+/cv/
+/yaml/
 pdf/
 scripts/
 output/
+plans/
 .venv/
 *.pdf
 *.html

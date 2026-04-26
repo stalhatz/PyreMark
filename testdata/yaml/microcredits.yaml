@@ -1,0 +1,84 @@
+data:
+  microcredits:
+    title:
+      en: Certifications
+      fr: Certifications
+      es: Certificaciones
+      de: Zertifizierungen
+    template: microcredits_cards.html.j2
+    lines:
+      aws_architect:
+        date: "2023"
+        title:
+          en: AWS Solutions Architect Professional
+          fr: AWS Solutions Architect Professionnel
+          es: AWS Solutions Architect Profesional
+          de: AWS Solutions Architect Professional
+        text:
+          en: Advanced design of distributed systems on AWS with focus on high availability and security.
+          fr: Conception avancée de systèmes distribués sur AWS avec focus sur la haute disponibilité et la sécurité.
+          es: Diseño avanzado de sistemas distribuidos en AWS con enfoque en alta disponibilidad y seguridad.
+          de: Fortgeschrittener Entwurf verteilter Systeme auf AWS mit Fokus auf Hochverfügbarkeit und Sicherheit.
+        issuer: Amazon Web Services
+        id: SAP-C02
+        link: https://example.com/cert/aws
+      google_cloud:
+        date: "2021"
+        title:
+          en: Google Cloud Professional Data Engineer
+          fr: Google Cloud Professional Data Engineer
+          es: Google Cloud Professional Data Engineer
+          de: Google Cloud Professional Data Engineer
+        text:
+          en: Design and build data processing systems on Google Cloud Platform using BigQuery, Dataflow, and Pub/Sub.
+          fr: Conception et construction de systèmes de traitement de données sur Google Cloud Platform avec BigQuery, Dataflow et Pub/Sub.
+          es: Diseño y construcción de sistemas de procesamiento de datos en Google Cloud Platform usando BigQuery, Dataflow y Pub/Sub.
+          de: Entwurf und Aufbau von Datenverarbeitungssystemen auf Google Cloud Platform mit BigQuery, Dataflow und Pub/Sub.
+        issuer: Google Cloud
+        id: GCP-PDE-2021
+        link: https://example.com/cert/gcp
+      scrum_master:
+        date: "2021"
+        title:
+          en: Certified ScrumMaster (CSM)
+          fr: Certified ScrumMaster (CSM)
+          es: Certified ScrumMaster (CSM)
+          de: Certified ScrumMaster (CSM)
+        text:
+          en: Agile project management using Scrum framework, sprint planning, and team facilitation.
+          fr: Gestion de projet agile avec le framework Scrum, planification de sprints et facilitation d'équipe.
+          es: Gestión de proyectos ágiles usando el framework Scrum, planificación de sprints y facilitación de equipos.
+          de: Agile Projektmanagement mit Scrum-Framework, Sprint-Planung und Team-Facilitation.
+        issuer: Scrum Alliance
+        id: CSM-987654
+        link: https://example.com/cert/csm
+      pytorch:
+        date: "2020"
+        title:
+          en: PyTorch Developer Certificate
+          fr: Certificat de Développeur PyTorch
+          es: Certificado de Desarrollador PyTorch
+          de: PyTorch Developer-Zertifikat
+        text:
+          en: Deep learning model development, training pipelines, and deployment using PyTorch and TorchServe.
+          fr: Développement de modèles de deep learning, pipelines d'entraînement et déploiement avec PyTorch et TorchServe.
+          es: Desarrollo de modelos de deep learning, pipelines de entrenamiento y despliegue usando PyTorch y TorchServe.
+          de: Deep-Learning-Modellentwicklung, Trainings-Pipelines und Bereitstellung mit PyTorch und TorchServe.
+        issuer: Meta / PyTorch
+        id: PT-DEV-2020
+        link: https://example.com/cert/pytorch
+      rust:
+        date: "2020"
+        title:
+          en: Rust Programming Language Certificate
+          fr: Certificat de Langage de Programmation Rust
+          es: Certificado de Lenguaje de Programación Rust
+          de: Rust-Programmiersprachen-Zertifikat
+        text:
+          en: Systems programming with Rust including memory safety, concurrency, and async/await patterns.
+          fr: Programmation système avec Rust incluant sécurité mémoire, concurrence et patterns async/await.
+          es: Programación de sistemas con Rust incluyendo seguridad de memoria, concurrencia y patrones async/await.
+          de: Systemprogrammierung mit Rust einschließlich Speichersicherheit, Nebenläufigkeit und Async/Await-Mustern.
+        issuer: Rust Foundation
+        id: RUST-001
+        link: https://example.com/cert/rust

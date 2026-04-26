@@ -1,0 +1,19 @@
+data:
+  qrcode:
+    title:
+      en: Digital Version
+      fr: Version Numérique
+      es: Versión Digital
+      de: Digitale Version
+    link:
+      en: https://example.com/cv/en
+      fr: https://example.com/cv/fr
+      es: https://example.com/cv/es
+      de: https://example.com/cv/de
+    header:
+      en: Scan to view the online version
+      fr: Scannez pour consulter la version en ligne
+      es: Escanee para ver la versión en línea
+      de: Scannen Sie, um die Online-Version anzuzeigen
+    layout: section
+    template: qr-code.html.j2

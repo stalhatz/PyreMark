@@ -38,7 +38,7 @@ class DocumentType(str, Enum):
 
 def showHTML(htmlFile):
     htmlViewerArgs = []
-    htmlViewerArgs += ["chromium"]
+    htmlViewerArgs += ["firefox"]
     htmlViewerArgs += [htmlFile]
     logger.info(" ".join(htmlViewerArgs))
     result = subprocess.run(htmlViewerArgs, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -259,7 +259,7 @@ if __name__ == "__main__":
     parser.add_argument("--template",help="the html jinja2 template (.j2) to be customized.")
     parser.add_argument("-c","--css",help="the css jinja2 template (.j2) to be customized.")
     parser.add_argument("-j","--js",help="the js jinja2 template (.j2) to be customized.")
-    parser.add_argument("-l","--lang",help="language to be used for the output document. Defaults to English", default="en")
+    parser.add_argument("-l","--lang",help="language to be used for the output document. Defaults to English", default=None)
     parser.add_argument("-o","--output",help="location of the output file. A .pdf suffix will be added if not already present in the filename")
     parser.add_argument("-s","--show",help="Show rendered html pdf or None",default= "None",choices=["pdf","html","None"])
 
@@ -323,8 +323,7 @@ if __name__ == "__main__":
     #     logger.info("Received the following yaml files as input :" + str(yamlFiles))
     #     if outputName is None: outputName = args.yaml[0]
 
-    lang = args.lang
-    assert(lang == "en" or lang == "fr" or lang=="gr")
+    lang = args.lang or "en"
 
     if (args.template is None):
         logger.error("No html template provided. Exiting " + DocumentType.resume)
@@ -350,7 +349,16 @@ if __name__ == "__main__":
     # Sort data inplace
     sortData(data,True)
 
-    data["data"] = update_merge(data["data"],args.data,replace = True)
+    yaml_data = data.get("data", {})
+    toml_data = getattr(args, "data", None)
+    if toml_data is not None:
+        yaml_data = update_merge(yaml_data, toml_data, replace = True)
+    data["data"] = yaml_data
+
+    if "styles" not in data:
+        data["styles"] = {}
+    if "script" not in data:
+        data["script"] = {}
 
     ## Done to get the linter satisfied
     data = dict(data)
@@ -358,42 +366,40 @@ if __name__ == "__main__":
     htmlFile="./html/tmp.html"
     if jsTemplateFile:
         jsFile="./js/tmp.js"
-        data["jsTemplates"] = args.layout["jsTemplates"]
+        layout = getattr(args, "layout", None)
+        if layout is not None and "jsTemplates" in layout:
+            data["jsTemplates"] = layout["jsTemplates"]
         renderTemplateAndWriteToFile(jsTemplateFile,data,jsFile)
         ## Get relative js path
         jsFile = os.path.relpath(jsFile,os.path.dirname(htmlFile))
         logger.debug(jsFile)
-        data["script"]["jsfile"] = jsFile
+        if "script" in data:
+            data["script"]["jsfile"] = jsFile
 
     if cssTemplateFile:
         cssFile="./css/styles.css"
 
-        try:
-            if args.styles is not None:
-                for key in args.styles.keys():
-                    data["styles"][key] = args.styles[key]
-        except KeyError as e:
-            print(e)
-            pass
+        styles = getattr(args, "styles", None)
+        if styles is not None:
+            if "styles" not in data:
+                data["styles"] = {}
+            for key in styles.keys():
+                data["styles"][key] = styles[key]
 
-        try:
-            if args.layout is not None:
-                data["cssTemplates"] = args.layout["cssTemplates"]
-        except KeyError as e:
-            print(e)
-            pass
+        layout = getattr(args, "layout", None)
+        if layout is not None and "cssTemplates" in layout:
+            data["cssTemplates"] = layout["cssTemplates"]
+
         renderTemplateAndWriteToFile(cssTemplateFile,data,cssFile)
         ## Get relative css path
         cssFile = os.path.relpath(cssFile,os.path.dirname(htmlFile))
         logger.debug(cssFile)
+        if "styles" not in data:
+            data["styles"] = {}
         data["styles"]["cssfile"] = cssFile
 
-        try:
-            if args.layout is not None:
-                data["sections"] = args.layout["sections"]
-        except KeyError as e:
-            print(e)
-            pass
+        if layout is not None and "sections" in layout:
+            data["sections"] = layout["sections"]
 
     createQRCode(data,lang)
 

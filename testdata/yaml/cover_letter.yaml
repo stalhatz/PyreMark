@@ -1,0 +1,77 @@
+sender:
+  name:
+    en: Alex Demo
+    fr: Alex Démo
+    es: Alex Demo
+    de: Alex Demo
+  streetNameAndNumber:
+    en: 123 Demo Street
+    fr: 123 Rue Démo
+    es: Calle Demo 123
+    de: Demo-Straße 123
+  postalCode:
+    en: "12345"
+    fr: "12345"
+    es: "12345"
+    de: "12345"
+  city:
+    en: Demo City
+    fr: Ville Démo
+    es: Ciudad Demo
+    de: Demo-Stadt
+  country:
+    en: Demo Country
+    fr: Pays Démo
+    es: País Demo
+    de: Demo-Land
+  signaturePhoto: ../testdata/img/fake_profile.svg
+receiver:
+  name:
+    en: Hiring Manager
+    fr: Responsable du Recrutement
+    es: Gerente de Contratación
+    de: Personalverantwortliche:r
+  fullPosition:
+    en: Engineering Department, TechCorp Global
+    fr: Département Ingénierie, TechCorp Global
+    es: Departamento de Ingeniería, TechCorp Global
+    de: Entwicklungsabteilung, TechCorp Global
+  address1:
+    en: 456 Innovation Avenue
+    fr: 456 Avenue de l'Innovation
+    es: Avenida Innovación 456
+    de: Innovationsallee 456
+  address2:
+    en: Suite 1000, Tech Plaza
+    fr: Bureau 1000, Tech Plaza
+    es: Oficina 1000, Tech Plaza
+    de: Büro 1000, Tech Plaza
+  call:
+    en: Dear
+    fr: Madame, Monsieur
+    es: Estimado/a
+    de: Sehr geehrte/r
+  genderedCall:
+    en: ""
+    fr: ""
+    es: ""
+    de: ""
+date:
+  en: April 25, 2026
+  fr: 25 avril 2026
+  es: 25 de abril de 2026
+  de: 25. April 2026
+text:
+  - en: "<p>I am writing to express my strong interest in the Senior Software Engineer position at TechCorp Global. With over a decade of experience designing and building scalable distributed systems, I am excited about the opportunity to contribute to your platform serving millions of users worldwide.</p>"
+    fr: "<p>Je vous écris pour exprimer mon vif intérêt pour le poste d'Ingénieur Logiciel Senior chez TechCorp Global. Fort de plus d'une décennie d'expérience dans la conception et la construction de systèmes distribués évolutifs, je suis enthousiaste à l'idée de contribuer à votre plateforme desservant des millions d'utilisateurs dans le monde.</p>"
+    es: "<p>Le escribo para expresar mi gran interés en el puesto de Ingeniero de Software Senior en TechCorp Global. Con más de una década de experiencia diseñando y construyendo sistemas distribuidos escalables, estoy emocionado por la oportunidad de contribuir a su plataforma que sirve a millones de usuarios en todo el mundo.</p>"
+    de: "<p>Ich schreibe Ihnen, um mein großes Interesse an der Position als Senior Softwareingenieur bei TechCorp Global auszudrücken. Mit über einem Jahrzehnt Erfahrung im Entwurf und Aufbau skalierbarer verteilter Systeme freue ich mich auf die Möglichkeit, zu Ihrer Plattform beizutragen, die Millionen von Nutzern weltweit bedient.</p>"
+  - en: "<p>Throughout my career, I have led cross-functional teams to deliver cloud-native microservices, reduced API latency by 40% through innovative caching strategies, and mentored junior developers to build high-performing engineering cultures. I am particularly drawn to TechCorp's commitment to open-source contributions and developer tooling.</p>"
+    fr: "<p>Tout au long de ma carrière, j'ai dirigé des équipes interfonctionnelles pour livrer des microservices cloud-natifs, réduit la latence API de 40% grâce à des stratégies de cache innovantes, et encadré des développeurs juniors pour construire des cultures d'ingénierie performantes. Je suis particulièrement attiré par l'engagement de TechCorp envers les contributions open-source et les outils développeurs.</p>"
+    es: "<p>A lo largo de mi carrera, he liderado equipos multifuncionales para entregar microservicios nativos en la nube, reduje la latencia de la API en un 40% mediante estrategias de caché innovadoras, y he sido mentor de desarrolladores junior para construir culturas de ingeniería de alto rendimiento. Me atrae particularmente el compromiso de TechCorp con las contribuciones de código abierto y las herramientas para desarrolladores.</p>"
+    de: "<p>Im Laufe meiner Karriere habe ich funktionsübergreifende Teams geleitet, um cloud-native Microservices zu liefern, die API-Latenz durch innovative Caching-Strategien um 40% reduziert und Junior-Entwickler betreut, um leistungsstarke Engineering-Kulturen aufzubauen. Ich bin besonders von TechCorps Engagement für Open-Source-Beiträge und Entwickler-Tools angezogen.</p>"
+  - en: "<p>I would welcome the opportunity to discuss how my background in distributed systems, machine learning infrastructure, and agile leadership aligns with TechCorp's roadmap. Thank you for considering my application. I look forward to the possibility of contributing to your team.</p>"
+    fr: "<p>Je serais ravi de discuter de la façon dont mon expérience en systèmes distribués, infrastructure d'apprentissage automatique et leadership agile s'aligne sur la feuille de route de TechCorp. Je vous remercie d'avoir pris en compte ma candidature. J'espère avoir l'opportunité de contribuer à votre équipe.</p>"
+    es: "<p>Me encantaría tener la oportunidad de discutir cómo mi experiencia en sistemas distribuidos, infraestructura de aprendizaje automático y liderazgo ágil se alinea con la hoja de ruta de TechCorp. Gracias por considerar mi solicitud. Espero tener la posibilidad de contribuir a su equipo.</p>"
+    de: "<p>Ich würde mich freuen, die Gelegenheit zu nutzen, zu besprechen, wie meine Erfahrung in verteilten Systemen, Machine-Learning-Infrastruktur und agiler Führung mit TechCorps Roadmap übereinstimmt. Vielen Dank für die Berücksichtigung meiner Bewerbung. Ich freue mich auf die Möglichkeit, zu Ihrem Team beizutragen.</p>"
+data: {}

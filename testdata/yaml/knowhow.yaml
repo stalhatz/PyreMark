@@ -1,0 +1,46 @@
+data:
+  knowhow:
+    id: functional-knowledge
+    title:
+      fr: Savoir-faire
+      en: Functional
+      es: Conocimientos Funcionales
+      de: Funktionswissen
+    lines:
+      architecture:
+        icon: computer
+        fr: Concevoir une architecture logicielle
+        en: Design software architecture
+        es: Diseñar arquitectura de software
+        de: Softwarearchitektur entwerfen
+      planning:
+        icon: euro
+        fr: Planifier un projet technique
+        en: Plan a technical project
+        es: Planificar un proyecto técnico
+        de: Ein technisches Projekt planen
+      team_lead:
+        icon: handshake
+        fr: Animer une équipe de développement
+        en: Lead a development team
+        es: Liderar un equipo de desarrollo
+        de: Ein Entwicklungsteam führen
+      risk_mgmt:
+        icon: delivery_truck_speed
+        fr: Gérer les risques et la qualité
+        en: Manage risk and quality
+        es: Gestionar riesgos y calidad
+        de: Risiken und Qualität managen
+      agile:
+        icon: grid_view
+        fr: Piloter une équipe agile
+        en: Run an agile team
+        es: Dirigir un equipo ágil
+        de: Ein agiles Team leiten
+      reporting:
+        icon: corporate_fare
+        fr: Rédiger des rapports techniques
+        en: Write technical reports
+        es: Redactar informes técnicos
+        de: Technische Berichte verfassen
+    template: knowhow.html.j2

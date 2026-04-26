@@ -1,0 +1,43 @@
+type = "cv"
+yaml = [
+    './testdata/yaml/personal_details.yaml',
+    './testdata/yaml/experience.yaml',
+    './testdata/yaml/education.yaml',
+    './testdata/yaml/publications.yaml',
+    './testdata/yaml/patents.yaml',
+    './testdata/yaml/microcredits.yaml',
+    './testdata/yaml/projects.yaml',
+    './testdata/yaml/knowhow.yaml',
+    './testdata/yaml/soft_skills.yaml',
+    './testdata/yaml/knowledge.yaml',
+    './testdata/yaml/languages.yaml',
+    './testdata/yaml/competencies.yaml',
+    './testdata/yaml/qr_code.yaml',
+]
+lang = "en"
+
+[styles]
+fontSize = "9.5px"
+fontFamily = "'Roboto', 'Helvetica', sans-serif"
+pageHeightInMM = "297"
+pageWidthInMM = "210"
+textBackgroundColor = "rgb(245, 245, 245)"
+colorSurface = "#fafafa"
+colorTextHeading = "#222"
+colorDivider = "#333333"
+colorBorderMedium = "#888"
+preambule_detailsBottomMargin = "0.8rem"
+
+[layout]
+sections = [
+    'details',
+    'experience',
+    'education',
+    'knowledge',
+    'languages',
+]
+
+jsTemplates = [
+    './j2/multipage.js.j2',
+    './j2/shrinkWrapText.js.j2',
+]

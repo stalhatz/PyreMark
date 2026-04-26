@@ -1,0 +1,47 @@
+data:
+  projects:
+    title:
+      en: Technical Portfolio
+      fr: Portfolio Technique
+      es: Portafolio Técnico
+      de: Technisches Portfolio
+    template: projects_cards.html.j2
+    lines:
+      cloud_dashboard:
+        repoLink: https://github.com/alex-demo/cloud-dashboard
+        demoLink: https://cloud-dashboard-demo.example.com
+        title: CloudOps Dashboard
+        tags: [react, typescript, d3.js, websocket]
+        text:
+          en: Real-time cloud infrastructure monitoring dashboard with customizable widgets, alerting, and cost analytics.
+          fr: Tableau de bord de monitoring d'infrastructure cloud en temps réel avec widgets personnalisables, alertes et analyses de coûts.
+          es: Panel de monitoreo de infraestructura cloud en tiempo real con widgets personalizables, alertas y análisis de costos.
+          de: Echtzeit-Cloud-Infrastruktur-Monitoring-Dashboard mit anpassbaren Widgets, Alarmierung und Kostenanalyse.
+      ml_pipeline:
+        repoLink: https://github.com/alex-demo/ml-pipeline
+        title: MLOps Pipeline
+        tags: [python, kubeflow, mlflow, docker]
+        text:
+          en: End-to-end machine learning pipeline with automated feature engineering, model versioning, A/B testing, and Canary deployments.
+          fr: Pipeline d'apprentissage automatique de bout en bout avec ingénierie de features automatisée, versioning de modèles, tests A/B et déploiements Canary.
+          es: Pipeline de aprendizaje automático de extremo a extremo con ingeniería de características automatizada, versionado de modelos, pruebas A/B y despliegues Canary.
+          de: End-to-End-Machine-Learning-Pipeline mit automatisierter Feature-Engineering, Modellversionierung, A/B-Tests und Canary-Deployments.
+      e2e_test_framework:
+        repoLink: https://github.com/alex-demo/e2e-framework
+        demoLink: https://e2e-docs.example.com
+        title: E2E Test Framework
+        tags: [playwright, typescript, ci-cd, testing]
+        text:
+          en: Cross-browser end-to-end testing framework with visual regression, accessibility audits, and parallel execution.
+          fr: Framework de tests end-to-end multi-navigateurs avec régression visuelle, audits d'accessibilité et exécution parallèle.
+          es: Framework de pruebas end-to-end multi-navegador con regresión visual, auditorías de accesibilidad y ejecución paralela.
+          de: Cross-Browser-End-to-End-Test-Framework mit visueller Regression, Barrierefreiheits-Audits und paralleler Ausführung.
+      blockchain_voting:
+        repoLink: https://github.com/alex-demo/secure-vote
+        title: SecureVote
+        tags: [solidity, ethereum, zero-knowledge, cryptography]
+        text:
+          en: Decentralized voting platform using zero-knowledge proofs for anonymous, verifiable elections on Ethereum.
+          fr: Plateforme de vote décentralisée utilisant les preuves à divulgation nulle de connaissance pour des élections anonymes et vérifiables sur Ethereum.
+          es: Plataforma de votación descentralizada que utiliza pruebas de conocimiento cero para elecciones anónimas y verificables en Ethereum.
+          de: Dezentralisierte Abstimmungsplattform mit Zero-Knowledge-Proofs für anonyme, überprüfbare Wahlen auf Ethereum.

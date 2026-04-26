@@ -1,0 +1,45 @@
+data:
+  education:
+    title:
+      en: Education
+      fr: Formation
+      es: Educación
+      de: Ausbildung
+    template: general_parser.html.j2
+    lines:
+      masters:
+        date: 2011 - 2013
+        title:
+          en: Master of Science in Computer Science
+          fr: Master en Informatique
+          es: Máster en Ciencias de la Computación
+          de: Master of Science in Informatik
+        text:
+          en: University of Demo City — Specialization in Distributed Systems and Machine Learning. Thesis on <em>fault-tolerant consensus algorithms</em> published in the university journal. Graduated with honors (GPA 3.9/4.0).
+          fr: Université de Ville Démo — Spécialisation en systèmes distribués et apprentissage automatique. Thèse sur les <em>algorithmes de consensus tolérants aux pannes</em> publiée dans la revue universitaire. Diplômé avec mention (GPA 3,9/4,0).
+          es: Universidad de Ciudad Demo — Especialización en Sistemas Distribuidos y Aprendizaje Automático. Tesis sobre <em>algoritmos de consenso tolerantes a fallos</em> publicada en la revista universitaria. Graduado con honores (GPA 3.9/4.0).
+          de: Universität Demo-Stadt — Spezialisierung auf verteilte Systeme und maschinelles Lernen. Thesis über <em>fehlertolerante Konsensalgorithmen</em> im Universitätsjournal veröffentlicht. Mit Auszeichnung abgeschlossen (GPA 3,9/4,0).
+      bachelor:
+        date: 2008 - 2011
+        title:
+          en: Bachelor of Science in Software Engineering
+          fr: Licence en Génie Logiciel
+          es: Licenciatura en Ingeniería de Software
+          de: Bachelor of Science in Software Engineering
+        text:
+          en: Demo Institute of Technology — Core curriculum included algorithms, data structures, operating systems, and database design. Led the student robotics team to a top-3 finish in the national competition.
+          fr: Institut de Technologie Démo — Le cursus comprenait des algorithmes, des structures de données, des systèmes d'exploitation et de la conception de bases de données. A mené l'équipe de robotique étudiante à une place dans le top 3 du concours national.
+          es: Instituto de Tecnología Demo — El plan de estudios incluía algoritmos, estructuras de datos, sistemas operativos y diseño de bases de datos. Lideré al equipo de robótica estudiantil a un top 3 en la competición nacional.
+          de: Demo-Institut für Technologie — Der Kernlehrplan umfasste Algorithmen, Datenstrukturen, Betriebssysteme und Datenbankdesign. Leitung des Studenten-Robotik-Teams zu einem Top-3-Platz im nationalen Wettbewerb.
+      certification:
+        date: 2023
+        title:
+          en: AWS Certified Solutions Architect — Professional
+          fr: AWS Certified Solutions Architect — Professionnel
+          es: AWS Certified Solutions Architect — Profesional
+          de: AWS Certified Solutions Architect — Professional
+        text:
+          en: Amazon Web Services — Validated expertise in designing distributed applications and systems on the AWS platform. Covers high availability, cost optimization, security, and disaster recovery.
+          fr: Amazon Web Services — Expertise validée dans la conception d'applications et de systèmes distribués sur la plateforme AWS. Couvre la haute disponibilité, l'optimisation des coûts, la sécurité et la reprise après sinistre.
+          es: Amazon Web Services — Experiencia validada en el diseño de aplicaciones y sistemas distribuidos en la plataforma AWS. Cubre alta disponibilidad, optimización de costos, seguridad y recuperación ante desastres.
+          de: Amazon Web Services — Validierte Expertise im Entwurf verteilter Anwendungen und Systeme auf der AWS-Plattform. Umfasst Hochverfügbarkeit, Kostenoptimierung, Sicherheit und Disaster Recovery.

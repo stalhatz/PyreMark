@@ -1,0 +1,60 @@
+data:
+  details:
+    firstName:
+      en: Alex
+      fr: Alex
+      es: Alex
+      de: Alex
+    surname:
+      en: Demo
+      fr: Démo
+      es: Demo
+      de: Demo
+    candidateTitle:
+      en: Software Engineer
+      fr: Ingénieur Logiciel
+      es: Ingeniero de Software
+      de: Softwareingenieur
+    pitch:
+      en: Passionate about building scalable systems and clean architecture. Experienced in full-stack development, cloud infrastructure, and agile team leadership. Committed to delivering robust solutions that drive business value.
+      fr: Passionné par la construction de systèmes évolutifs et d'architectures propres. Expérimenté en développement full-stack, infrastructure cloud et leadership d'équipe agile. Engagé à fournir des solutions robustes qui créent de la valeur.
+      es: Apasionado por construir sistemas escalables y arquitectura limpia. Experimentado en desarrollo full-stack, infraestructura cloud y liderazgo de equipos ágiles. Comprometido con entregar soluciones robustas que generen valor.
+      de: Leidenschaftlich für den Aufbau skalierbarer Systeme und sauberer Architektur. Erfahren in Full-Stack-Entwicklung, Cloud-Infrastruktur und agiler Teamführung. Engagiert für robuste Lösungen, die Geschäftswert schaffen.
+    age:
+      en: 32 years old
+      fr: 32 ans
+      es: 32 años
+      de: 32 Jahre alt
+    address:
+      en: 123 Demo Street, Demo City, 12345
+      fr: 123 Rue Démo, Ville Démo, 12345
+      es: Calle Demo 123, Ciudad Demo, 12345
+      de: Demo-Straße 123, Demo-Stadt, 12345
+    phoneNumber: +1 555 123 4567
+    email: alex.demo@example.com
+    driversLicence:
+      en: Driver's License
+      fr: Permis B
+      es: Licencia de Conducir
+      de: Führerschein Klasse B
+    personalRepo:
+      text:
+        en: GitHub Profile
+        fr: Profil GitHub
+        es: Perfil de GitHub
+        de: GitHub-Profil
+      link: https://github.com/alex-demo
+    linkedin:
+      text:
+        en: LinkedIn Profile
+        fr: Profil LinkedIn
+        es: Perfil de LinkedIn
+        de: LinkedIn-Profil
+      link: https://linkedin.com/in/alexdemo
+    CVtypeset:
+      en: Powered by <strong>PyreMark</strong>
+      fr: Propulsé par <strong>PyreMark</strong>
+      es: Impulsado por <strong>PyreMark</strong>
+      de: Unterstützt von <strong>PyreMark</strong>
+    photo: ../testdata/img/fake_profile.jpg
+    template: preambule.html.j2

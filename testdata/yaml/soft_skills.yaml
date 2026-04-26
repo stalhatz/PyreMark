@@ -1,0 +1,46 @@
+data:
+  soft_skills:
+    id: soft-skills
+    title:
+      fr: Savoir-être
+      en: Behavioural
+      es: Comportamiento
+      de: Verhaltenskompetenzen
+    lines:
+      autonomy:
+        icon: person_check
+        fr: Autonomie
+        en: Autonomy
+        es: Autonomía
+        de: Autonomie
+      pedagogy:
+        icon: menu_book
+        fr: Pédagogie
+        en: Pedagogy
+        es: Pedagogía
+        de: Pädagogik
+      meticulousness:
+        icon: fact_check
+        fr: Rigueur
+        en: Meticulousness
+        es: Meticulosidad
+        de: Gewissenhaftigkeit
+      precision:
+        icon: target
+        fr: Précision
+        en: Precision
+        es: Precisión
+        de: Präzision
+      organization:
+        icon: grid_view
+        fr: Organisation
+        en: Organization
+        es: Organización
+        de: Organisation
+      teamwork:
+        icon: group
+        fr: Esprit d'équipe
+        en: Team player
+        es: Trabajo en equipo
+        de: Teamfähigkeit
+    template: soft_skills.html.j2
