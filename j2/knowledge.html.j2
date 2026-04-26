@@ -5,7 +5,7 @@
 
 {% if knowledge.lines is defined %}
     {%- for know in knowledge.lines %}
-    <div class = date> {{ tr(know.domain) }} </div>
+    <div class = date> {{ tr(know.domain) }}: </div>
     <div class = "rhs-element taglist">
     <ul>
         {%- for skill in know.list %}
