@@ -1,6 +1,11 @@
 data:
   languages:
     id: languages
+    title: 
+      en : Languages
+      fr : Langues
+      es : Lenguas
+      de: Sprachen
     lines:
       - name:
           en: English

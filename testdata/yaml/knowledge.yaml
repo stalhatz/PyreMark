@@ -15,7 +15,6 @@ data:
         list:
           - Python 
           - Django 
-          - FastAPI
           - TypeScript
           - Go 
           - Rust
@@ -37,10 +36,10 @@ data:
           - Github Actions
           - Docker
       - domain:
-          en: "Data & ML:"
-          fr: "Données & ML:"
-          es: "Datos y ML:"
-          de: "Daten & ML:"
+          en: "Data & ML"
+          fr: "Données & ML"
+          es: "Datos y ML"
+          de: "Daten & ML"
         list:
           - PyTorch 
           - scikit-learn
