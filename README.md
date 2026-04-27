@@ -1,32 +1,54 @@
 # PyreMark
 
-PYthon REsume for Markdown  : Multi-lingual customizable CV based on yaml templates
+PYthon REsume for Markdown: Multi-lingual, modular CV/cover letter generation from YAML + Jinja2 templates to HTML and PDF.
 
-# Introduction
-Do you have multiple job profiles you need to switch between? Do you have experiences that better suit each profile that need to be highlighted differently? Do you need to have the same CV in multiple languages?
+## Quick pitch
 
-PyreMark is a python backend that support CV creation via a pipeline of Markdown -> YAML -> Jinja2 -> HTML/CSS -> Chromium -> pdf. 
+PyreMark is a document generation pipeline for multi-lingual, multi-profile job seekers who need to produce tailored CVs and cover letters from a single data source. Define your experience once in YAML, compose sections declaratively, and render to pixel-perfect PDF via Jinja2 templates and Chromium.
 
-# What is interesting about this
-- **Multi-lingualism built-in**
-    - If you need to maintain a multilingual resume you need to be able to update/maintain/add sections in a unified fashion. The current system permits for a default value and as many translations as needed.
-- **Modularity**
-    - It's quite frequent that resume documents have length restrictions (single-page mostly). That leads to always include a subset of one's career is included taking into account what is relevent for the occasion.
-- **Markdown integration**
-    - Given the above, when we're managing job hunting through a note-taking app a very useful feature is to easily update and maintain the resume sent to each listing by specifying the elements included in the resume at the frontmatter of the Markdown file relating to the listing.
+The workflow: YAML data files (personal details, experience, education, skills, projects) are assembled via a TOML configuration file, rendered through Jinja2 HTML/CSS templates, and converted to PDF using Playwright/Chromium. Cover letters can be authored as Markdown files with YAML front-matter and automatically transformed into the same pipeline. The result: one data source, many outputs — different profiles, languages, or section selections.
 
-# What this project isn't
-A universal CV design creator. This project has no need to go down the canvas / drag n' drop / create-your-own-design path. This could be a different project using this one.
+## What's interesting about this
 
-That means that the user needs to be able to write some html and css to create a design that *exactly* fits their needs. In my eyes, this makes sense: A cv is a personal production and a cookie-cutter manner of going about it shouldn't cut it for most people given the plethora of tools out there making custom design accessible. Nonetheless, a set of modular chapter/element designs combined with CSS customization (local elementwise and global) could fit some use cases
+- **Multi-lingualism baked in.** Every data field can be a plain string or a language indexed dictionary. A Jinja2 macro handles fallback automatically, no separate files or duplicated structures needed.
+- **Modularity by design.** Data (YAML), presentation (Jinja2 templates), and configuration (TOML) are independent layers. Sections are self-contained data objects that declare their own template. Compose, reorder, or omit sections per build without touching template code.
+- **Markdown + note-taking workflow integration.** Draft cover letters in Markdown with YAML front-matter specifying which CV sections to include. The pipeline extracts the data and produces a tailored document per job listing — turning a note-taking app into a CV management system.
 
-# Concerns
-A major concern at this moment is the schema of the yaml that describes the resume which is essentially in an ad-hoc state. There exists schemas like [JSON Resume](https://jsonresume.org/) but it also feels rather ad-hoc-ish while not taking into account translations which was a key motivation for developing PyreMark. That said, extending JSON Resume should be take under consideration.
+## What this project isn't / current concerns
 
-# Similar projects
-1. [Yaml Resume](https://yamlresume.dev/)
-    - Hard to customize appearance (Latex based rendering), not multilingual
+This is not a universal CV creator with drag-and-drop design or canvas-based editing. Users need to own their data in YAML format and possibly be comfortable writing HTML and CSS to craft a design that exactly fits their needs.
 
-# Future features
-- Obsidian plugin
-- Web app
+Bigest concern at this moment: The YAML schema is ad-hoc and not, thus, not being validated. This makes it harder for a user to draft their CV and disables fluid use of this project by LLMs.
+
+
+## Similar projects
+
+1. [Yaml Resume](https://yamlresume.dev/) — LaTeX-based rendering, which makes visual customization harder and does not support multi-lingual data natively. PyreMark uses Jinja2/HTML+CSS for full control over layout and styling.
+
+2. [JSON Resume](https://jsonresume.org/) — Defines a schema for CV data with community-driven themes, but lacks built-in multilingual support. PyreMark handles translations at the data level, allowing a single YAML source to produce CVs in any language.
+
+3. [ModernCV / Awesome-CV](https://github.com/posquit0/Awesome-CV) — LaTeX-based, single-language templates with limited customization. PyreMark's Jinja2 approach lets users compose, reuse, and theme sections without learning LaTeX.
+
+## Getting Started / Quick Start
+
+```bash
+git clone https://github.com/stalhatz/PyreMark
+cd PyreMark
+poetry install
+playwright install chromium
+poetry run python ./src/build.py --cv ./userdata/cv/CdP.toml --lang en -o ./pdf/output.pdf
+```
+
+The `userdata/` directory contains sample configuration, YAML data files, and is the best starting point for your own CV. Edit the `.toml` file to select sections, override data, and point to your own `.yaml` files.
+
+## Future features
+
+- **JSON Schema / Pydantic validation** ([spec](./specs/features/JSON-schema.md) / [spec](./specs/features/pydantic-classes.md)) — schema validation for YAML data, integration with LLMs, automatic schema generation
+- **XMP metadata** ([spec](./specs/features/xmp-metadata.md)) — embed build version, data source hash, and tags into generated PDFs
+- **MCP server** ([spec](./specs/features/MCP-server.md)) — allow LLMs to interact with PyreMark data to assemble tailored CVs per job listing
+- **Web app** ([spec](./specs/features/webapp.md)) — browser-based CV builder with section management, live preview, and YAML export
+- **Obsidian plugin** — integrate the Markdown-to-CV workflow directly into Obsidian
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for architecture documentation, project structure, and conventions. Feature specifications live in [`specs/`](./specs/).
