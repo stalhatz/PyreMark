@@ -1,6 +1,6 @@
 # Turn the current styling system into a modular theme-based css architecture
 
-## Content-based modularity
+## Content-based modularity (Done)
 ### Current state:
 All declarations and variables are declared in an ad hoc manner between three style files 
 - `resume.css.j2`
@@ -35,6 +35,54 @@ Everytime we build, merge all the `.css` files into a single `.css` (`/css/style
 
 Reproduce perfectly the current theme within the new system. Just regroup declarations in files and introduce variables for better maintainability.
 
+## Theme-based modularity
+### Current state
+Ways to apply theming:
+- Modify `resume.css.j2` template 
+    - Get accustomed to all the bells and whistles of the current implementation.
+        - Too much friction
+- Modify token values via the configuration file (TOML)
+    - Limited expressivity
+
+### Target state
+- A theme contains:
+    - .j2.html templates
+    - .css files and .j2.css templates
+    - .js files
+    - Corollary : A theme can recreate most of the mechanism already existing in the library.
+        - In practice we want to give the user depending on their needs to define the amount of customization they want to apply to their document
+            1. Create a new theme from scratch
+            2. Extend an existing theme by redefining as many files as needed
+            3. Define only a subset of theme files without needing to define a theme
+            4. Define only a .css file to be added at the buttom of compiled .css declarations
+            5. Redefine style tokens directly from the configuration file
+
+We want any user/dev that wants to apply theming to be able to (let's continue supposing our theme is called `newTheme`):
+
+- Specify a theme path in the configuration file, containing appropriately structured files and folders that will be applied for theming (e.g `/themes/newTheme`)
+- Use filename matching to implement an override/redefinition scheme to define, structure and provide the capacity to **define a new theme** via extending an existing one 
+    - A valid theme should have a `manifest.md` file in its root dir (`/themes/newTheme`)
+        - This file identifies the theme that is being extended (or skip the property if it is not extending any theme) and other properties
+            - We should only add properties here that cannot be understood from the file structure of the theme. 
+    - Define one or more files and directories insider the roor dir (`/themes/newTheme`), that will automatically override the file with the same name defined in the theme that is being extended
+        - Especially for .css files where the cascade exists it should be clear (via commentary and/or cli messages) that files are being replaced and not included together in the final .css
+- Use filename matching to implement a override/redefinition scheme to extend themes in an flexible way for end users
+    - Define one or more files in a /theme subdirectory inside a data directory, that will automatically override the file with the same name defined in the current (specified) theme
+        - Especially for .css files where the cascade exists it should be clear that files are being replaced and not included together in the final .css
+    - Define an extra `styles.css` (a specifically named file) that will be included at the end of the `.css`
+
+In addition to the above mechanisms, we need to reorganize our code to make it adhere to them. Namely:
+- Arrange our existing theme into the `/themes` folder
+
+### Testing
+To test the refactoring in a meaningful manner we need to test all 5 extension methods:
+- Add a new theme to `/themes` not extending any other theme. Make it implement all templates (=rendering all possible data)
+- Add a new theme to `/themes` extending the default theme. Make it reimplement a single theme and redefine the `photo.css` to give a funky frame to the profile pic an make it colored.
+- Add a `theme/` folder in `/testdata` where `preambule.html.j2` is reimplemented to change the order of the `.titlename` elements and also their layout (vertical)
+- Define a `styles.css` in `/testdata` to completely overhaul the theme (make it colourful and fancy) using "!important" statement to overshadow previous choices
+- The mechanisms to change value in a templated .css is already in place
+
+Create tests for all 5 cases.
 
 ## Template-based modularity
 ### Current state:
@@ -82,6 +130,7 @@ We need a file organization and inclusion system that permits users to define th
 # Technical
 Create three separate plans for this spec, one after the first one has been implemented and commited (plan->implementation->commit->plan->implementation etc.), in the following sequence:
 1. Content-based modularity
-2. Template-based modularity
-3. Theme-based modularity
+2. Theme-based modularity
+3. Template-based modularity
+
 
