@@ -1,0 +1,11 @@
+<!-- Knowhow -->
+{% set soft_skills = chapter %}
+{% if soft_skills.lines is defined %}
+<div class="taglist soft-skills-container">
+    <ul>
+    {%- for skill in soft_skills.lines.values() %}
+        <li> <span id="{{skill.icon}}" class="logo"> </span>{{ tr(skill) }}</li>
+    {% endfor -%}
+    </ul>
+</div>
+{% endif %}

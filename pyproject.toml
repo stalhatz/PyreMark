@@ -7,7 +7,7 @@ readme = "README.md"
 package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 jinja2-cli = "^0.8"
 hiyapyco = "^0.5"
 markdown2="^2.5"

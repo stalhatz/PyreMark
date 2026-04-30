@@ -36,8 +36,3 @@ sections = [
     'knowledge',
     'languages',
 ]
-
-jsTemplates = [
-    './j2/multipage.js.j2',
-    './j2/shrinkWrapText.js.j2',
-]

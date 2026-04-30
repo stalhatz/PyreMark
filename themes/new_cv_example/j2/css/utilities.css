@@ -1,0 +1,27 @@
+.stronger {
+  font-weight: 700;
+}
+
+.max-width {
+  max-width: 250px;
+}
+
+.min-top-padding {
+  padding-top: inherit;
+}
+
+.justify-content {
+  justify-content: start;
+}
+
+.smaller-text {
+  font-size: 0.85rem;
+}
+
+.thinner-borders {
+  border: 1px solid var(--colorBorderDetails) !important;
+}
+
+.block-margins {
+  margin-block: 0.5rem;
+}

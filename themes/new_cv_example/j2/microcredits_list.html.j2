@@ -1,0 +1,29 @@
+<!-- Microcredentials -->      
+{% if microcredits.lines is defined %}
+<div class="cv-chapter microcredits-chapter">
+<h2> {{ tr(microcredits.title) }} </h2>
+<div class="grid-element">
+    {%- for lineName, line in microcredits.lines.items() %}
+    <div class = date> {{ tr(line.date) }} </div>
+    <div class = rhs-element>
+    {%- if line.title is defined %}
+        <h3> {{ tr(line.title) }} </h3>
+    {% endif -%}
+    <p>
+    <strong> {{ tr(microcredits.issuer) }} : </strong> <span class="issuer"> {{ tr(line.issuer) }} </span> &nbsp  
+    <strong> {{ tr(microcredits.holder) }} : </strong> <span class="issuer"> {{ tr(line.holder) }} </span> &nbsp
+    {%- if line.id is defined %}
+        <strong> ID : </strong>
+        {%- if line.link is defined %}
+        <a href="{{line.link}}"> <span class="id"> {{ tr(line.id) }}  </span> </a> &nbsp
+        {%- else -%}
+        <span class="id"> {{ tr(line.id) }} </span> &nbsp
+        {% endif -%}
+    {% endif -%}
+    <strong> {{ tr(microcredits.content) }} :</strong> {{ tr(line.text) }}
+    </p>
+    </div>
+    {% endfor -%}
+</div>
+</div>
+{% endif -%}

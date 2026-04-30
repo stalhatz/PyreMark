@@ -23,6 +23,11 @@ Break up declarations into files corresponding to components we are using:
     - photo.css
     - <any other component you can identify>.css
 
+Note: The cover letter CSS (`cover_letter.css.j2`) is deliberately excluded from this phase. 
+It will be refactored into a proper named theme as part of Phase 2 (Theme-based modularity), 
+since it represents a fundamentally different document layout that benefits from the theme 
+override mechanism.
+
 In `tokens.css`, define semantic tokens (name for what they do, not for how the look like). We should allow for utility classes to exist but only for specific customization, like for example the specialization of a card element:
 ```html
 <div class="card top-margin-0">
@@ -54,7 +59,7 @@ Ways to apply theming:
             1. Create a new theme from scratch
             2. Extend an existing theme by redefining as many files as needed
             3. Define only a subset of theme files without needing to define a theme
-            4. Define only a .css file to be added at the buttom of compiled .css declarations
+            4. Define .css files to be added at the beginning and the end of compiled .css declarations
             5. Redefine style tokens directly from the configuration file
 
 We want any user/dev that wants to apply theming to be able to (let's continue supposing our theme is called `newTheme`):
@@ -69,20 +74,26 @@ We want any user/dev that wants to apply theming to be able to (let's continue s
 - Use filename matching to implement a override/redefinition scheme to extend themes in an flexible way for end users
     - Define one or more files in a /theme subdirectory inside a data directory, that will automatically override the file with the same name defined in the current (specified) theme
         - Especially for .css files where the cascade exists it should be clear that files are being replaced and not included together in the final .css
-    - Define an extra `styles.css` (a specifically named file) that will be included at the end of the `.css`
+    - Arrange that if a `post_styles.css` (a specifically named file) is part of the css that will be included at the end of the `.css`
+    - Arrange that if a `pre_styles.css` (a specifically named file) is part of the css that will be included at the beginning of the `.css`
+        
 
 In addition to the above mechanisms, we need to reorganize our code to make it adhere to them. Namely:
 - Arrange our existing theme into the `/themes` folder
 
-### Testing
-To test the refactoring in a meaningful manner we need to test all 5 extension methods:
-- Add a new theme to `/themes` not extending any other theme. Make it implement all templates (=rendering all possible data)
-- Add a new theme to `/themes` extending the default theme. Make it reimplement a single theme and redefine the `photo.css` to give a funky frame to the profile pic an make it colored.
+### Concretely
+- Create a theme called `default` out of the current CV theme
+- Create a theme called `cover_letter` out of the current cover letter theme
+- Create a new theme `new_theme_example`
+    - Make it implement all templates (=rendering all possible data)
+- Create an example theme extending `default` called `ext_default_example` 
+    - Make it reimplement a single template and redefine the `photo.css` to give a funky frame to the profile pic an make it colored.
 - Add a `theme/` folder in `/testdata` where `preambule.html.j2` is reimplemented to change the order of the `.titlename` elements and also their layout (vertical)
-- Define a `styles.css` in `/testdata` to completely overhaul the theme (make it colourful and fancy) using "!important" statement to overshadow previous choices
-- The mechanisms to change value in a templated .css is already in place
+- Define a `pre_styles.css` and a `post_styles.css`  in `/testdata` that will make two specific and visible changes
 
-Create tests for all 5 cases.
+### Testing
+Add tests for all 5 customizaiton options and their logical compositions
+
 
 ## Template-based modularity
 ### Current state:
@@ -116,21 +127,8 @@ The unique name should be a short random alphanum string : ".enc-4d52f"
 
 The recommended and preferable way for this to happen is via jinja2 template compilation and python. Try to limit the syntactic sugar needed (macros) to achieve the intended result as much as possible.
 
-## Theme-based modularity
-### Current state
-Only way to apply theming is to touch upon the `resume.css.j2` template which mean getting accustomed to all the bells and whistles of the current implementation
-### Target state
-We want any user/dev that wants to apply theming to be able to cleanly define a file and thus override semantically significant parts of the default implementation (typography, colors) without having to have full knowledge of every part of the theme they are extending.
-
-We need a file organization and inclusion system that permits users to define the files they want to override either 
-- to define their own named themes
-- to define anonymous ad-hoc overrides
-- to override variables from within the configuration file (maximum flexibility)
-
-# Technical
+# Spec planning
 Create three separate plans for this spec, one after the first one has been implemented and commited (plan->implementation->commit->plan->implementation etc.), in the following sequence:
 1. Content-based modularity
 2. Theme-based modularity
 3. Template-based modularity
-
-

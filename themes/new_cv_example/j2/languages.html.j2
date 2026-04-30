@@ -1,0 +1,18 @@
+<!-- Languages -->
+
+{%set languages = chapter%}
+
+{% if languages.lines is defined %}
+<div class = date>  </div>
+<div class = rhs-element>
+<p>
+{%- for language in languages.lines%}
+    <span id="{{language.icon}}" class="logo flag"> </span>
+    <strong>{{tr(language.name)}}:</strong> {{tr(language.capacity)}}
+    {% if not loop.last %}
+    ,
+    {% endif %}
+{% endfor %}
+</p>
+</div>
+{% endif %}

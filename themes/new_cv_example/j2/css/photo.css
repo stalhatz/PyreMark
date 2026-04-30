@@ -1,0 +1,8 @@
+.profile-photo {
+  max-width: 3.2cm;
+  width: 100%;
+  float: inline-end;
+  filter: none;
+  border-radius: 0.25rem;
+  border: 2px solid var(--colorBorderDark);
+}

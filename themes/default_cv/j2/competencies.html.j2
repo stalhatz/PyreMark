@@ -9,7 +9,7 @@
     <div class = "card-date"> {{ tr(knowhow.title) }} </div>
     <div class = "card-element competence-category">
         {% with chapter = knowhow%}
-            {%include "./j2/" + knowhow.template%}
+            {%include knowhow.template%}
         {% endwith %}
     </div>
     </div>
@@ -18,7 +18,7 @@
     <div class = "card-date"> {{ tr(soft_skills.title) }} </div>
     <div class = "card-element competence-category">
         {% with chapter = soft_skills%}
-            {%include "./j2/" + soft_skills.template%}
+            {%include soft_skills.template%}
         {% endwith %}
     </div>
     </div>

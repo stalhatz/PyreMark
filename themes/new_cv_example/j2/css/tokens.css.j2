@@ -1,0 +1,20 @@
+:root {
+  --pageHeight: {{ styles.pageHeightInMM | default('297') }}mm;
+  --pageWidth: {{ styles.pageWidthInMM | default('210') }}mm;
+  --fontSize: {{ styles.fontSize | default('11px') }};
+  --fontFamily: {{styles.fontFamily | default("'Inter', 'Helvetica Neue', Arial, sans-serif")}};
+  --textBackgroundColor: {{ styles.textBackgroundColor | default('#eef2ff') }};
+  --colorSurface: {{ styles.colorSurface| default("#ffffff")}};
+  --colorBorderDark: {{ styles.BorderDark| default("#2563eb")}};
+  --colorShadow: {{ styles.colorShadow| default("rgba(37, 99, 235, 0.15)") }};
+  --colorBorderPage: {{ styles.colorBorderPage| default("#e2e8f0")}};
+  --colorShadowPage: {{ styles.colorShadowPage | default("rgba(0, 0, 0, 0.05)") }};
+  --colorShadowPhoto: {{ styles.colorShadowPhoto | default("rgba(37, 99, 235, 0.2)") }};
+  --colorBorderDetails: {{ styles.colorBorderDetails |default("#cbd5e1")}};
+  --colorTextHeading: {{ styles.colorTextHeading | default("#1e293b") }};
+  --colorDivider: {{ styles.colorDivider | default("#2563eb") }};
+  --colorBorderMedium: {{ styles.colorBorderMedium | default("#94a3b8") }};
+  --preambule_detailsBottomMargin: {{ styles.preambule_detailsBottomMargin | default('0.6rem') }};
+  --darkBorder: 0.4mm solid var(--colorBorderDark);
+  --shadow: none;
+}

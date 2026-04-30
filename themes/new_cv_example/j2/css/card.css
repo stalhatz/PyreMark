@@ -1,0 +1,69 @@
+.card-element {
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-left: 3px solid var(--colorBorderDark);
+  padding: 0.6rem 0.8rem;
+  min-height: 100%;
+  background-color: transparent;
+  position: relative;
+}
+
+.card-element h3 {
+  margin-block: 0.2rem;
+  font-size: 1.05rem;
+}
+
+.card-element .text {
+  flex-grow: 100;
+  font-weight: 400;
+  line-height: 1.45;
+  color: #475569;
+}
+
+.card-element .title {
+  flex-grow: 2;
+}
+
+.card-element .issuer-and-id {
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  color: #64748b;
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--colorBorderDetails);
+}
+
+.card-element .divider {
+  display: none;
+}
+
+.card-wrapper {
+  position: relative;
+  flex: 1;
+  margin-bottom: 0.5rem;
+}
+
+.card-container {
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+  gap: 1rem;
+  display: flex;
+  flex-direction: row;
+  margin-right: 5px;
+}
+
+.card-date {
+  padding-inline: 0;
+  height: auto;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  border: none;
+  position: static;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--colorBorderDark);
+  margin-bottom: 0.3rem;
+}

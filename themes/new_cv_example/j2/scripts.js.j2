@@ -1,0 +1,10 @@
+{% macro tr(prop,default = "Undefined property") -%}
+  {% if prop is defined -%}
+    {{prop}}
+  {%- else -%}
+    {{default}}
+  {%- endif %}
+{%- endmacro %}
+
+{% include "multipage.js.j2" %}
+{% include "shrinkWrapText.js.j2" %}

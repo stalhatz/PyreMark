@@ -1,0 +1,13 @@
+<!-- General chapter parser -->
+
+
+{%- for lineName, line in chapter.lines.items() %}
+<div class = "date"> {{ tr(line.date) }} </div>
+<div class = "rhs-element">
+{%- if line.title is defined %}
+    <h3> {{ tr(line.title) }} </h3>
+{% endif -%}
+<p> {{ tr(line.text) }} </p>
+</div>
+{% endfor -%}
+

@@ -1,0 +1,31 @@
+{% set details = chapter %}
+<div class="preambule testdata-override">
+<div class="titleName vertical-layout">
+    <div> <h2> {{tr(details.candidateTitle)}} </h2> </div>
+    <div> <h1> {{tr(details.firstName)}} {{tr(details.surname)}} </h1> </div>
+
+    {% if details.pitch is defined -%}
+    <div class="pitch" id="pitch">
+        {{tr(details.pitch)}}
+    </div>
+    {%- endif %}
+
+</div>
+<div class="personal-info vertical">
+    {% if details.photo is defined -%}
+        <div class="photo">
+        <img class="profile-photo" src="{{tr(details.photo)}}">
+        </div>
+    {%- endif %}
+    <div class="details-list">
+    {% if details.age is defined %} <div class="age"> <span id="ageLogo" class="logo">  </span> <p> {{tr(details.age)}}</p> </div>                                                  {% endif -%}
+    {% if details.address is defined %} <div class="address"> <span id="addressLogo" class="logo">  </span> <p>  {{tr(details.address)}} </p></div>                                 {% endif -%}
+    {% if details.phoneNumber is defined %} <div class="phone-number"> <span id="phoneLogo" class="logo">  </span> <p>  {{tr(details.phoneNumber)}}</p> </div>                      {% endif -%}
+    {% if details.email is defined %} <div class="email"> <span id="emailLogo" class="logo">  </span> <p>  {{tr(details.email)}}</p> </div>                                         {% endif -%}
+    {% if details.driversLicence is defined %} <div class="drivers-licence"> <span id="driversLicenseLogo" class="logo">  </span> <p>  {{tr(details.driversLicence)}}</p> </div>    {% endif -%}
+    {% if details.personalRepo is defined %} <div class="personal-repo"> <span id="codingLogo" class="logo">  </span> <p> <a href="{{tr(details.personalRepo.link)}}">  {{tr(details.personalRepo.text)}}</a> </p> </div>                  {% endif -%}
+    {% if details.linkedin is defined %} <div class="linkedin-link"> <span id="linkedinLogo" class="logo">  </span> <p> <a href="{{tr(details.linkedin.link)}}">  {{tr(details.linkedin.text)}}</a> </p> </div>                  {% endif -%}
+    {% if details.CVtypeset is defined %} <div class="cv-typeset"> <span id="codingLogo" class="logo">  </span> <p> {{tr(details.CVtypeset)}} </p> </div> {% endif -%}
+    </div>
+</div>
+</div>

@@ -1,0 +1,46 @@
+.cv-chapter {
+  padding-top: 0.5rem;
+}
+
+.cv-chapter:first-child > h2 {
+  margin-top: 0mm;
+}
+
+.cv-chapter > h2 {
+  padding-top: 0mm;
+  padding-bottom: 0.3rem;
+  margin-top: 0mm;
+  margin-bottom: 0.5rem;
+  border-bottom: 2px solid var(--colorBorderDark);
+  font-size: 1.3rem;
+}
+
+.line-element {
+  display: flex;
+  flex-direction: row;
+}
+
+.rhs-element h3 {
+  margin-top: 0;
+  margin-bottom: 0.2rem;
+}
+
+.rhs-element p {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+}
+
+.rhs-element h3 + p {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.grid-element:has(h3) .date {
+  margin-top: 0.2rem;
+  font-weight: 600;
+  color: var(--colorBorderDark);
+}
+
+.date:has(+ .taglist) {
+  padding-top: 0.1em;
+}

@@ -1,0 +1,137 @@
+.svg-image {
+  width: 15px;
+}
+
+.logo {
+  background-size: cover;
+  --size: 1.1rem;
+  width: var(--size);
+  height: var(--size);
+  margin-inline: 0.3rem;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  opacity: 0.99;
+  filter: brightness(0) saturate(100%) invert(31%) sepia(98%) saturate(2048%) hue-rotate(210deg);
+  display: inline-block;
+}
+
+.flag {
+  filter: grayscale(0);
+  width: 1.5em;
+  position: relative;
+  top: 0.1em;
+  border: 0.5px solid #cbd5e1;
+}
+
+#ageLogo {
+  background-image: url("../img/baby.svg");
+}
+
+#addressLogo {
+  background-image: url("../img/map-pin.svg");
+}
+
+#phoneLogo {
+  background-image: url("../img/phone.svg");
+}
+
+#driversLicenseLogo {
+  background-image: url("../img/car.svg");
+}
+
+#emailLogo {
+  background-image: url("../img/at-sign.svg");
+}
+
+#codingLogo {
+  background-image: url("../img/message-square-code.svg");
+}
+
+#htmlLogo {
+  background-image: url("../img/HTML5.svg");
+  filter: grayscale(0);
+}
+
+#cssLogo {
+  background-image: url("../img/CSS3.svg");
+  filter: grayscale(0);
+}
+
+#jinjaLogo {
+  background-image: url("../img/jinja.svg");
+  filter: grayscale(0);
+}
+
+#pythonLogo {
+  background-image: url("../img/Python.svg");
+  filter: grayscale(0);
+}
+
+#linkedinLogo {
+  background-image: url("../img/linkedin.svg");
+  filter: grayscale(0);
+}
+
+#fact_check {
+  background-image: url("../img/fact_check.svg");
+}
+
+#grid_view {
+  background-image: url("../img/grid_view.svg");
+}
+
+#group {
+  background-image: url("../img/group.svg");
+}
+
+#menu_book {
+  background-image: url("../img/menu_book.svg");
+}
+
+#person_check {
+  background-image: url("../img/person_check.svg");
+}
+
+#target {
+  background-image: url("../img/target.svg");
+}
+
+#computer {
+  background-image: url("../img/computer.svg");
+}
+
+#corporate_fare {
+  background-image: url("../img/corporate_fare.svg");
+}
+
+#delivery_truck_speed {
+  background-image: url("../img/delivery_truck_speed.svg");
+}
+
+#euro {
+  background-image: url("../img/euro.svg");
+}
+
+#handshake {
+  background-image: url("../img/handshake.svg");
+}
+
+#fr-flag {
+  background-image: url("../img/fr.svg");
+}
+
+#gb-flag {
+  background-image: url("../img/gb.svg");
+}
+
+#gr-flag {
+  background-image: url("../img/gr.svg");
+}
+
+#de-flag {
+  background-image: url("../img/de.svg");
+}
+
+#es-flag {
+  background-image: url("../img/es.svg");
+}

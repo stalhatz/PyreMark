@@ -40,11 +40,11 @@
               {%- else -%}
                 <div class="grid-element">
               {%- endif %}
-              {% include "./j2/" + data[sectionName].template %}
+              {% include data[sectionName].template %}
               </div>
               </div>
             {%- else -%}
-              {% include "./j2/" + data[sectionName].template %}
+              {% include data[sectionName].template %}
             {%- endif %}
           {% endwith %}
         {%- endif %}

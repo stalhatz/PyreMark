@@ -1,0 +1,100 @@
+function sumAllChildrenHeights(e,u=0){
+    const children = e.children
+    const numChildren = e.childElementCount
+    var pxHeight = 0.0
+    for (let c = 0; c < numChildren - u; c++) {
+        pxHeight += children[c].scrollHeight
+    }
+    return pxHeight
+    }
+function createPage(){
+    const page = document.createElement('div');
+    page.className = 'page';
+    return page
+}
+
+function createSpacer(spacerHeight){
+    const spacer = document.createElement('div');
+    spacer.className = 'spacer';
+    spacer.style.cssText = `
+        height: ${spacerHeight}mm;
+    `;
+    return spacer
+}
+
+// From : https://triss.dev/blog/units-on-the-web/
+function toMM(p){
+    return p / 3.78
+}
+
+function addElementsToPage(elements,page){
+    for (let i=0;i< elements.length;i++){
+        page.appendChild(elements[i])
+    }
+}
+
+function addPagetoCanvas(page,canvas){
+    canvas.appendChild(page)
+}
+
+function createMultiPageLayout(){
+    const freeSpace = []
+    const maxSectionGap = {{tr(styles.maxSectionGap,"5")}} //mm
+    const pages = []
+    const content = document.getElementsByClassName('canvas-container')[0]
+    const pageHeight = {{tr(styles.pageHeightInMM,"297")}} //297 for A4
+    const children = content.children
+    const numChildren = content.childElementCount
+    var thisPageHeight = 0
+    let pageElements = []
+    for (let c = 0; c < numChildren; c++) {
+        elementHeight = toMM(parseFloat(getComputedStyle(children[c]).height))
+        var newPageHeight = thisPageHeight + elementHeight
+        
+        // Does element c fit in the page?
+        if (newPageHeight > pageHeight){
+            console.log("The next element does not fit in the current page. Creating new page to place element.")
+            pages.push(pageElements)
+            pageElements = []
+            freeSpace.push(pageHeight - thisPageHeight)
+            newPageHeight = elementHeight
+        }
+
+        if (c === numChildren - 1){
+            console.log("Adding all elements to last page as this is the last element")
+            pageElements.push(children[c])
+            pages.push(pageElements)
+            freeSpace.push(pageHeight - newPageHeight)
+        }
+        else{
+            pageElements.push(children[c])
+            thisPageHeight = newPageHeight
+        }
+    }
+    
+    console.log("Maximum allowed gap : ", maxSectionGap+ "mm")
+    for (let i=0;i<pages.length;i++){
+        console.log("Freespace for page", i ," : ", freeSpace[i] + "mm")
+        numGaps = 1 
+        if (pages[i].length > 2){
+            numGaps = pages[i].length - 1
+            sectionGap = freeSpace[i] / numGaps
+        }
+        if (pages[i].length === 2){
+            sectionGap = freeSpace[i]
+            numGaps = 1
+        }
+        console.log("Computed section gap for page", i ," : ", sectionGap + "mm")
+        if (sectionGap > maxSectionGap){
+            spacerHeight = freeSpace[i] - (maxSectionGap * (numGaps+1) )
+            spacer = createSpacer(spacerHeight)
+            pages[i].push(spacer)
+            console.log("Adding spacer of height : ", spacerHeight, "mm, as we are above the maximum allowed section gap")
+        }
+        page = createPage()
+        addElementsToPage(pages[i],page)
+        addPagetoCanvas(page,content)
+    }
+}
+
+window.addEventListener('load', createMultiPageLayout)

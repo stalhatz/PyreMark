@@ -1,4 +1,6 @@
 type = "cv"
+theme="default_cv"
+
 yaml = [
     './testdata/yaml/personal_details.yaml',
     './testdata/yaml/experience.yaml',
@@ -16,6 +18,11 @@ yaml = [
 ]
 lang = "en"
 
+[theming_options]
+pre_styles = "./testdata/pre.css"
+post_styles = "./testdata/post.css"
+local_theming_dir = "./testdata/theme/"
+
 [layout]
 sections = [
     'details',
@@ -25,7 +32,4 @@ sections = [
     'languages',
 ]
 
-jsTemplates = [
-    './j2/multipage.js.j2',
-    './j2/shrinkWrapText.js.j2',
-]
+

@@ -1,4 +1,3 @@
-
 import tomllib
 import argparse
 from enum import Enum
@@ -14,23 +13,96 @@ from jinja2 import Environment, BaseLoader, TemplateNotFound
 import yaml
 
 from transform_md_to_yaml_html import tranformMD
-from os.path import join, exists, getmtime
+from os.path import join, exists, getmtime, dirname, abspath
 from itertools import batched
 from types import SimpleNamespace
 
-class MyLoader(BaseLoader):
 
-    def __init__(self, path):
-        self.path = path
+class ThemeLoader(BaseLoader):
+    def __init__(self, search_paths):
+        self.search_paths = search_paths
 
     def get_source(self, environment, template):
-        path = join(self.path, template)
-        if not exists(path):
-            raise TemplateNotFound(template)
-        mtime = getmtime(path)
-        with open(path) as f:
-            source = f.read()
-        return source, path, lambda: mtime == getmtime(path)
+        for base in self.search_paths:
+            path = join(base, template)
+            if exists(path):
+                mtime = getmtime(path)
+                with open(path) as f:
+                    source = f.read()
+                return source, path, lambda: mtime == getmtime(path)
+        raise TemplateNotFound(template)
+
+
+class ThemeResolver:
+    def __init__(self, theme_name, user_theme_dir=None,
+                 pre_styles=None, post_styles=None):
+        self.theme_name = theme_name
+        self.user_theme_dir = user_theme_dir
+        self.pre_styles_path = pre_styles
+        self.post_styles_path = post_styles
+        self._theme_root = join(dirname(abspath(__file__)), "..", "themes", theme_name)
+        if not exists(self._theme_root):
+            raise ValueError(f"Theme '{theme_name}' not found at {self._theme_root}")
+        self._manifest = self._load_manifest()
+        self._search_paths = self._build_search_paths()
+
+    def search_paths(self) -> list[str]:
+        """Ordered list of j2/ directories for template resolution.
+        First match wins — equivalent to highest priority.
+        """
+        return list(self._search_paths)
+
+    def get_pre_styles(self) -> str:
+        """Content of pre-styles CSS, or empty string."""
+        if self.pre_styles_path and exists(self.pre_styles_path):
+            with open(self.pre_styles_path) as f:
+                return f.read()
+        return ""
+
+    def get_post_styles(self) -> str:
+        """Content of post-styles CSS, or empty string."""
+        if self.post_styles_path and exists(self.post_styles_path):
+            with open(self.post_styles_path) as f:
+                return f.read()
+        return ""
+
+    def _load_manifest(self) -> dict:
+        path = join(self._theme_root, "manifest.md")
+        manifest = {}
+        if exists(path):
+            with open(path) as f:
+                for line in f:
+                    line = line.strip()
+                    # Parse markdown headers like "# theme: name" as key-value pairs
+                    if line.startswith("# ") and ":" in line:
+                        line = line[2:]
+                    elif line.startswith("#"):
+                        continue
+                    if ":" in line:
+                        key, value = line.split(":", 1)
+                        manifest[key.strip()] = value.strip()
+        return manifest
+
+    def _build_search_paths(self) -> list[str]:
+        paths = []
+        # 1. User theme_dir (highest priority)
+        if self.user_theme_dir:
+            user_j2 = join(self.user_theme_dir, "j2")
+            if exists(user_j2):
+                paths.append(user_j2)
+
+        # 2. This theme's j2/
+        paths.append(join(self._theme_root, "j2"))
+
+        # 3. Walk extends: chain (parent themes)
+        extends = self._manifest.get("extends")
+        if extends:
+            parent = ThemeResolver(extends, user_theme_dir=None,
+                                   pre_styles=None, post_styles=None)
+            paths.extend(parent.search_paths())
+
+        return paths
+
 
 class DocumentType(str, Enum):
     resume = 'resume'
@@ -110,17 +182,16 @@ logger = logging.getLogger(__name__)
 FORMAT = '[%(funcName)s] : %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 
-def renderTemplateAndWriteToFile(template, data, filename):
-    logger.debug(f"Using template file : {template}")
-
-    with open(template,"r") as tf:
-        template = tf.read()
-
-    template = Environment(loader=MyLoader(".")).from_string(template)
+def renderTemplateAndWriteToFile(template_name, data, filename, search_paths=None):
+    if search_paths is None:
+        search_paths = ["."]
+    logger.debug(f"Using template file : {template_name}")
+    loader = ThemeLoader(search_paths)
+    env = Environment(loader=loader)
+    template = env.get_template(template_name)
     logger.debug(f"Merging template with data : {data}")
     rendered = template.render(data)
-
-    with open(filename,"w") as hf:
+    with open(filename, "w") as hf:
         logger.info(f"Writing rendered template to {filename}")
         hf.write(rendered)
 
@@ -265,6 +336,11 @@ if __name__ == "__main__":
 
     parser.add_argument("-v","--verbose",help="set to one of warn, info , debug",default="info", choices=["info","warn","debug"])
 
+    # Theme-related CLI flags
+    parser.add_argument("--theme", help="Named theme to use for rendering")
+    parser.add_argument("--local-theming-dir", help="User theme directory for per-project overrides")
+    parser.add_argument("--theme-pre-styles", help="CSS file to prepend to compiled CSS")
+    parser.add_argument("--theme-post-styles", help="CSS file to append to compiled CSS")
 
     args = parser.parse_args()
     
@@ -276,22 +352,49 @@ if __name__ == "__main__":
             args = mergeDicts(tomlArgs,vars(args))
             args = SimpleNamespace(args)
 
+    theme = getattr(args, "theme", None)
+    local_theming_dir = getattr(args, "local_theming_dir", None)
+    pre_styles = getattr(args, "theme_pre_styles", None)
+    post_styles = getattr(args, "theme_post_styles", None)
+    theme_active = False
+
     # Argument validation
     if args.type is not None:
         if args.template is not None:
             print("--template is mutually exclusive with --type. Exiting")
             exit(1)
         if str.lower(args.type) == "cv":
-            args.template = "./j2/resume.html.j2"
+            theme = theme or "default_cv"
+            args.template = "resume.html.j2"
             if args.css is None:
-                args.css = "./j2/styles.css.j2"
+                args.css = "styles.css.j2"
             if args.js is None:
-                args.js = "./j2/resume.js.j2"
+                args.js = "scripts.js.j2"
+            theme_active = True
         if args.type == "coverletter":
-            args.template = "./j2/cover_letter.html.j2"
+            theme = theme or "default_cover_letter"
+            args.template = "cover_letter.html.j2"
             if args.css is None:
-                args.css = "./j2/cover_letter.css.j2"
+                args.css = "cover_letter.css.j2"
+            theme_active = True
+    elif theme is not None:
+        # Theme specified without type: default to CV templates
+        args.template = args.template or "resume.html.j2"
+        if args.css is None:
+            args.css = "styles.css.j2"
+        if args.js is None:
+            args.js = "scripts.js.j2"
+        theme_active = True
 
+    # Resolve theme configuration from [theming_options] section if present
+    theming_options = getattr(args, "theming_options", None)
+    if isinstance(theming_options, dict):
+        if pre_styles is None:
+            pre_styles = theming_options.get("pre_styles")
+        if post_styles is None:
+            post_styles = theming_options.get("post_styles")
+        if local_theming_dir is None:
+            local_theming_dir = theming_options.get("local_theming_dir")
 
     if (args.verbose == "info"):
         logging.basicConfig(level=logging.INFO)
@@ -312,16 +415,11 @@ if __name__ == "__main__":
         yamlFiles = [tempfile.mkstemp(suffix=".yaml")[1]]
         logger.info(f"Using {yamlFiles[0]} as temporary .yaml file")
         tranformMD(["None",args.md , yamlFiles[0]])
-        args.template   = "./j2/cover_letter.html.j2"
-        args.css        = "./j2/cover_letter.css.j2"
+        theme = theme or "default_cover_letter"
+        args.template = "cover_letter.html.j2"
+        if args.css is None:
+            args.css = "cover_letter.css.j2"
         outputName = args.md
-
-    # if (args.yaml is not None):
-    #     if any( [ os.path.splitext(k)[1]!= ".yaml" for k in args.yaml] ):
-    #         raise ValueError("Expected only .yaml files as input but was given : " + str(args.yaml))
-    #     yamlFiles = args.yaml
-    #     logger.info("Received the following yaml files as input :" + str(yamlFiles))
-    #     if outputName is None: outputName = args.yaml[0]
 
     lang = args.lang or "en"
 
@@ -338,11 +436,6 @@ if __name__ == "__main__":
 
     #Read yaml file
     data = {}
-    # if layout is not None:
-    #     data["layout"] = layout
-    # for yamlFile in yamlFiles:
-    #     with open(yamlFile,"r") as yf:
-    #         data = update_merge(data,yaml.load(yf, Loader=yaml.SafeLoader))
     if (yamlFiles is not None):
         data = readYamlData(yamlFiles)
 
@@ -364,12 +457,17 @@ if __name__ == "__main__":
     data = dict(data)
     data["lang"] = lang
     htmlFile="./html/tmp.html"
+
+    search_paths = None
+    if theme_active and theme is not None:
+        resolver = ThemeResolver(theme, local_theming_dir, pre_styles, post_styles)
+        search_paths = resolver.search_paths()
+        logger.debug(f"Theme search paths: {search_paths}")
+
     if jsTemplateFile:
         jsFile="./js/tmp.js"
         layout = getattr(args, "layout", None)
-        if layout is not None and "jsTemplates" in layout:
-            data["jsTemplates"] = layout["jsTemplates"]
-        renderTemplateAndWriteToFile(jsTemplateFile,data,jsFile)
+        renderTemplateAndWriteToFile(jsTemplateFile, data, jsFile, search_paths)
         ## Get relative js path
         jsFile = os.path.relpath(jsFile,os.path.dirname(htmlFile))
         logger.debug(jsFile)
@@ -386,11 +484,20 @@ if __name__ == "__main__":
             for key in styles.keys():
                 data["styles"][key] = styles[key]
 
-        layout = getattr(args, "layout", None)
-        if layout is not None and "cssTemplates" in layout:
-            data["cssTemplates"] = layout["cssTemplates"]
+        if theme_active and resolver is not None:
+            # Render CSS through theme loader
+            renderTemplateAndWriteToFile(cssTemplateFile, data, cssFile, search_paths)
+            # Prepend/append styles
+            pre = resolver.get_pre_styles()
+            post = resolver.get_post_styles()
+            if pre or post:
+                with open(cssFile, "r") as f:
+                    css_core = f.read()
+                with open(cssFile, "w") as f:
+                    f.write(pre + css_core + post)
+        else:
+            renderTemplateAndWriteToFile(cssTemplateFile, data, cssFile, search_paths)
 
-        renderTemplateAndWriteToFile(cssTemplateFile,data,cssFile)
         ## Get relative css path
         cssFile = os.path.relpath(cssFile,os.path.dirname(htmlFile))
         logger.debug(cssFile)
@@ -403,7 +510,7 @@ if __name__ == "__main__":
 
     createQRCode(data,lang)
 
-    renderTemplateAndWriteToFile(template,data,htmlFile)
+    renderTemplateAndWriteToFile(template, data, htmlFile, search_paths)
 
     if args.show == "html":
         showHTML(htmlFile)

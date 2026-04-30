@@ -1,0 +1,49 @@
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: var(--fontSize);
+}
+
+body {
+  margin: 0;
+  background-color: #f8fafc;
+}
+
+h1 {
+  font-size: 3.2rem;
+  margin-bottom: 0.3rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--colorTextHeading);
+}
+
+h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--colorBorderDark);
+}
+
+h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--colorTextHeading);
+}
+
+p {
+  font-weight: 400;
+  line-height: 1.45;
+  color: #334155;
+}
+
+strong {
+  font-weight: 700;
+}
+
+em {
+  font-weight: 500;
+  font-style: italic;
+}

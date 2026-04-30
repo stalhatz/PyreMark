@@ -1,0 +1,4 @@
+/* post_styles test: this should appear at the end of compiled CSS */
+h1 {
+  color: #00ff00 !important;
+}

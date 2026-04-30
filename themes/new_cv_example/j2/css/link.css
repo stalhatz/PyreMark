@@ -1,0 +1,25 @@
+a[href^="http://"]:after, a[href^="https://"]:after {
+  content: "";
+  background-size: cover;
+  --size: 0.9em;
+  width: var(--size);
+  height: var(--size);
+  margin-inline: 0.2em;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  opacity: 0.99;
+  filter: brightness(0) saturate(100%) invert(31%) sepia(98%) saturate(2048%) hue-rotate(210deg);
+  display: inline-block;
+  background-image: url("../img/external-link.svg");
+  position: relative;
+  top: 0.15em;
+}
+
+a {
+  color: var(--colorBorderDark);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

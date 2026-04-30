@@ -1,0 +1,4 @@
+/* pre_styles test: this should appear at the beginning of compiled CSS */
+body {
+  background-color: #ff0000 !important;
+}

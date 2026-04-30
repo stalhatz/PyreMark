@@ -1,0 +1,33 @@
+<!-- Microcredentials -->      
+
+{%set microcredits = chapter%}
+
+{% if microcredits.lines is defined %}
+<div class="card-container">
+    {%- for lineName, line in microcredits.lines.items() %}
+    <div class = card-wrapper>
+    <div class = card-date> {{ tr(line.date) }} </div>
+    <div class = card-element>
+        {%- if line.title is defined %}
+        <div class="title"> <h3> {{ tr(line.title) }} </h3> </div>
+        {% endif -%}
+        <div class="text"> {{ tr(line.text) }} </div>
+        <div class="divider"> </div>
+        <div class="issuer-and-id">
+        <div class="issuer"> <span> {{ tr(line.issuer) }} </span> </div>
+        {%- if line.id is defined %}
+            <div>
+            {%- if line.link is defined %}
+            <a href="{{line.link}}"> <span class="id"> {{ tr(line.id) }}  </span> </a> &nbsp
+            {%- else -%}
+            <span class="id"> {{ tr(line.id) }} </span> &nbsp
+            {% endif -%}
+            </div>
+        {% endif -%}
+        </div>
+    </div>
+    </div>
+    {% endfor -%}
+</div>
+
+{% endif -%}

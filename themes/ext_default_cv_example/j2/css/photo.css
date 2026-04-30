@@ -1,0 +1,18 @@
+.profile-photo{
+    border-radius: 50%;
+    border: 4px solid #ff6b6b;
+    box-shadow: 0 0 15px rgba(255, 107, 107, 0.6), 0 0 30px rgba(255, 107, 107, 0.3);
+    filter: saturate(1.5) hue-rotate(-10deg);
+    transition: transform 0.3s ease;
+}
+
+.profile-photo:hover{
+    transform: scale(1.05) rotate(3deg);
+}
+
+.photo{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
