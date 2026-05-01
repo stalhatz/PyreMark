@@ -109,6 +109,11 @@ class DocumentType(str, Enum):
     coverLetter = 'coverLetter'
 
 def showHTML(htmlFile):
+    '''
+    Shows an html files using an external browser
+
+    htmlFile: the path to the file to show
+    '''
     htmlViewerArgs = []
     htmlViewerArgs += ["firefox"]
     htmlViewerArgs += [htmlFile]
@@ -119,6 +124,11 @@ def showHTML(htmlFile):
 
 
 def viewPDF(pdfFile):
+    '''
+    Shows a pdf file using an external program
+
+    pdfFile: the path to the file to show
+    '''
     pdfViewerArgs = []
     pdfViewerArgs += ["okular"]
     pdfViewerArgs += ["--unique"]
@@ -132,6 +142,13 @@ import asyncio
 from playwright.async_api import async_playwright
 
 async def html_to_pdf_chromium(html_path, output_path):
+    '''
+    Creates a pdf file our of the contents of an html file
+
+    html_path: path to html file
+    output_path :  path to pdf file
+    '''
+
     async with async_playwright() as p:
         # Launch Chromium (default)
         browser = await p.chromium.launch(headless=True)
@@ -157,6 +174,14 @@ async def html_to_pdf_chromium(html_path, output_path):
 
 # Copied from https://stackoverflow.com/a/50441142
 def update_merge(d1, d2 , replace = False):
+    '''
+    Merges two dictionaries recursively while merging leaf values that correspond to the same key sequences into lists
+
+    d1,d2: input dictionaries
+    replace: controls whether we merge the two dictionaries leaf values or whether we replace the values by the values we find in d2 
+    return : merged dictionary
+    
+    '''
     if isinstance(d1, dict) and isinstance(d2, dict):
         # Unwrap d1 and d2 in new dictionary to keep non-shared keys with **d1, **d2
         # Next unwrap a dict that treats shared keys
@@ -182,38 +207,54 @@ logger = logging.getLogger(__name__)
 FORMAT = '[%(funcName)s] : %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 
-def renderTemplateAndWriteToFile(template_name, data, filename, search_paths=None):
+def renderTemplateAndWriteToFile(template_filename, data, output_filename, search_paths=None):
+    '''
+    Renders a jinja2 template and places the result in an output file
+
+    template_name: the name of the template to render
+    data: the dictionary to use to render the template
+    output_filename: the filename to output the rendered template
+    search_paths: a list of paths (from most to least priority) to search for the template
+    '''
     if search_paths is None:
         search_paths = ["."]
-    logger.debug(f"Using template file : {template_name}")
+    logger.debug(f"Using template file : {template_filename}")
     loader = ThemeLoader(search_paths)
     env = Environment(loader=loader)
-    template = env.get_template(template_name)
+    template = env.get_template(template_filename)
     logger.debug(f"Merging template with data : {data}")
     rendered = template.render(data)
-    with open(filename, "w") as hf:
-        logger.info(f"Writing rendered template to {filename}")
+    with open(output_filename, "w") as hf:
+        logger.info(f"Writing rendered template to {output_filename}")
         hf.write(rendered)
 
 import re
 
-def readYamlData(yamlFiles,layout = None):
+def readYamlData(yamlFiles):
+    '''
+    Reads data from a list of yaml files and merges them into a dictionary object
+
+    yamlFiles: List containing yaml files
+    '''
     if any( [ os.path.splitext(k)[1]!= ".yaml" for k in yamlFiles] ):
-        raise ValueError("Expected only .yaml files as input but was given : " + str(args.yaml))
+        nonYamlValues = filter(lambda x: os.path.splitext(x)[1]!= ".yaml" , yamlFiles)
+        raise ValueError("Expected only .yaml files as input but was given : " + str(list(nonYamlValues)))
     logger.info("Received the following yaml files as input :" + str(yamlFiles))
     #Read yaml file
     data = {}
-    if layout is not None:
-        data["layout"] = layout
     for yamlFile in yamlFiles:
         with open(yamlFile,"r") as yf:
             data = update_merge(data,yaml.load(yf, Loader=yaml.SafeLoader))
     return data
 
 
-
-
 def yearInDateString(s):
+    '''
+    return the year value contained in a string
+
+    s: the string to get the year value from
+    return : year value or None if no such value in s
+    '''
     matches = re.findall(r'\d{4}', s)
     if len(matches) == 0:
         return None
@@ -221,6 +262,12 @@ def yearInDateString(s):
         return matches[0]
 
 def findDateField(x):
+    '''
+    Find the date/year corresponding to a record
+
+    x: the record
+    returns : corresponding date/year to x
+    '''
     d = x[1]["date"]
     # First element without caring about key should give the date
     if type(d) is dict:
@@ -232,6 +279,13 @@ def findDateField(x):
 # The argument of this funciton should be a dictionary with elements that need to be sorted 
 # since a dictionary maintains order of iterms since Python 3.6
 def sortDict(lines,dsc,key):
+    '''
+    Orders a dictionary based on some key
+    
+    lines: the dictionary to sort
+    dsc: descending (True) or ascending (False) order 
+    key : unary function returning a number
+    '''
     linesList = list(lines.items())
     linesList.sort(key=key,reverse = dsc)
     return dict(linesList)
@@ -265,7 +319,13 @@ def mergeDicts(l,h):
     return n
 
 def generate_qr_code(url, output_path):
-    """Generate a QR code image for the given URL and save to output_path."""
+    """
+    Generate a QR code image for the given URL and save to output_path.
+    
+    url: URL the qrcode will be pointing to
+    output_path: path to the file to save the qrcode into
+    
+    """
     qr = qrcode.QRCode(
         version=3,
         error_correction=qrcode.constants.ERROR_CORRECT_M,
@@ -279,6 +339,11 @@ def generate_qr_code(url, output_path):
     logger.debug(f"Generated QR code for {url} at {output_path}")
 
 def tr(prop, lang=None, default=None):
+    '''
+    Returns the i18n version of a dictionary property
+
+    returns prop or prop[lang] or prop['def'] or default if no such values exist
+    '''
     if isinstance(prop, dict):
         if lang is not None and lang in prop:
             return prop[lang]
@@ -293,6 +358,13 @@ def tr(prop, lang=None, default=None):
             return default
 
 def createQRCode(data,lang):
+    '''
+    Creates qr codes corresponding to qrcode sections difined in the data
+
+    data: the dictionary used to render all templates
+    lang: the language we are targeting
+    '''
+
     # Process QR code sections: generate QR images and attach paths
     img_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'img'))
     os.makedirs(img_dir, exist_ok=True)
