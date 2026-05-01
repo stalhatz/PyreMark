@@ -173,7 +173,7 @@ async def html_to_pdf_chromium(html_path, output_path):
         await browser.close()
 
 # Copied from https://stackoverflow.com/a/50441142
-def update_merge(d1, d2 , replace = False):
+def deep_merge(d1, d2 , replace = False):
     '''
     Merges two dictionaries recursively while merging leaf values that correspond to the same key sequences into lists
 
@@ -189,7 +189,7 @@ def update_merge(d1, d2 , replace = False):
         # If the values are not equal, we recursively merge them
         return {
             **d1, **d2,
-            **{k: d1[k] if d1[k] == d2[k] else update_merge(d1[k], d2[k],replace)
+            **{k: d1[k] if d1[k] == d2[k] else deep_merge(d1[k], d2[k],replace)
             for k in {*d1} & {*d2}}
         }
     elif not replace:
@@ -244,7 +244,7 @@ def readYamlData(yamlFiles):
     data = {}
     for yamlFile in yamlFiles:
         with open(yamlFile,"r") as yf:
-            data = update_merge(data,yaml.load(yf, Loader=yaml.SafeLoader))
+            data = deep_merge(data,yaml.load(yf, Loader=yaml.SafeLoader))
     return data
 
 
@@ -304,19 +304,33 @@ def sortData(data, dsc=False):
             else:
                 sortData(data[k],dsc)
 
-# second argument takes precedence 
-# None values get overwritten
-# return value is shallow copy
-def mergeDicts(l,h):
-    n = l
-    for (k,v) in h.items():
+
+def overlay(base,top):
+    """
+    Shallow merge of two dicts where *top* takes precedence.
+    - A key in *top* with a non-None value overwrites the same key in *base*.
+    - A key in *top* with value None is treated as "not specified" and
+      does NOT erase an existing value in *base* (it only fills a missing key).
+    - Keys only in *base* are preserved unchanged.
+
+    This is a *shallow* merge: nested dicts in *top* replace the entire
+    value in *base*, they are not merged recursively.  If deep merge of
+    nested dicts is needed, the ``n[k] = v`` branch should call
+    ``deep_merge(base[k], v, replace=True)`` when both values are dicts.
+
+    base : The lower‑priority dictionary.
+    top :  The higher‑priority dictionary.
+    returns : a new dictionary (shallow copy of *base* with *top* overlaid).
+    """
+    output = base.copy()
+    for (k,v) in top.items():
         # We may overwrite
         if v is not None:
-            n[k] = v
+            output[k] = v
         # We don't want to overwrite l, only propagate None keys
-        if v is None and k not in n:
-            n[k] = None
-    return n
+        if v is None and k not in output:
+            output[k] = None
+    return output
 
 def generate_qr_code(url, output_path):
     """
@@ -421,7 +435,7 @@ if __name__ == "__main__":
         with open(args.cv,"rb") as fd:
             tomlArgs = tomllib.load(fd)
             # cli args  overwrite .toml defined ones
-            args = mergeDicts(tomlArgs,vars(args))
+            args = overlay(tomlArgs,vars(args))
             args = SimpleNamespace(args)
 
     theme = getattr(args, "theme", None)
@@ -517,7 +531,7 @@ if __name__ == "__main__":
     yaml_data = data.get("data", {})
     toml_data = getattr(args, "data", None)
     if toml_data is not None:
-        yaml_data = update_merge(yaml_data, toml_data, replace = True)
+        yaml_data = deep_merge(yaml_data, toml_data, replace = True)
     data["data"] = yaml_data
 
     if "styles" not in data:
