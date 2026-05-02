@@ -1,0 +1,346 @@
+---
+status: draft
+area: testing
+---
+
+# Enhance unit-test coverage for `src/build.py` and `src/transform_md_to_yaml_html.py`
+
+## Goal
+
+Bring the two Python modules under systematic unit-test coverage by:
+
+1. Writing tests for every callable that lacks them.
+2. Making minimal, targeted refactorings to convert nearly-pure functions into actually-pure (or purely-parametric) ones.
+3. Adding type hints and docstrings as a side effect of each touched function, so the contract is explicit.
+4. Cleaning up test infrastructure (fixtures, `tmp_path` hygiene) so tests are reliable and isolated.
+
+---
+
+## Methodology for finding test cases
+
+For each function, the agent **must** apply the following 4-step process and **record the analysis as a top-of-file or top-of-class comment** in the relevant test file:
+
+```python
+# Branch analysis for <function_name>:
+# 1. Branch tree:   (every if/elif/else/for/try/return)
+# 2. Input domain:  (nulls, empties, singletons, nesting, type boundaries)
+# 3. Call sites:    (what the rest of the codebase actually passes)
+# 4. Contract:      (what the name/docstring promises)
+```
+
+1. **Trace the branch tree** — every `if`, `elif`, `else`, `for`, `try/except`, `return`.
+2. **Identify interesting input values** — null, empty, single-element, multi-element, nested, type boundaries.
+3. **Check the call sites** — what shapes does the rest of the codebase actually pass? (This anchors tests in reality and prevents over-testing unreachable paths.)
+4. **Identify the contract** — what does the function's name, comment, or (new) docstring promise?
+
+The Cartesian product of (2) across parameters, reduced by equivalence, is the test matrix.
+
+---
+
+## Refactoring tasks
+
+
+### 4. Type hints
+
+Add type hints to **every function signature** in both `src/build.py` and `src/transform_md_to_yaml_html.py`.
+
+- Use `from __future__ import annotations` (or rely on Python 3.12's native PEP 649 support).
+- For recursive / union-heavy return types (`update_merge`), annotate parameters strictly and use `Any` for the return type if the shape is too dynamic.
+- Do **not** add third-party type stubs or install `mypy` — just function-level annotations.
+
+### 5. Docstrings
+
+Every function touched (by refactoring or by test-writing) **must** get a docstring:
+
+```
+What the function does.
+What each parameter means (type, semantics, defaults).
+What it returns.
+Any side effects (mutating arguments, I/O, logging).
+```
+
+---
+
+## Test cases
+
+### Naming convention
+
+Use descriptive names. Prefer parametrized tests (`@pytest.mark.parametrize`) over copy-paste test functions.  
+Group tests for a function under a test class when there are many cases.
+
+### Fixtures
+
+Create a `conftest.py` in `tests/` with:
+
+- `tmp_yaml_file` — writes a dict to a `tmp_path` yaml file, returns the path.
+- `tmp_jinja2_template` — writes a simple jinja2 template string to a `tmp_path` file.
+- `sample_data_dict` — a small realistic dict shaped like real CV data.
+
+Do **not** write a fixture that replicates the full `themes/` directory — use the existing `testdata/` for that.
+
+---
+
+### `update_merge(d1, d2, replace=False)`
+
+Branch tree:
+```
+if both d1 and d2 are dicts
+  → return {**d1, **d2, shared keys merged recursively}
+elif not replace
+  → return [*flatten(d1), *flatten(d2)]
+else
+  → return d2
+```
+
+Test matrix:
+
+| d1 | d2 | replace | Expected behaviour |
+|---|---|---|---|
+| `{"a":1}` | `{"b":2}` | `False` | `{"a":1, "b":2}` — disjoint keys |
+| `{"a":1}` | `{"a":1}` | `False` | `{"a":1}` — identical values kept |
+| `{"a":{"x":1}}` | `{"a":{"y":2}}` | `False` | `{"a":{"x":1,"y":2}}` — nested merge |
+| `{"a":1}` | `{"a":2}` | `False` | `{"a":[1,2]}` — conflict → bundled list |
+| `{"a":1}` | `{"a":2}` | `True` | `{"a":2}` — conflict → d2 wins |
+| `{"a":[1]}` | `{"a":2}` | `False` | `{"a":[1,2]}` — flatten existing list |
+| `1` | `2` | `False` | `[1, 2]` — non-dict bundling |
+| `1` | `2` | `True` | `2` — non-dict, replace wins |
+| `1` | `[2]` | `False` | `[1, 2]` — flatten d2 list |
+| `{}` | `{}` | `False` | `{}` |
+| `{"a":{"b":{"c":1}}}` | `{"a":{"b":{"d":2}}}` | `False` | 3-level nested merge |
+| Complex | Complex | `True` | d2 completely replaces conflicting leaves |
+
+---
+
+### `tr(prop, lang=None, default=None)`
+
+Branch tree:
+```
+if isinstance(prop, dict):
+  if lang is not None and lang in prop  → return prop[lang]
+  elif "def" in prop                    → return prop["def"]
+  else                                  → return default
+else:
+  if prop is not None  → return prop
+  else                 → return default
+```
+
+Test matrix:
+
+| prop | lang | default | Expected |
+|---|---|---|---|
+| `{"en":"hello","fr":"bonjour"}` | `"en"` | `None` | `"hello"` |
+| `{"en":"hello","def":"bonjour"}` | `"fr"` | `None` | `"bonjour"` → falls back to "def" |
+| `{"en":"hello"}` | `None` | `None` | `None` → no "def", no lang → default |
+| `{"en":"hello"}` | `None` | `"n/a"` | `"n/a"` |
+| `"hello"` | `"en"` | `None` | `"hello"` → string passthrough |
+| `None` | `"en"` | `"fallback"` | `"fallback"` |
+| `None` | `"en"` | `None` | `None` |
+| `{"def":"default_val"}` | `None` | `None` | `"default_val"` |
+| `{"def":"default_val"}` | `"en"` | `None` | `"default_val"` → lang not in prop, falls to "def" |
+
+---
+
+### `mergeDicts(l, h)`
+
+Contract (after fix): returns a **new** dict. h takes precedence. None in h does not overwrite an existing l key, but sets None for keys missing in l.
+
+Test matrix:
+
+| l | h | Expected | Notes |
+|---|---|---|---|
+| `{"a":1}` | `{"b":2}` | `{"a":1,"b":2}` | New keys from h |
+| `{"a":1}` | `{"a":2}` | `{"a":2}` | h overwrites |
+| `{"a":1}` | `{"a":None}` | `{"a":1}` | None does not overwrite |
+| `{}` | `{"a":None}` | `{"a":None}` | None propagated for missing key |
+| `{"a":1,"b":2}` | `{"b":None,"c":3}` | `{"a":1,"b":2,"c":3}` | Mixed: overwrite, preserve, new |
+| `{}` | `{}` | `{}` | Empty |
+| `{"a":1}` | `{}` | `{"a":1}` | No h keys |
+| Ensure l unmodified | — | — | Assert `l` is same dict after call |
+
+---
+
+### `readYamlData(yamlFiles, layout=None)`
+
+Contract: reads one or more yaml files, merges them left-to-right via `update_merge` (replace=False). If layout is set, data["layout"] is set first (so it can be overwritten by a yaml file).
+
+Test matrix:
+
+| yamlFiles | layout | Behaviour |
+|---|---|---|
+| `[file1]` (valid yaml) | `None` | Returns parsed dict |
+| `[file1, file2]` (disjoint) | `None` | Merged union |
+| `[file1, file2]` (overlapping) | `None` | update_merge behaviour |
+| `[file1]` | `"mylayout"` | `data["layout"] == "mylayout"` |
+| `[file1]` where file1 sets `layout` | `"mylayout"` | file1's layout overrides initial |
+| `[file1]` with `.txt` extension | `None` | `Raises ValueError` |
+| Empty yaml file | `None` | Returns `{}` |
+| Invalid yaml content | `None` | `Raises yaml.YAMLError` |
+
+Use `tmp_yaml_file` fixture from conftest.
+
+---
+
+### `renderTemplateAndWriteToFile(template_name, data, filename, search_paths=None)`
+
+Contract: Loads jinja2 template from `search_paths`, renders with `data`, writes to `filename`.
+
+Test matrix:
+
+| search_paths | template_name | data | Behaviour |
+|---|---|---|---|
+| `[tmp_dir]` | existing template | `{"name":"world"}` | `Hello world` rendered to `filename` |
+| `[tmp_dir]` | non-existent template | any | `Raises TemplateNotFound` |
+| `None` | — | — | Defaults to `["."]` |
+| Multiple paths with same template name | — | — | First path wins |
+
+Use `tmp_jinja2_template` fixture.
+
+---
+
+### `generate_qr_code(url, output_path)`
+
+Contract: generates a QR code PNG for `url` and saves to `output_path`.
+
+| url | output_path | Behaviour |
+|---|---|---|
+| `"https://example.com"` | `tmp_path / "qr.png"` | File exists, size > 100 bytes |
+| `""` | `tmp_path / "qr.png"` | Valid QR for empty string (still generates) |
+| `None` | — | `AttributeError` (from `hashlib`) — this is current behaviour, document in test |
+
+---
+
+### `createQRCode(data, lang, img_dir=None)`
+
+Contract (after refactoring): iterates sections in `data`, for each section with `template == "qr-code.html.j2"`, resolves its `link` via `tr(linkSection, lang)`, generates QR image in `img_dir`, and sets `section["qr_image"]`.
+
+The `img_dir` parameter is new — see refactoring task 2.
+
+Test matrix:
+
+| data | lang | img_dir | Behaviour |
+|---|---|---|---|
+| One qr-code section with `link={"en":"https://..."}` | `"en"` | `tmp_path` | QR file created at `tmp_path / "qr_<hash>.png"`, `section["qr_image"]` set |
+| One qr-code section with link as plain string | `"en"` | `tmp_path` | Same, works without `tr` |
+| One qr-code section with `link={"en": "..."}`, lang=`"fr"` | `"fr"` | `tmp_path` | Uses `tr` fallback ("def" or None → skipped) |
+| No qr-code sections | `"en"` | `tmp_path` | Nothing happens |
+| Section with `template="qr-code.html.j2"` but no `link` key | `"en"` | `tmp_path` | Skipped, warning logged |
+| Section with `link=None` | `"en"` | `tmp_path` | Skipped |
+| Multiple qr-code sections | `"en"` | `tmp_path` | Multiple images created |
+| Verify `section["qr_image"]` format | `"en"` | `tmp_path` | `section["qr_image"]` starts with `"../img/"` |
+
+---
+
+### `transform_md_to_yaml(markdown_content)` (new function in `transform_md_to_yaml_html.py`)
+
+Contract: Parses markdown with optional YAML front matter (between `---` markers). Returns a YAML string containing both metadata and body text.
+
+This is the extracted core of `tranformMD` — see refactoring task 3.
+
+| markdown_content | Behaviour |
+|---|---|
+| `---\ntitle: Hello\n---\n\nBody text` | YAML with metadata + body |
+| `No front matter, just body` | YAML with empty metadata + body |
+| `---\na: 1\n---\n\nLine 1\nLine 2` | Multiline body |
+| `---\n---\n\nBody` | Empty metadata |
+| `` (empty string) | Edge case — document current behaviour |
+| Metadata with `---` in body content | The `---` split logic may misbehave — document in test |
+
+---
+
+### Agent work rules for test failures
+
+When the agent writes a test and it fails:
+
+1. **Inspect the failure.** Is the function's behaviour clearly wrong (wrong type, crashes on obvious input, violates its own contract)?
+
+2. **If clearly wrong:** Fix the implementation. Add a comment explaining the fix. The test represents the correct contract.
+
+3. **If ambiguous:** The spec, name, and comments don't disambiguate. In that case:
+   - Adjust the test to match the actual behaviour (not the other way around).
+   - Leave a `# TODO: clarify intended behaviour` comment on the function.
+   - **Report the ambiguity to the user directly** (via the chat/conversation) so it can be resolved before the commit. Do not commit unresolved ambiguity.
+
+4. **If the test itself is wrong** (bad fixture, wrong expected value): Fix the test.
+
+---
+
+## Infrastructure tasks
+
+### 1. `conftest.py`
+
+Create `tests/conftest.py` with:
+
+```python
+import pytest
+from pathlib import Path
+
+@pytest.fixture
+def tmp_yaml_file(tmp_path):
+    """Write a dict to a yaml file in tmp_path, return the path."""
+    import yaml
+    def _write(data: dict, name: str = "data.yaml") -> Path:
+        path = tmp_path / name
+        with open(path, "w") as f:
+            yaml.dump(data, f)
+        return path
+    return _write
+
+@pytest.fixture
+def tmp_jinja2_template(tmp_path):
+    """Write a jinja2 template to tmp_path, return the path."""
+    def _write(content: str, name: str = "template.j2") -> Path:
+        path = tmp_path / name
+        with open(path, "w") as f:
+            f.write(content)
+        return path
+    return _write
+
+@pytest.fixture
+def sample_data_dict():
+    """A small realistic data dict shaped like CV data."""
+    return {
+        "data": {
+            "details": {"name": "Test", "template": "preambule.html.j2"},
+            "experience": {
+                "title": "Work",
+                "template": "general_parser.html.j2",
+                "lines": {
+                    "job1": {"date": "2020", "title": "Engineer"},
+                },
+            },
+        },
+        "sections": ["details", "experience"],
+        "lang": "en",
+    }
+```
+
+### 2. `tmp_path` hygiene
+
+- Every test that writes files **must** use `tmp_path`.
+- Remove the existing tests that read from production paths (`css/styles.css`, `html/tmp.html`).  
+  Convert them to use `--output` pointing into `tmp_path`, then assert on that file.
+- Delete `test.html` from the project root if it was a leftover artefact.
+
+---
+
+## Execution order
+
+1. `conftest.py` (so other tests can use fixtures)
+2. Refactoring tasks (mergeDicts, createQRCode, transform_md_to_yaml) + type hints + docstrings
+3. Pure+untested functions: `update_merge`, `tr`, `mergeDicts`, `readYamlData`, `renderTemplateAndWriteToFile`, `generate_qr_code`
+4. `createQRCode` (after the parameter injection)
+5. `transform_md_to_yaml` (after the extraction)
+6. Fix existing integration tests that use hardcoded paths → `tmp_path`
+7. Delete `test.html` if present
+
+---
+
+## What success looks like
+
+- Every function in `src/build.py` and `src/transform_md_to_yaml_html.py` has at least one test case.
+- All file-writing tests use `tmp_path` — no hardcoded `css/styles.css` or `html/tmp.html`.
+- `update_merge`, `tr`, `mergeDicts`, `readYamlData`, `generate_qr_code`, `createQRCode`, `renderTemplateAndWriteToFile`, `transform_md_to_yaml` have full branch coverage.
+- `mergeDicts` no longer mutates its caller's dict.
+- `createQRCode` accepts an optional `img_dir` parameter.
+- Type hints and docstrings on every function touched.
+- `conftest.py` exists with reusable fixtures.

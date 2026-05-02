@@ -1,54 +1,111 @@
 import sys
-import markdown2 as md
-from markdown2 import Markdown
-import os 
-import yaml
 import logging
+from pathlib import Path
+from typing import List, Tuple
+
+import markdown2 as md
+import yaml
+
 
 logger = logging.getLogger(__name__)
 
 
-def tranformMD(args):
-    logger.debug(os.getcwd())
-    outputLines = []
-    with ( open(args[1] , "r" )) as input:
-        # Get Metadata
-        html = md.markdown(input.read() , extras = ["metadata"])
-        metadata = html.metadata
-        metadata = yaml.dump(metadata,default_flow_style=False,explicit_start=False,indent = 4, allow_unicode=True , width=float("inf"))
-        outputLines = metadata.split("\n")
-        logger.debug(outputLines)
+def read_file(path: str) -> str:
+    with open(path, "r") as f:
+        return f.read()
 
-    
-    with ( open(args[1] , "r" )) as input:
-        ## Find the second line with a "---" string to avoid the YAML preambule
-        ## (Not the actual rule, but good enough for the time being)
-        lines = input.readlines()
-        numYamlString = 0
-        for i,line in enumerate(lines):
-            if line.find("---") != -1:
-                numYamlString += 1
-                if numYamlString == 2:
-                    numYamlString = i
-                    break
-        logger.debug(numYamlString)
-        lines = lines[numYamlString+1:]
-        lines = [line for line in lines if line != "\n"]
-        htmlLines = []
-        for line in lines:
-            if line != "":
-                outputLine = md.markdown(line)
-                outputLine = outputLine.strip()
-                outputLine = outputLine.replace("\n","")
-                htmlLines.append(outputLine)
-        logger.debug(htmlLines[0])
-        dictObject = {"text":htmlLines}
-        yamldump = yaml.dump(dictObject,default_flow_style=False,explicit_start=False,indent = 4,allow_unicode=True , width=float("inf"))
-        outputLines = outputLines + yamldump.split("\n")
-    logger.debug(len(outputLines))
-    outputLines = [line + "\n" for line in outputLines]
-    with ( open(args[2] , "w")) as output:
-        output.writelines(outputLines)
+
+def split_frontmatter_body(text: str) -> Tuple[dict, str]:
+    if not text.startswith("---\n"):
+        raise ValueError("No YAML frontmatter found: file must start with '---'")
+
+    lines = text.split("\n")
+    end_line = None
+    for i in range(1, len(lines)):
+        if lines[i].strip() == "---":
+            end_line = i
+            break
+
+    if end_line is None:
+        raise ValueError(
+            "Malformed YAML frontmatter: no closing '---' delimiter found"
+        )
+
+    frontmatter_text = "\n".join(lines[1:end_line])
+    body = "\n".join(lines[end_line + 1 :])
+
+    metadata = yaml.safe_load(frontmatter_text) if frontmatter_text.strip() else {}
+    if not isinstance(metadata, dict):
+        raise ValueError("YAML frontmatter must be a mapping (key-value pairs)")
+    return metadata, body
+
+
+def metadata_to_yaml_lines(metadata: dict) -> List[str]:
+    yaml_text = yaml.dump(
+        metadata,
+        default_flow_style=False,
+        explicit_start=False,
+        indent=4,
+        allow_unicode=True,
+        width=float("inf"),
+    )
+    return yaml_text.split("\n")
+
+
+def body_to_html_lines(body: str) -> List[str]:
+    lines = body.split("\n")
+    lines = [line for line in lines if line.strip()]
+    html_lines = []
+    for line in lines:
+        line = line.strip()
+        if line:
+            output_line = md.markdown(line)
+            output_line = output_line.strip().replace("\n", "")
+            html_lines.append(output_line)
+    return html_lines
+
+
+def build_text_yaml(html_lines: List[str]) -> List[str]:
+    dict_object = {"text": html_lines}
+    yaml_text = yaml.dump(
+        dict_object,
+        default_flow_style=False,
+        explicit_start=False,
+        indent=4,
+        allow_unicode=True,
+        width=float("inf"),
+    )
+    return yaml_text.split("\n")
+
+
+def write_lines(path: str, lines: List[str]) -> None:
+    with open(path, "w") as f:
+        f.writelines(line + "\n" for line in lines)
+
+
+def transform_md_to_yaml_html(input_path: str, output_path: str) -> None:
+    text = read_file(input_path)
+    metadata, body = split_frontmatter_body(text)
+
+    lines = metadata_to_yaml_lines(metadata)
+    html_lines = body_to_html_lines(body)
+    text_yaml_lines = build_text_yaml(html_lines)
+
+    write_lines(output_path, lines + text_yaml_lines)
+
+def main() -> None:
+    if len(sys.argv) != 3:
+        print(f"Usage: {sys.argv[0]} <input.md> <output.yaml>")
+        sys.exit(1)
+    try:
+        transform_md_to_yaml_html(sys.argv[1], sys.argv[2])
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Invalid input: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    tranformMD(sys.argv)
+    main()

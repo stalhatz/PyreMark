@@ -12,10 +12,11 @@ import tempfile
 from jinja2 import Environment, BaseLoader, TemplateNotFound
 import yaml
 
-from transform_md_to_yaml_html import tranformMD
+from transform_md_to_yaml_html import transform_md_to_yaml_html
 from os.path import join, exists, getmtime, dirname, abspath
 from itertools import batched
 from types import SimpleNamespace
+from dataclasses import dataclass, field
 
 
 class ThemeLoader(BaseLoader):
@@ -107,6 +108,27 @@ class ThemeResolver:
 class DocumentType(str, Enum):
     resume = 'resume'
     coverLetter = 'coverLetter'
+
+
+@dataclass
+class BuildConfig:
+    theme: str | None = None
+    local_theming_dir: str | None = None
+    pre_styles: str | None = None
+    post_styles: str | None = None
+    theme_active: bool = False
+    template: str | None = None
+    css_template: str | None = None
+    js_template: str | None = None
+    yaml_files: list[str] | None = None
+    lang: str = "en"
+    output_name: str | None = None
+    verbose: str = "info"
+    show: str = "None"
+    layout: dict | None = None
+    styles: dict | None = None
+    data_override: dict | None = None
+
 
 def showHTML(htmlFile):
     '''
@@ -371,18 +393,14 @@ def tr(prop, lang=None, default=None):
         else:
             return default
 
-def createQRCode(data,lang):
+def createQRCode(data,lang,path):
     '''
-    Creates qr codes corresponding to qrcode sections difined in the data
+    Creates a qrcode in image file format corresponding to qrcode sections defined in the data
 
     data: the dictionary used to render all templates
     lang: the language we are targeting
+    path: path to the output directory
     '''
-
-    # Process QR code sections: generate QR images and attach paths
-    img_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'img'))
-    os.makedirs(img_dir, exist_ok=True)
-
     # Access the nested data dict where sections are stored
     sections_data = data.get("data", {})
     for section_name in data.get("sections", []):
@@ -393,7 +411,7 @@ def createQRCode(data,lang):
             if link:
                 url_hash = hashlib.sha256(link.encode()).hexdigest()[:16]
                 filename = f"qr_{url_hash}.png"
-                output_path = os.path.join(img_dir, filename)
+                output_path = os.path.join(path, filename)
                 generate_qr_code(link, output_path)
                 # Relative path from html output to img directory
                 section["qr_image"] = f"../img/{filename}"
@@ -403,8 +421,8 @@ def createQRCode(data,lang):
 
 
 
-if __name__ == "__main__":
-
+def parse_cli_args():
+    """Parse command-line arguments and return the resulting namespace."""
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--cv", help=".toml file containing a configuration to create a cv. Parameters specified via cli argument take precedence in order to easily tweek a configuration file.")
@@ -428,51 +446,69 @@ if __name__ == "__main__":
     parser.add_argument("--theme-pre-styles", help="CSS file to prepend to compiled CSS")
     parser.add_argument("--theme-post-styles", help="CSS file to append to compiled CSS")
 
-    args = parser.parse_args()
-    
+    return parser.parse_args()
 
-    if args.cv is not None:
-        with open(args.cv,"rb") as fd:
-            tomlArgs = tomllib.load(fd)
-            # cli args  overwrite .toml defined ones
-            args = overlay(tomlArgs,vars(args))
-            args = SimpleNamespace(args)
 
+def load_toml_config(path):
+    """Load a TOML configuration file and return the parsed dict."""
+    with open(path, "rb") as fd:
+        return tomllib.load(fd)
+
+
+def overlay_args(toml_config, cli_args_dict):
+    """Merge TOML config with CLI args (CLI takes precedence) and return as SimpleNamespace."""
+    args = overlay(toml_config, cli_args_dict)
+    return SimpleNamespace(**args)
+
+
+def resolve_build_config(args, yaml_files=None):
+    """Validate arguments, resolve templates/theme, and return a BuildConfig.
+    Raises ValueError on invalid combinations or missing required args."""
     theme = getattr(args, "theme", None)
     local_theming_dir = getattr(args, "local_theming_dir", None)
     pre_styles = getattr(args, "theme_pre_styles", None)
     post_styles = getattr(args, "theme_post_styles", None)
+
+    template = getattr(args, "template", None)
+    css = getattr(args, "css", None)
+    js = getattr(args, "js", None)
+
+    output_name = getattr(args, "output", None)
+    lang = getattr(args, "lang", None) or "en"
+    verbose = getattr(args, "verbose", "info")
+    show = getattr(args, "show", "None")
+    layout = getattr(args, "layout", None)
+    styles = getattr(args, "styles", None)
+
+    has_type = getattr(args, "type", None) is not None
+    has_theme = theme is not None
     theme_active = False
 
-    # Argument validation
-    if args.type is not None:
-        if args.template is not None:
-            print("--template is mutually exclusive with --type. Exiting")
-            exit(1)
+    if has_type:
+        if template is not None:
+            raise ValueError("--template is mutually exclusive with --type")
         if str.lower(args.type) == "cv":
             theme = theme or "default_cv"
-            args.template = "resume.html.j2"
-            if args.css is None:
-                args.css = "styles.css.j2"
-            if args.js is None:
-                args.js = "scripts.js.j2"
+            template = "resume.html.j2"
+            if css is None:
+                css = "styles.css.j2"
+            if js is None:
+                js = "scripts.js.j2"
             theme_active = True
         if args.type == "coverletter":
             theme = theme or "default_cover_letter"
-            args.template = "cover_letter.html.j2"
-            if args.css is None:
-                args.css = "cover_letter.css.j2"
+            template = "cover_letter.html.j2"
+            if css is None:
+                css = "cover_letter.css.j2"
             theme_active = True
-    elif theme is not None:
-        # Theme specified without type: default to CV templates
-        args.template = args.template or "resume.html.j2"
-        if args.css is None:
-            args.css = "styles.css.j2"
-        if args.js is None:
-            args.js = "scripts.js.j2"
+    elif has_theme:
+        template = template or "resume.html.j2"
+        if css is None:
+            css = "styles.css.j2"
+        if js is None:
+            js = "scripts.js.j2"
         theme_active = True
 
-    # Resolve theme configuration from [theming_options] section if present
     theming_options = getattr(args, "theming_options", None)
     if isinstance(theming_options, dict):
         if pre_styles is None:
@@ -482,98 +518,125 @@ if __name__ == "__main__":
         if local_theming_dir is None:
             local_theming_dir = theming_options.get("local_theming_dir")
 
-    if (args.verbose == "info"):
+    md = getattr(args, "md", None)
+    if md is not None:
+        if os.path.splitext(md)[1] != ".md":
+            raise ValueError("Expected a .md file as input")
+        if yaml_files is not None and getattr(args, "yaml", None) is not None:
+            raise ValueError("Args --yaml and --md are incompatible")
+        theme = theme or "default_cover_letter"
+        template = "cover_letter.html.j2"
+        if css is None:
+            css = "cover_letter.css.j2"
+        output_name = md
+
+    if template is None:
+        raise ValueError("No html template provided")
+
+    return BuildConfig(
+        theme=theme,
+        local_theming_dir=local_theming_dir,
+        pre_styles=pre_styles,
+        post_styles=post_styles,
+        theme_active=theme_active,
+        template=template,
+        css_template=css,
+        js_template=js,
+        yaml_files=yaml_files,
+        lang=lang,
+        output_name=output_name,
+        verbose=verbose,
+        show=show,
+        layout=layout,
+        styles=styles,
+        data_override=getattr(args, "data", None),
+    )
+
+
+def setup_logging(verbose):
+    """Set logging level from a string: info, debug, or warn."""
+    if verbose == "info":
         logging.basicConfig(level=logging.INFO)
-    if (args.verbose == "debug"):
+    elif verbose == "debug":
         logging.basicConfig(level=logging.DEBUG)
-    if (args.verbose == "warn"):
+    elif verbose == "warn":
         logging.basicConfig(level=logging.WARN)
 
-    yamlFiles = args.yaml
-    outputName = None
-    if (args.md is not None):
-        args.type = "coverletter"
-        if os.path.splitext(args.md)[1] != ".md":
-            raise ValueError("Expected a .md file as input")
-        if yamlFiles is not None:
-            logger.error("Args --yaml and args -m are incompatible")
-            exit(1)
-        yamlFiles = [tempfile.mkstemp(suffix=".yaml")[1]]
-        logger.info(f"Using {yamlFiles[0]} as temporary .yaml file")
-        tranformMD(["None",args.md , yamlFiles[0]])
-        theme = theme or "default_cover_letter"
-        args.template = "cover_letter.html.j2"
-        if args.css is None:
-            args.css = "cover_letter.css.j2"
-        outputName = args.md
 
-    lang = args.lang or "en"
-
-    if (args.template is None):
-        logger.error("No html template provided. Exiting " + DocumentType.resume)
-        exit()
-    template = args.template
-
-    cssTemplateFile = args.css
-    jsTemplateFile  = args.js
-
-    if args.output is not None:
-        outputName = args.output
-
-    #Read yaml file
+def load_and_merge_data(yaml_files, data_override=None):
+    """Read YAML files, sort data, merge with optional TOML data override."""
     data = {}
-    if (yamlFiles is not None):
-        data = readYamlData(yamlFiles)
-
-    # Sort data inplace
-    sortData(data,True)
-
+    if yaml_files is not None:
+        data = readYamlData(yaml_files)
+    sortData(data, True)
     yaml_data = data.get("data", {})
-    toml_data = getattr(args, "data", None)
-    if toml_data is not None:
-        yaml_data = deep_merge(yaml_data, toml_data, replace = True)
+    if data_override is not None:
+        yaml_data = deep_merge(yaml_data, data_override, replace=True)
     data["data"] = yaml_data
+    return data
 
+
+def prepare_data(data, lang):
+    """Ensure styles/script keys exist and set the lang field."""
     if "styles" not in data:
         data["styles"] = {}
     if "script" not in data:
         data["script"] = {}
-
-    ## Done to get the linter satisfied
     data = dict(data)
     data["lang"] = lang
-    htmlFile="./html/tmp.html"
+    return data
+
+
+if __name__ == "__main__":
+    cli_args = parse_cli_args()
+
+    if cli_args.cv is not None:
+        toml_config = load_toml_config(cli_args.cv)
+        args = overlay_args(toml_config, vars(cli_args))
+    else:
+        args = cli_args
+
+    yaml_files = None
+    if args.md is not None:
+        yaml_files = [tempfile.mkstemp(suffix=".yaml")[1]]
+        logger.info(f"Using {yaml_files[0]} as temporary .yaml file")
+        transform_md_to_yaml_html(args.md, yaml_files[0])
+    elif getattr(args, "yaml", None) is not None:
+        yaml_files = args.yaml
+
+    config = resolve_build_config(args, yaml_files=yaml_files)
+    setup_logging(config.verbose)
+
+    data = load_and_merge_data(config.yaml_files, config.data_override)
+    data = prepare_data(data, config.lang)
+
+    htmlFile = "./html/tmp.html"
 
     search_paths = None
-    if theme_active and theme is not None:
-        resolver = ThemeResolver(theme, local_theming_dir, pre_styles, post_styles)
+    if config.theme_active and config.theme is not None:
+        resolver = ThemeResolver(config.theme, config.local_theming_dir, config.pre_styles, config.post_styles)
         search_paths = resolver.search_paths()
         logger.debug(f"Theme search paths: {search_paths}")
 
-    if jsTemplateFile:
-        jsFile="./js/tmp.js"
-        layout = getattr(args, "layout", None)
-        renderTemplateAndWriteToFile(jsTemplateFile, data, jsFile, search_paths)
-        ## Get relative js path
-        jsFile = os.path.relpath(jsFile,os.path.dirname(htmlFile))
+    if config.js_template:
+        jsFile = "./js/tmp.js"
+        renderTemplateAndWriteToFile(config.js_template, data, jsFile, search_paths)
+        jsFile = os.path.relpath(jsFile, os.path.dirname(htmlFile))
         logger.debug(jsFile)
         if "script" in data:
             data["script"]["jsfile"] = jsFile
 
-    if cssTemplateFile:
-        cssFile="./css/styles.css"
+    if config.css_template:
+        cssFile = "./css/styles.css"
 
-        styles = getattr(args, "styles", None)
-        if styles is not None:
+        if config.styles is not None:
             if "styles" not in data:
                 data["styles"] = {}
-            for key in styles.keys():
-                data["styles"][key] = styles[key]
+            for key in config.styles.keys():
+                data["styles"][key] = config.styles[key]
 
-        if theme_active and resolver is not None:
-            # Render CSS through theme loader
-            renderTemplateAndWriteToFile(cssTemplateFile, data, cssFile, search_paths)
-            # Prepend/append styles
+        if config.theme_active and resolver is not None:
+            renderTemplateAndWriteToFile(config.css_template, data, cssFile, search_paths)
             pre = resolver.get_pre_styles()
             post = resolver.get_post_styles()
             if pre or post:
@@ -582,27 +645,28 @@ if __name__ == "__main__":
                 with open(cssFile, "w") as f:
                     f.write(pre + css_core + post)
         else:
-            renderTemplateAndWriteToFile(cssTemplateFile, data, cssFile, search_paths)
+            renderTemplateAndWriteToFile(config.css_template, data, cssFile, search_paths)
 
-        ## Get relative css path
-        cssFile = os.path.relpath(cssFile,os.path.dirname(htmlFile))
+        cssFile = os.path.relpath(cssFile, os.path.dirname(htmlFile))
         logger.debug(cssFile)
         if "styles" not in data:
             data["styles"] = {}
         data["styles"]["cssfile"] = cssFile
 
-        if layout is not None and "sections" in layout:
-            data["sections"] = layout["sections"]
+        if config.layout is not None and "sections" in config.layout:
+            data["sections"] = config.layout["sections"]
 
-    createQRCode(data,lang)
+    img_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'img'))
+    os.makedirs(img_dir, exist_ok=True)
+    createQRCode(data, config.lang, img_dir)
 
-    renderTemplateAndWriteToFile(template, data, htmlFile, search_paths)
+    renderTemplateAndWriteToFile(config.template, data, htmlFile, search_paths)
 
-    if args.show == "html":
+    if config.show == "html":
         showHTML(htmlFile)
 
-    if args.output is not None:
-        pdfFile= args.output
-        asyncio.run(html_to_pdf_chromium(os.path.abspath(htmlFile),os.path.abspath(pdfFile)))
-        if args.show == "pdf":
+    if config.output_name is not None:
+        pdfFile = config.output_name
+        asyncio.run(html_to_pdf_chromium(os.path.abspath(htmlFile), os.path.abspath(pdfFile)))
+        if config.show == "pdf":
             viewPDF(pdfFile)
