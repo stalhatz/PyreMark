@@ -17,13 +17,15 @@ from os.path import join, exists, getmtime, dirname, abspath
 from itertools import batched
 from types import SimpleNamespace
 from dataclasses import dataclass, field
+from typing import Any
+from collections.abc import Callable
 
 
 class ThemeLoader(BaseLoader):
-    def __init__(self, search_paths):
+    def __init__(self, search_paths: list[str]) -> None:
         self.search_paths = search_paths
 
-    def get_source(self, environment, template):
+    def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable[[], bool]]:
         for base in self.search_paths:
             path = join(base, template)
             if exists(path):
@@ -35,8 +37,8 @@ class ThemeLoader(BaseLoader):
 
 
 class ThemeResolver:
-    def __init__(self, theme_name, user_theme_dir=None,
-                 pre_styles=None, post_styles=None):
+    def __init__(self, theme_name: str, user_theme_dir: str | None = None,
+                 pre_styles: str | None = None, post_styles: str | None = None) -> None:
         self.theme_name = theme_name
         self.user_theme_dir = user_theme_dir
         self.pre_styles_path = pre_styles
@@ -130,7 +132,7 @@ class BuildConfig:
     data_override: dict | None = None
 
 
-def showHTML(htmlFile):
+def showHTML(htmlFile: str) -> None:
     '''
     Shows an html files using an external browser
 
@@ -145,7 +147,7 @@ def showHTML(htmlFile):
     logger.debug(result.stderr)
 
 
-def viewPDF(pdfFile):
+def viewPDF(pdfFile: str) -> None:
     '''
     Shows a pdf file using an external program
 
@@ -163,7 +165,7 @@ def viewPDF(pdfFile):
 import asyncio
 from playwright.async_api import async_playwright
 
-async def html_to_pdf_chromium(html_path, output_path):
+async def html_to_pdf_chromium(html_path: str, output_path: str) -> None:
     '''
     Creates a pdf file our of the contents of an html file
 
@@ -195,7 +197,7 @@ async def html_to_pdf_chromium(html_path, output_path):
         await browser.close()
 
 # Copied from https://stackoverflow.com/a/50441142
-def deep_merge(d1, d2 , replace = False):
+def deep_merge(d1: Any, d2: Any, replace: bool = False) -> Any:
     '''
     Merges two dictionaries recursively while merging leaf values that correspond to the same key sequences into lists
 
@@ -229,7 +231,7 @@ logger = logging.getLogger(__name__)
 FORMAT = '[%(funcName)s] : %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 
-def renderTemplateAndWriteToFile(template_filename, data, output_filename, search_paths=None):
+def renderTemplateAndWriteToFile(template_filename: str | None, data: dict, output_filename: str, search_paths: list[str] | None = None) -> None:
     '''
     Renders a jinja2 template and places the result in an output file
 
@@ -238,6 +240,8 @@ def renderTemplateAndWriteToFile(template_filename, data, output_filename, searc
     output_filename: the filename to output the rendered template
     search_paths: a list of paths (from most to least priority) to search for the template
     '''
+    if template_filename is None:
+        raise ValueError("template_filename is required")
     if search_paths is None:
         search_paths = ["."]
     logger.debug(f"Using template file : {template_filename}")
@@ -252,7 +256,7 @@ def renderTemplateAndWriteToFile(template_filename, data, output_filename, searc
 
 import re
 
-def readYamlData(yamlFiles):
+def readYamlData(yamlFiles: list[str]) -> dict:
     '''
     Reads data from a list of yaml files and merges them into a dictionary object
 
@@ -270,7 +274,7 @@ def readYamlData(yamlFiles):
     return data
 
 
-def yearInDateString(s):
+def yearInDateString(s: str) -> str | None:
     '''
     return the year value contained in a string
 
@@ -283,12 +287,12 @@ def yearInDateString(s):
     else:
         return matches[0]
 
-def findDateField(x):
+def findDateField(x: Any) -> int | None:
     '''
     Find the date/year corresponding to a record
 
     x: the record
-    returns : corresponding date/year to x
+    returns : corresponding date/year to x, or None if no year found
     '''
     d = x[1]["date"]
     # First element without caring about key should give the date
@@ -296,11 +300,14 @@ def findDateField(x):
         dateString = list(d.items())[0][1]
     else:
         dateString = d
-    return int(yearInDateString(dateString))
+    year_str = yearInDateString(dateString)
+    if year_str is None:
+        return None
+    return int(year_str)
 
 # The argument of this funciton should be a dictionary with elements that need to be sorted 
 # since a dictionary maintains order of iterms since Python 3.6
-def sortDict(lines,dsc,key):
+def sortDict(lines: dict, dsc: bool, key: Callable[[Any], Any]) -> dict:
     '''
     Orders a dictionary based on some key
     
@@ -313,7 +320,7 @@ def sortDict(lines,dsc,key):
     return dict(linesList)
     
 # Sort data inplace
-def sortData(data, dsc=False):
+def sortData(data: Any, dsc: bool = False) -> None:
     # Find all lines
     if type(data) is dict:
         for k in data.keys():
@@ -327,7 +334,7 @@ def sortData(data, dsc=False):
                 sortData(data[k],dsc)
 
 
-def overlay(base,top):
+def overlay(base: dict, top: dict) -> dict:
     """
     Shallow merge of two dicts where *top* takes precedence.
     - A key in *top* with a non-None value overwrites the same key in *base*.
@@ -354,7 +361,7 @@ def overlay(base,top):
             output[k] = None
     return output
 
-def generate_qr_code(url, output_path):
+def generate_qr_code(url: str, output_path: str) -> None:
     """
     Generate a QR code image for the given URL and save to output_path.
     
@@ -364,17 +371,17 @@ def generate_qr_code(url, output_path):
     """
     qr = qrcode.QRCode(
         version=3,
-        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        error_correction=qrcode.constants.ERROR_CORRECT_M,  # pyright: ignore[reportAttributeAccessIssue]
         box_size=10,
         border=4,
     )
     qr.add_data(url)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
-    img.save(output_path)
+    img.save(output_path)  # pyright: ignore[reportArgumentType]
     logger.debug(f"Generated QR code for {url} at {output_path}")
 
-def tr(prop, lang=None, default=None):
+def tr(prop: Any, lang: str | None = None, default: Any = None) -> Any:
     '''
     Returns the i18n version of a dictionary property
 
@@ -393,7 +400,7 @@ def tr(prop, lang=None, default=None):
         else:
             return default
 
-def createQRCode(data,lang,path):
+def createQRCode(data: dict, lang: str, path: str) -> None:
     '''
     Creates a qrcode in image file format corresponding to qrcode sections defined in the data
 
@@ -421,7 +428,7 @@ def createQRCode(data,lang,path):
 
 
 
-def parse_cli_args():
+def parse_cli_args() -> argparse.Namespace:
     """Parse command-line arguments and return the resulting namespace."""
     parser = argparse.ArgumentParser()
 
@@ -449,19 +456,19 @@ def parse_cli_args():
     return parser.parse_args()
 
 
-def load_toml_config(path):
+def load_toml_config(path: str) -> dict:
     """Load a TOML configuration file and return the parsed dict."""
     with open(path, "rb") as fd:
         return tomllib.load(fd)
 
 
-def overlay_args(toml_config, cli_args_dict):
+def overlay_args(toml_config: dict, cli_args_dict: dict) -> SimpleNamespace:
     """Merge TOML config with CLI args (CLI takes precedence) and return as SimpleNamespace."""
     args = overlay(toml_config, cli_args_dict)
     return SimpleNamespace(**args)
 
 
-def resolve_build_config(args, yaml_files=None):
+def resolve_build_config(args: SimpleNamespace | argparse.Namespace, yaml_files: list[str] | None = None) -> BuildConfig:
     """Validate arguments, resolve templates/theme, and return a BuildConfig.
     Raises ValueError on invalid combinations or missing required args."""
     theme = getattr(args, "theme", None)
@@ -528,7 +535,6 @@ def resolve_build_config(args, yaml_files=None):
         template = "cover_letter.html.j2"
         if css is None:
             css = "cover_letter.css.j2"
-        output_name = md
 
     if template is None:
         raise ValueError("No html template provided")
@@ -553,7 +559,7 @@ def resolve_build_config(args, yaml_files=None):
     )
 
 
-def setup_logging(verbose):
+def setup_logging(verbose: str) -> None:
     """Set logging level from a string: info, debug, or warn."""
     if verbose == "info":
         logging.basicConfig(level=logging.INFO)
@@ -563,7 +569,7 @@ def setup_logging(verbose):
         logging.basicConfig(level=logging.WARN)
 
 
-def load_and_merge_data(yaml_files, data_override=None):
+def load_and_merge_data(yaml_files: list[str] | None, data_override: dict | None = None) -> dict:
     """Read YAML files, sort data, merge with optional TOML data override."""
     data = {}
     if yaml_files is not None:
@@ -576,7 +582,7 @@ def load_and_merge_data(yaml_files, data_override=None):
     return data
 
 
-def prepare_data(data, lang):
+def prepare_data(data: dict, lang: str) -> dict:
     """Ensure styles/script keys exist and set the lang field."""
     if "styles" not in data:
         data["styles"] = {}

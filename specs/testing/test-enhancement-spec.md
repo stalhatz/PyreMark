@@ -39,15 +39,6 @@ The Cartesian product of (2) across parameters, reduced by equivalence, is the t
 
 ## Refactoring tasks
 
-
-### 4. Type hints
-
-Add type hints to **every function signature** in both `src/build.py` and `src/transform_md_to_yaml_html.py`.
-
-- Use `from __future__ import annotations` (or rely on Python 3.12's native PEP 649 support).
-- For recursive / union-heavy return types (`update_merge`), annotate parameters strictly and use `Any` for the return type if the shape is too dynamic.
-- Do **not** add third-party type stubs or install `mypy` — just function-level annotations.
-
 ### 5. Docstrings
 
 Every function touched (by refactoring or by test-writing) **must** get a docstring:
