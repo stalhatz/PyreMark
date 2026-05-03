@@ -10,9 +10,8 @@ area: testing
 Bring the two Python modules under systematic unit-test coverage by:
 
 1. Writing tests for every callable that lacks them.
-2. Making minimal, targeted refactorings to convert nearly-pure functions into actually-pure (or purely-parametric) ones.
-3. Adding type hints and docstrings as a side effect of each touched function, so the contract is explicit.
-4. Cleaning up test infrastructure (fixtures, `tmp_path` hygiene) so tests are reliable and isolated.
+2. ~~Adding type hints and docstrings~~ *(completed — every function signature in both modules is now annotated; docstrings pre-dated this effort)*
+3. ~~Cleaning up test infrastructure~~ *(completed — all file-writing tests use `tmp_path` via `--intermediate-dir`, no more hardcoded `css/styles.css` or `html/tmp.html`)*
 
 ---
 
@@ -37,20 +36,6 @@ The Cartesian product of (2) across parameters, reduced by equivalence, is the t
 
 ---
 
-## Refactoring tasks
-
-### 5. Docstrings
-
-Every function touched (by refactoring or by test-writing) **must** get a docstring:
-
-```
-What the function does.
-What each parameter means (type, semantics, defaults).
-What it returns.
-Any side effects (mutating arguments, I/O, logging).
-```
-
----
 
 ## Test cases
 
@@ -71,7 +56,7 @@ Do **not** write a fixture that replicates the full `themes/` directory — use 
 
 ---
 
-### `update_merge(d1, d2, replace=False)`
+### `deep_merge(d1: Any, d2: Any, replace: bool = False) -> Any`
 
 Branch tree:
 ```
@@ -131,64 +116,66 @@ Test matrix:
 
 ---
 
-### `mergeDicts(l, h)`
+### `overlay(base: dict, top: dict) -> dict`
 
-Contract (after fix): returns a **new** dict. h takes precedence. None in h does not overwrite an existing l key, but sets None for keys missing in l.
+Contract: already returns a **new** dict. `top` takes precedence. `None` in `top` does not overwrite an existing `base` key, but sets `None` for keys missing in `base`.
 
 Test matrix:
 
-| l | h | Expected | Notes |
+| base | top | Expected | Notes |
 |---|---|---|---|
-| `{"a":1}` | `{"b":2}` | `{"a":1,"b":2}` | New keys from h |
-| `{"a":1}` | `{"a":2}` | `{"a":2}` | h overwrites |
+| `{"a":1}` | `{"b":2}` | `{"a":1,"b":2}` | New keys from top |
+| `{"a":1}` | `{"a":2}` | `{"a":2}` | top overwrites |
 | `{"a":1}` | `{"a":None}` | `{"a":1}` | None does not overwrite |
 | `{}` | `{"a":None}` | `{"a":None}` | None propagated for missing key |
 | `{"a":1,"b":2}` | `{"b":None,"c":3}` | `{"a":1,"b":2,"c":3}` | Mixed: overwrite, preserve, new |
 | `{}` | `{}` | `{}` | Empty |
-| `{"a":1}` | `{}` | `{"a":1}` | No h keys |
-| Ensure l unmodified | — | — | Assert `l` is same dict after call |
+| `{"a":1}` | `{}` | `{"a":1}` | No top keys |
+| Ensure base unmodified | — | — | Assert `base` is same dict after call |
 
 ---
 
-### `readYamlData(yamlFiles, layout=None)`
+### `readYamlData(yamlFiles: list[str]) -> dict`
 
-Contract: reads one or more yaml files, merges them left-to-right via `update_merge` (replace=False). If layout is set, data["layout"] is set first (so it can be overwritten by a yaml file).
+Contract: reads one or more yaml files, merges them left-to-right via `deep_merge` (replace=False).
+
+*Pending refactoring:* adding an optional `layout` parameter is still planned (see execution order).
 
 Test matrix:
 
-| yamlFiles | layout | Behaviour |
-|---|---|---|
-| `[file1]` (valid yaml) | `None` | Returns parsed dict |
-| `[file1, file2]` (disjoint) | `None` | Merged union |
-| `[file1, file2]` (overlapping) | `None` | update_merge behaviour |
-| `[file1]` | `"mylayout"` | `data["layout"] == "mylayout"` |
-| `[file1]` where file1 sets `layout` | `"mylayout"` | file1's layout overrides initial |
-| `[file1]` with `.txt` extension | `None` | `Raises ValueError` |
-| Empty yaml file | `None` | Returns `{}` |
-| Invalid yaml content | `None` | `Raises yaml.YAMLError` |
+| yamlFiles | Behaviour |
+|---|---|
+| `[file1]` (valid yaml) | Returns parsed dict |
+| `[file1, file2]` (disjoint) | Merged union |
+| `[file1, file2]` (overlapping) | `deep_merge` behaviour |
+| `[file1]` with `.txt` extension | `Raises ValueError` |
+| Empty yaml file | Returns `{}` |
+| Invalid yaml content | `Raises yaml.YAMLError` |
 
 Use `tmp_yaml_file` fixture from conftest.
 
 ---
 
-### `renderTemplateAndWriteToFile(template_name, data, filename, search_paths=None)`
+### `renderTemplateAndWriteToFile(template_filename: str | None, data: dict, output_filename: str, search_paths: list[str] | None = None) -> None`
 
-Contract: Loads jinja2 template from `search_paths`, renders with `data`, writes to `filename`.
+Contract: Loads jinja2 template from `search_paths`, renders with `data`, writes to `output_filename`. Raises `ValueError` if `template_filename` is `None`.
 
 Test matrix:
 
-| search_paths | template_name | data | Behaviour |
+| search_paths | template_filename | data | Behaviour |
 |---|---|---|---|
-| `[tmp_dir]` | existing template | `{"name":"world"}` | `Hello world` rendered to `filename` |
+| `[tmp_dir]` | existing template | `{"name":"world"}` | `Hello world` written to `output_filename` |
 | `[tmp_dir]` | non-existent template | any | `Raises TemplateNotFound` |
 | `None` | — | — | Defaults to `["."]` |
 | Multiple paths with same template name | — | — | First path wins |
+| any | `None` | any | `Raises ValueError` |
+| any | `""` | any | `Raises TemplateNotFound` |
 
 Use `tmp_jinja2_template` fixture.
 
 ---
 
-### `generate_qr_code(url, output_path)`
+### `generate_qr_code(url: str, output_path: str) -> None`
 
 Contract: generates a QR code PNG for `url` and saves to `output_path`.
 
@@ -198,13 +185,15 @@ Contract: generates a QR code PNG for `url` and saves to `output_path`.
 | `""` | `tmp_path / "qr.png"` | Valid QR for empty string (still generates) |
 | `None` | — | `AttributeError` (from `hashlib`) — this is current behaviour, document in test |
 
+Note: Two `# pyright: ignore` comments are present on `qrcode.constants` (reportAttributeAccessIssue) and `img.save()` (reportArgumentType) due to incomplete third-party stubs.
+
 ---
 
-### `createQRCode(data, lang, img_dir=None)`
+### `createQRCode(data: dict, lang: str, path: str) -> None`
 
-Contract (after refactoring): iterates sections in `data`, for each section with `template == "qr-code.html.j2"`, resolves its `link` via `tr(linkSection, lang)`, generates QR image in `img_dir`, and sets `section["qr_image"]`.
+Contract (after refactoring): iterates sections in `data`, for each section with `template == "qr-code.html.j2"`, resolves its `link` via `tr(linkSection, lang)`, generates QR image in `path`, and sets `section["qr_image"]`.
 
-The `img_dir` parameter is new — see refactoring task 2.
+*Pending refactoring:* rename `path` to `img_dir` (see refactoring task 2 in execution order).
 
 Test matrix:
 
@@ -221,11 +210,11 @@ Test matrix:
 
 ---
 
-### `transform_md_to_yaml(markdown_content)` (new function in `transform_md_to_yaml_html.py`)
+### `transform_md_to_yaml(markdown_content)` (planned new function in `transform_md_to_yaml_html.py`)
 
-Contract: Parses markdown with optional YAML front matter (between `---` markers). Returns a YAML string containing both metadata and body text.
+*Not yet extracted.* Contract: Parses markdown with optional YAML front matter (between `---` markers). Returns a YAML string containing both metadata and body text.
 
-This is the extracted core of `tranformMD` — see refactoring task 3.
+This would be the extracted core of `tranformMD` — see refactoring task 3 in execution order.
 
 | markdown_content | Behaviour |
 |---|---|
@@ -308,30 +297,41 @@ def sample_data_dict():
 ### 2. `tmp_path` hygiene
 
 - Every test that writes files **must** use `tmp_path`.
-- Remove the existing tests that read from production paths (`css/styles.css`, `html/tmp.html`).  
-  Convert them to use `--output` pointing into `tmp_path`, then assert on that file.
+- ~~Remove the existing tests that read from production paths~~ *(completed — 6 integration tests now pass `--intermediate-dir` pointing to `tmp_path` and read from it)*
+- ~~Convert them to use `--output` pointing into `tmp_path`~~ *(completed)*
 - Delete `test.html` from the project root if it was a leftover artefact.
+
+### 3. `--intermediate-dir` CLI flag (completed)
+
+Added a `--intermediate-dir` CLI argument (default `"."`) that controls where intermediate build
+artifacts (`html/tmp.html`, `css/styles.css`, `js/tmp.js`, `img/`) are written. `BuildConfig.intermediate_dir`
+stores the value; `resolve_build_config` omits the field when `None`, letting the `BuildConfig` dataclass
+default (`"."`) apply. The `__main__` block derives all four artifact paths from `config.intermediate_dir`
+and ensures the subdirectories exist via `os.makedirs`.
 
 ---
 
 ## Execution order
 
 1. `conftest.py` (so other tests can use fixtures)
-2. Refactoring tasks (mergeDicts, createQRCode, transform_md_to_yaml) + type hints + docstrings
-3. Pure+untested functions: `update_merge`, `tr`, `mergeDicts`, `readYamlData`, `renderTemplateAndWriteToFile`, `generate_qr_code`
-4. `createQRCode` (after the parameter injection)
-5. `transform_md_to_yaml` (after the extraction)
-6. Fix existing integration tests that use hardcoded paths → `tmp_path`
-7. Delete `test.html` if present
+2. ~~Type hints + docstrings~~ *(completed)*
+3. ~~`--intermediate-dir` CLI flag + `BuildConfig.intermediate_dir`~~ *(completed)*
+4. ~~Fix existing integration tests that use hardcoded paths → `tmp_path`~~ *(completed)*
+5. Refactoring tasks: `createQRCode` (add `img_dir` parameter), `transform_md_to_yaml` (extract from `transform_md_to_yaml_html`)
+6. Pure+untested functions: `deep_merge`, `tr`, `overlay`, `readYamlData`, `renderTemplateAndWriteToFile`, `generate_qr_code`
+7. `createQRCode` (after the parameter injection)
+8. `transform_md_to_yaml` (after the extraction)
+9. Delete `test.html` if present
 
 ---
 
 ## What success looks like
 
 - Every function in `src/build.py` and `src/transform_md_to_yaml_html.py` has at least one test case.
-- All file-writing tests use `tmp_path` — no hardcoded `css/styles.css` or `html/tmp.html`.
-- `update_merge`, `tr`, `mergeDicts`, `readYamlData`, `generate_qr_code`, `createQRCode`, `renderTemplateAndWriteToFile`, `transform_md_to_yaml` have full branch coverage.
-- `mergeDicts` no longer mutates its caller's dict.
+- ✅ All file-writing tests use `tmp_path` — no hardcoded `css/styles.css` or `html/tmp.html`.
+- `deep_merge`, `tr`, `overlay`, `readYamlData`, `generate_qr_code`, `createQRCode`, `renderTemplateAndWriteToFile`, `transform_md_to_yaml` have full branch coverage.
 - `createQRCode` accepts an optional `img_dir` parameter.
-- Type hints and docstrings on every function touched.
+- ✅ Type hints — completed on every function signature in both modules.
+- ✅ `overlay` (`mergeDicts`) — already returns a new dict, no mutation occurs.
+- ✅ `--intermediate-dir` CLI flag — controls build artifact paths, tests use it via `tmp_path`.
 - `conftest.py` exists with reusable fixtures.

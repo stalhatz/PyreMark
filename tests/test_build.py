@@ -160,6 +160,7 @@ def test_new_cv_example_renders(tmp_path):
             sys.executable, "src/build.py",
             "--cv", "testdata/cv/single_page.toml",
             "--theme", "new_cv_example",
+            "--intermediate-dir", str(tmp_path),
             "--output", str(tmp_path / "out.pdf"),
         ],
         capture_output=True, text=True
@@ -167,7 +168,7 @@ def test_new_cv_example_renders(tmp_path):
     assert result.returncode == 0, result.stderr
     assert (tmp_path / "out.pdf").exists()
     # CSS should have the new theme's distinct styles
-    css = Path("css/styles.css").read_text()
+    css = (tmp_path / "css" / "styles.css").read_text()
     assert "'Inter'" in css or "#2563eb" in css or "#eef2ff" in css
 
 
@@ -179,12 +180,13 @@ def test_ext_default_cv_example_override(tmp_path):
             sys.executable, "src/build.py",
             "--cv", "testdata/cv/single_page.toml",
             "--theme", "ext_default_cv_example",
+            "--intermediate-dir", str(tmp_path),
             "--output", str(tmp_path / "out.pdf"),
         ],
         capture_output=True, text=True
     )
     assert result.returncode == 0, result.stderr
-    css = Path("css/styles.css").read_text()
+    css = (tmp_path / "css" / "styles.css").read_text()
     # Should contain the overridden photo.css
     assert "border: 4px solid #ff6b6b" in css
     assert "saturate(1.5)" in css
@@ -198,12 +200,13 @@ def test_pre_styles_inserted_at_beginning(tmp_path):
             sys.executable, "src/build.py",
             "--cv", "testdata/cv/single_page.toml",
             "--theme-pre-styles", "testdata/pre.css",
+            "--intermediate-dir", str(tmp_path),
             "--output", str(tmp_path / "out.pdf"),
         ],
         capture_output=True, text=True
     )
     assert result.returncode == 0, result.stderr
-    css = Path("css/styles.css").read_text()
+    css = (tmp_path / "css" / "styles.css").read_text()
     assert css.startswith("/* pre_styles test")
 
 
@@ -215,12 +218,13 @@ def test_post_styles_inserted_at_end(tmp_path):
             sys.executable, "src/build.py",
             "--cv", "testdata/cv/single_page.toml",
             "--theme-post-styles", "testdata/post.css",
+            "--intermediate-dir", str(tmp_path),
             "--output", str(tmp_path / "out.pdf"),
         ],
         capture_output=True, text=True
     )
     assert result.returncode == 0, result.stderr
-    css = Path("css/styles.css").read_text()
+    css = (tmp_path / "css" / "styles.css").read_text()
     assert css.strip().endswith("color: #00ff00 !important;\n}")
 
 
@@ -233,12 +237,13 @@ def test_local_theming_dir_override_priority(tmp_path):
             "--cv", "testdata/cv/single_page.toml",
             "--theme", "default_cv",
             "--local-theming-dir", "testdata/theme",
+            "--intermediate-dir", str(tmp_path),
             "--output", str(tmp_path / "out.pdf"),
         ],
         capture_output=True, text=True
     )
     assert result.returncode == 0, result.stderr
-    html = Path("html/tmp.html").read_text()
+    html = (tmp_path / "html" / "tmp.html").read_text()
     assert "testdata-override" in html
 
 
@@ -249,11 +254,12 @@ def test_config_styles_tokens_override(tmp_path):
         [
             sys.executable, "src/build.py",
             "--cv", "testdata/cv/tokens_tweaked.toml",
+            "--intermediate-dir", str(tmp_path),
             "--output", str(tmp_path / "out.pdf"),
         ],
         capture_output=True, text=True
     )
     assert result.returncode == 0, result.stderr
-    css = Path("css/styles.css").read_text()
+    css = (tmp_path / "css" / "styles.css").read_text()
     assert "--fontSize: 9.5px" in css
     assert "--fontFamily: 'Roboto', 'Helvetica', sans-serif" in css

@@ -130,6 +130,7 @@ class BuildConfig:
     layout: dict | None = None
     styles: dict | None = None
     data_override: dict | None = None
+    intermediate_dir: str = "./output"
 
 
 def showHTML(htmlFile: str) -> None:
@@ -453,6 +454,9 @@ def parse_cli_args() -> argparse.Namespace:
     parser.add_argument("--theme-pre-styles", help="CSS file to prepend to compiled CSS")
     parser.add_argument("--theme-post-styles", help="CSS file to append to compiled CSS")
 
+    parser.add_argument("--intermediate-dir", default=None,
+                        help="Directory for intermediate build artifacts (html/, css/, js/, img/ subdirs). Defaults to the current directory.")
+
     return parser.parse_args()
 
 
@@ -539,7 +543,7 @@ def resolve_build_config(args: SimpleNamespace | argparse.Namespace, yaml_files:
     if template is None:
         raise ValueError("No html template provided")
 
-    return BuildConfig(
+    cfg = dict(
         theme=theme,
         local_theming_dir=local_theming_dir,
         pre_styles=pre_styles,
@@ -557,6 +561,10 @@ def resolve_build_config(args: SimpleNamespace | argparse.Namespace, yaml_files:
         styles=styles,
         data_override=getattr(args, "data", None),
     )
+    intermediate_dir = getattr(args, "intermediate_dir", None)
+    if intermediate_dir is not None:
+        cfg["intermediate_dir"] = intermediate_dir
+    return BuildConfig(**cfg)
 
 
 def setup_logging(verbose: str) -> None:
@@ -616,7 +624,18 @@ if __name__ == "__main__":
     data = load_and_merge_data(config.yaml_files, config.data_override)
     data = prepare_data(data, config.lang)
 
-    htmlFile = "./html/tmp.html"
+    idir = config.intermediate_dir
+    html_dir = os.path.join(idir, "html")
+    js_dir = os.path.join(idir, "js")
+    css_dir = os.path.join(idir, "css")
+    img_dir = os.path.join(idir, "img")
+
+    os.makedirs(html_dir, exist_ok=True)
+    os.makedirs(js_dir, exist_ok=True)
+    os.makedirs(css_dir, exist_ok=True)
+    os.makedirs(img_dir, exist_ok=True)
+
+    htmlFile = os.path.join(html_dir, "tmp.html")
 
     search_paths = None
     if config.theme_active and config.theme is not None:
@@ -625,7 +644,7 @@ if __name__ == "__main__":
         logger.debug(f"Theme search paths: {search_paths}")
 
     if config.js_template:
-        jsFile = "./js/tmp.js"
+        jsFile = os.path.join(js_dir, "tmp.js")
         renderTemplateAndWriteToFile(config.js_template, data, jsFile, search_paths)
         jsFile = os.path.relpath(jsFile, os.path.dirname(htmlFile))
         logger.debug(jsFile)
@@ -633,7 +652,7 @@ if __name__ == "__main__":
             data["script"]["jsfile"] = jsFile
 
     if config.css_template:
-        cssFile = "./css/styles.css"
+        cssFile = os.path.join(css_dir, "styles.css")
 
         if config.styles is not None:
             if "styles" not in data:
@@ -662,8 +681,6 @@ if __name__ == "__main__":
         if config.layout is not None and "sections" in config.layout:
             data["sections"] = config.layout["sections"]
 
-    img_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'img'))
-    os.makedirs(img_dir, exist_ok=True)
     createQRCode(data, config.lang, img_dir)
 
     renderTemplateAndWriteToFile(config.template, data, htmlFile, search_paths)
