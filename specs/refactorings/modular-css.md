@@ -40,7 +40,7 @@ Everytime we build, merge all the `.css` files into a single `.css` (`/css/style
 
 Reproduce perfectly the current theme within the new system. Just regroup declarations in files and introduce variables for better maintainability.
 
-## Theme-based modularity
+## Theme-based modularity (Done)
 ### Current state
 Ways to apply theming:
 - Modify `resume.css.j2` template 
