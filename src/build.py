@@ -23,9 +23,23 @@ from collections.abc import Callable
 
 class ThemeLoader(BaseLoader):
     def __init__(self, search_paths: list[str]) -> None:
+        """Load Jinja2 templates from an ordered list of search paths.
+
+        search_paths: ordered list of directories to search for templates (first match wins).
+        """
         self.search_paths = search_paths
 
     def get_source(self, environment: Environment, template: str) -> tuple[str, str, Callable[[], bool]]:
+        """Resolve a template name to its source, path, and uptodate callback.
+
+        environment: the Jinja2 environment (unused, required by BaseLoader interface).
+        template: name of the template file to resolve.
+
+        Returns: tuple of (source string, resolved path, uptodate callback).
+
+        Raises:
+            TemplateNotFound: if template is not found in any search path.
+        """
         for base in self.search_paths:
             path = join(base, template)
             if exists(path):
@@ -39,6 +53,16 @@ class ThemeLoader(BaseLoader):
 class ThemeResolver:
     def __init__(self, theme_name: str, user_theme_dir: str | None = None,
                  pre_styles: str | None = None, post_styles: str | None = None) -> None:
+        """Resolve theme paths, manifest, and search order for a named theme.
+
+        theme_name: name of the theme directory under themes/.
+        user_theme_dir: optional per-project theme directory for overrides.
+        pre_styles: path to a CSS file to prepend to compiled CSS.
+        post_styles: path to a CSS file to append to compiled CSS.
+
+        Raises:
+            ValueError: if the theme directory does not exist.
+        """
         self.theme_name = theme_name
         self.user_theme_dir = user_theme_dir
         self.pre_styles_path = pre_styles
@@ -70,6 +94,10 @@ class ThemeResolver:
         return ""
 
     def _load_manifest(self) -> dict:
+        """Read theme metadata from manifest.md as key-value pairs.
+
+        Returns: dict of metadata parsed from markdown headers (e.g. "# theme: name").
+        """
         path = join(self._theme_root, "manifest.md")
         manifest = {}
         if exists(path):
@@ -87,6 +115,12 @@ class ThemeResolver:
         return manifest
 
     def _build_search_paths(self) -> list[str]:
+        """Build the ordered list of template search paths.
+
+        Priority: user theme dir > this theme's j2/ > parent theme's paths (via extends chain).
+
+        Returns: ordered list of directory paths for template resolution.
+        """
         paths = []
         # 1. User theme_dir (highest priority)
         if self.user_theme_dir:
@@ -134,11 +168,12 @@ class BuildConfig:
 
 
 def showHTML(htmlFile: str) -> None:
-    '''
-    Shows an html files using an external browser
+    """Open an HTML file in an external browser (Firefox).
 
-    htmlFile: the path to the file to show
-    '''
+    htmlFile: path to the HTML file to display.
+
+    Side-effects: launches a Firefox browser process.
+    """
     htmlViewerArgs = []
     htmlViewerArgs += ["firefox"]
     htmlViewerArgs += [htmlFile]
@@ -149,11 +184,12 @@ def showHTML(htmlFile: str) -> None:
 
 
 def viewPDF(pdfFile: str) -> None:
-    '''
-    Shows a pdf file using an external program
+    """Open a PDF file in an external viewer (Okular).
 
-    pdfFile: the path to the file to show
-    '''
+    pdfFile: path to the PDF file to display.
+
+    Side-effects: launches an Okular viewer process.
+    """
     pdfViewerArgs = []
     pdfViewerArgs += ["okular"]
     pdfViewerArgs += ["--unique"]
@@ -167,12 +203,13 @@ import asyncio
 from playwright.async_api import async_playwright
 
 async def html_to_pdf_chromium(html_path: str, output_path: str) -> None:
-    '''
-    Creates a pdf file our of the contents of an html file
+    """Convert an HTML file to PDF using headless Chromium via Playwright.
 
-    html_path: path to html file
-    output_path :  path to pdf file
-    '''
+    html_path: path to the input HTML file.
+    output_path: path for the generated PDF file.
+
+    Side-effects: launches a headless Chromium browser, writes a PDF to output_path.
+    """
 
     async with async_playwright() as p:
         # Launch Chromium (default)
@@ -199,14 +236,14 @@ async def html_to_pdf_chromium(html_path: str, output_path: str) -> None:
 
 # Copied from https://stackoverflow.com/a/50441142
 def deep_merge(d1: Any, d2: Any, replace: bool = False) -> Any:
-    '''
-    Merges two dictionaries recursively while merging leaf values that correspond to the same key sequences into lists
+    """Recursively merge two dicts, bundling conflicting leaf values into lists.
 
-    d1,d2: input dictionaries
-    replace: controls whether we merge the two dictionaries leaf values or whether we replace the values by the values we find in d2 
-    return : merged dictionary
-    
-    '''
+    d1: lower-priority dictionary.
+    d2: higher-priority dictionary.
+    replace: if True, d2 values replace d1 values on conflict instead of bundling into a list.
+
+    Returns: merged dict, or flattened list when both values are non-dicts.
+    """
     if isinstance(d1, dict) and isinstance(d2, dict):
         # Unwrap d1 and d2 in new dictionary to keep non-shared keys with **d1, **d2
         # Next unwrap a dict that treats shared keys
@@ -233,14 +270,19 @@ FORMAT = '[%(funcName)s] : %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 
 def renderTemplateAndWriteToFile(template_filename: str | None, data: dict, output_filename: str, search_paths: list[str] | None = None) -> None:
-    '''
-    Renders a jinja2 template and places the result in an output file
+    """Render a Jinja2 template with data and write the result to a file.
 
-    template_name: the name of the template to render
-    data: the dictionary to use to render the template
-    output_filename: the filename to output the rendered template
-    search_paths: a list of paths (from most to least priority) to search for the template
-    '''
+    template_filename: name of the template to render (may use path components).
+    data: dictionary to use for template variable substitution.
+    output_filename: path for the rendered output file.
+    search_paths: ordered list of directories to search for templates (defaults to ["."]).
+
+    Raises:
+        ValueError: if template_filename is None.
+        TemplateNotFound: if the template cannot be found in any search path.
+
+    Side-effects: writes rendered template to output_filename.
+    """
     if template_filename is None:
         raise ValueError("template_filename is required")
     if search_paths is None:
@@ -258,11 +300,15 @@ def renderTemplateAndWriteToFile(template_filename: str | None, data: dict, outp
 import re
 
 def readYamlData(yamlFiles: list[str]) -> dict:
-    '''
-    Reads data from a list of yaml files and merges them into a dictionary object
+    """Read and merge data from a list of YAML files, left to right.
 
-    yamlFiles: List containing yaml files
-    '''
+    yamlFiles: list of paths to .yaml files.
+
+    Returns: merged dictionary from all files.
+
+    Raises:
+        ValueError: if any file does not have a .yaml extension.
+    """
     if any( [ os.path.splitext(k)[1]!= ".yaml" for k in yamlFiles] ):
         nonYamlValues = filter(lambda x: os.path.splitext(x)[1]!= ".yaml" , yamlFiles)
         raise ValueError("Expected only .yaml files as input but was given : " + str(list(nonYamlValues)))
@@ -309,20 +355,27 @@ def findDateField(x: Any) -> int | None:
 # The argument of this funciton should be a dictionary with elements that need to be sorted 
 # since a dictionary maintains order of iterms since Python 3.6
 def sortDict(lines: dict, dsc: bool, key: Callable[[Any], Any]) -> dict:
-    '''
-    Orders a dictionary based on some key
-    
-    lines: the dictionary to sort
-    dsc: descending (True) or ascending (False) order 
-    key : unary function returning a number
-    '''
+    """Order a dictionary by applying a key function to its items.
+
+    lines: dictionary to sort.
+    dsc: True for descending order, False for ascending.
+    key: unary function applied to each (k, v) item — return value is used for comparison.
+
+    Returns: new dictionary with items in sorted order.
+    """
     linesList = list(lines.items())
     linesList.sort(key=key,reverse = dsc)
     return dict(linesList)
     
 # Sort data inplace
 def sortData(data: Any, dsc: bool = False) -> None:
-    # Find all lines
+    """Recursively sort "lines" dicts within data by date, descending or ascending.
+
+    data: nested dict structure (mutated in-place).
+    dsc: True for descending order, False for ascending.
+
+    Side-effects: mutates data by reordering "lines" dicts.
+    """
     if type(data) is dict:
         for k in data.keys():
             if k == "lines":
@@ -363,12 +416,12 @@ def overlay(base: dict, top: dict) -> dict:
     return output
 
 def generate_qr_code(url: str, output_path: str) -> None:
-    """
-    Generate a QR code image for the given URL and save to output_path.
-    
-    url: URL the qrcode will be pointing to
-    output_path: path to the file to save the qrcode into
-    
+    """Generate a QR code PNG image for a URL.
+
+    url: URL the QR code will encode.
+    output_path: path for the generated PNG file.
+
+    Side-effects: writes a PNG file to output_path.
     """
     qr = qrcode.QRCode(
         version=3,
@@ -402,13 +455,14 @@ def tr(prop: Any, lang: str | None = None, default: Any = None) -> Any:
             return default
 
 def createQRCode(data: dict, lang: str, path: str) -> None:
-    '''
-    Creates a qrcode in image file format corresponding to qrcode sections defined in the data
+    """Generate QR code images for sections with template "qr-code.html.j2".
 
-    data: the dictionary used to render all templates
-    lang: the language we are targeting
-    path: path to the output directory
-    '''
+    data: the full data dictionary (mutated in-place).
+    lang: language code for resolving multilingual link fields.
+    path: directory path to write QR code images into.
+
+    Side-effects: writes PNG files to path, mutates data by setting section["qr_image"].
+    """
     # Access the nested data dict where sections are stored
     sections_data = data.get("data", {})
     for section_name in data.get("sections", []):
@@ -430,7 +484,10 @@ def createQRCode(data: dict, lang: str, path: str) -> None:
 
 
 def parse_cli_args() -> argparse.Namespace:
-    """Parse command-line arguments and return the resulting namespace."""
+    """Parse command-line arguments.
+
+    Returns: argparse.Namespace with all CLI flag values.
+    """
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--cv", help=".toml file containing a configuration to create a cv. Parameters specified via cli argument take precedence in order to easily tweek a configuration file.")
@@ -461,20 +518,39 @@ def parse_cli_args() -> argparse.Namespace:
 
 
 def load_toml_config(path: str) -> dict:
-    """Load a TOML configuration file and return the parsed dict."""
+    """Load a TOML configuration file.
+
+    path: path to the .toml file.
+
+    Returns: parsed dictionary.
+    """
     with open(path, "rb") as fd:
         return tomllib.load(fd)
 
 
 def overlay_args(toml_config: dict, cli_args_dict: dict) -> SimpleNamespace:
-    """Merge TOML config with CLI args (CLI takes precedence) and return as SimpleNamespace."""
+    """Merge TOML configuration with CLI arguments.
+
+    toml_config: parsed TOML dictionary (lower priority).
+    cli_args_dict: CLI arguments dictionary (higher priority, overwrites TOML).
+
+    Returns: SimpleNamespace with merged values.
+    """
     args = overlay(toml_config, cli_args_dict)
     return SimpleNamespace(**args)
 
 
 def resolve_build_config(args: SimpleNamespace | argparse.Namespace, yaml_files: list[str] | None = None) -> BuildConfig:
-    """Validate arguments, resolve templates/theme, and return a BuildConfig.
-    Raises ValueError on invalid combinations or missing required args."""
+    """Validate CLI arguments and resolve templates, theme, and output paths.
+
+    args: parsed CLI arguments or merged TOML+CLI namespace.
+    yaml_files: list of YAML file paths to use (overrides args.yaml).
+
+    Returns: populated BuildConfig.
+
+    Raises:
+        ValueError: on invalid argument combinations or missing required args.
+    """
     theme = getattr(args, "theme", None)
     local_theming_dir = getattr(args, "local_theming_dir", None)
     pre_styles = getattr(args, "theme_pre_styles", None)
@@ -568,7 +644,12 @@ def resolve_build_config(args: SimpleNamespace | argparse.Namespace, yaml_files:
 
 
 def setup_logging(verbose: str) -> None:
-    """Set logging level from a string: info, debug, or warn."""
+    """Set the logging level from a string.
+
+    verbose: one of "info", "debug", or "warn".
+
+    Side-effects: reconfigures the root logger level.
+    """
     if verbose == "info":
         logging.basicConfig(level=logging.INFO)
     elif verbose == "debug":
@@ -578,7 +659,13 @@ def setup_logging(verbose: str) -> None:
 
 
 def load_and_merge_data(yaml_files: list[str] | None, data_override: dict | None = None) -> dict:
-    """Read YAML files, sort data, merge with optional TOML data override."""
+    """Read YAML files, sort sections by date, and apply optional data override.
+
+    yaml_files: list of YAML file paths (may be None).
+    data_override: optional dict that overwrites matching keys in the merged data.
+
+    Returns: the fully merged and sorted data dictionary.
+    """
     data = {}
     if yaml_files is not None:
         data = readYamlData(yaml_files)
@@ -591,7 +678,13 @@ def load_and_merge_data(yaml_files: list[str] | None, data_override: dict | None
 
 
 def prepare_data(data: dict, lang: str) -> dict:
-    """Ensure styles/script keys exist and set the lang field."""
+    """Ensure styles/script keys exist in data and set the lang field.
+
+    data: the data dictionary (not mutated — a copy is returned).
+    lang: language code to set as data["lang"].
+
+    Returns: new dictionary with styles, script, and lang populated.
+    """
     if "styles" not in data:
         data["styles"] = {}
     if "script" not in data:

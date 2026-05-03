@@ -46,6 +46,32 @@
     - Most code and architecture (and most of this document) applies to CVs
 
 
+# Docstring style
+
+Functions use compact docstrings with the following section layout:
+
+```python
+def my_function(param: str) -> bool:
+    """Short description of what the function does.
+
+    param: description of the parameter.
+
+    Returns: description of the return value. (omitted if -> None)
+
+    Raises:
+        ValueError: condition that triggers the error. (omitted if none)
+
+    Side-effects: description of side-effects. (omitted if none)
+    """
+```
+
+- No `Args:` header — parameters are listed directly at line start.
+- `Returns:` on its own line, inline (no indent). Omitted entirely for `None`-returning functions.
+- `Raises:` each error on an indent line. Omitted if the function raises no documented exceptions.
+- `Side-effects:` on its own line, inline. Omitted if the function has no side-effects.
+- Each section is separated by a blank line.
+
+
 # Mechanism
 - build.py gets the template list and feeds it to the root template corresponding to each document type. 
 - the root template traverses a list of sections (corresponding to the names of the data objects) and instantiates the templates each object specifies
