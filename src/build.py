@@ -213,6 +213,7 @@ def showHTML(htmlFile: str) -> None:
     """
     htmlViewerArgs = []
     htmlViewerArgs += ["firefox"]
+    htmlViewerArgs += ["--private-window"]
     htmlViewerArgs += [htmlFile]
     logger.info(" ".join(htmlViewerArgs))
     result = subprocess.run(htmlViewerArgs, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
