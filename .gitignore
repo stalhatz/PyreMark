@@ -14,7 +14,7 @@ plans/
 poetry.lock
 *__pycache__
 .vscode/
-img/
+/img/
 *sync-conflict*
 **/old/
 userdata/

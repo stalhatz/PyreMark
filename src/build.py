@@ -6,6 +6,7 @@ import os
 import hashlib
 import qrcode
 from re import compile
+import shutil
 import subprocess
 import tempfile
 
@@ -72,12 +73,19 @@ class ThemeResolver:
             raise ValueError(f"Theme '{theme_name}' not found at {self._theme_root}")
         self._manifest = self._load_manifest()
         self._search_paths = self._build_search_paths()
+        self._image_search_paths = self._build_image_search_paths()
 
     def search_paths(self) -> list[str]:
         """Ordered list of j2/ directories for template resolution.
         First match wins — equivalent to highest priority.
         """
         return list(self._search_paths)
+
+    def image_search_paths(self) -> list[str]:
+        """Ordered list of img/ directories for image resolution.
+        First match wins — highest priority first.
+        """
+        return list(self._image_search_paths)
 
     def get_pre_styles(self) -> str:
         """Content of pre-styles CSS, or empty string."""
@@ -139,6 +147,34 @@ class ThemeResolver:
             paths.extend(parent.search_paths())
 
         return paths
+
+    def _build_image_search_paths(self) -> list[str]:
+        """Build the ordered list of image search paths.
+
+        Priority: user theme img/ > this theme's img/ > parent theme's img/ (via extends chain).
+
+        Returns: ordered list of directory paths for image resolution.
+        """
+        img_paths = []
+        # 1. User theme_dir (highest priority)
+        if self.user_theme_dir:
+            user_img = join(self.user_theme_dir, "img")
+            if exists(user_img):
+                img_paths.append(user_img)
+
+        # 2. This theme's img/
+        this_img = join(self._theme_root, "img")
+        if exists(this_img):
+            img_paths.append(this_img)
+
+        # 3. Walk extends: chain (parent themes) — lowest priority
+        extends = self._manifest.get("extends")
+        if extends:
+            parent = ThemeResolver(extends, user_theme_dir=None,
+                                   pre_styles=None, post_styles=None)
+            img_paths.extend(parent.image_search_paths())
+
+        return img_paths
 
 
 class DocumentType(str, Enum):
@@ -482,6 +518,20 @@ def createQRCode(data: dict, lang: str, path: str) -> None:
                 logger.warning(f"QR section '{section_name}' missing 'link', skipping QR generation.")
 
 
+def copy_theme_images(image_paths: list[str], output_img_dir: str) -> None:
+    """Copy static theme images to the build output directory.
+
+    Lower priority paths are copied first; higher priority paths overwrite.
+    This applies the same overloading mechanism as template resolution.
+    """
+    for path in reversed(image_paths):
+        if not exists(path):
+            continue
+        for filename in os.listdir(path):
+            src = join(path, filename)
+            if os.path.isfile(src):
+                shutil.copy2(src, join(output_img_dir, filename))
+
 
 def parse_cli_args() -> argparse.Namespace:
     """Parse command-line arguments.
@@ -775,6 +825,9 @@ if __name__ == "__main__":
             data["sections"] = config.layout["sections"]
 
     createQRCode(data, config.lang, img_dir)
+
+    if config.theme_active and resolver is not None:
+        copy_theme_images(resolver.image_search_paths(), img_dir)
 
     renderTemplateAndWriteToFile(config.template, data, htmlFile, search_paths)
 
