@@ -7,6 +7,5 @@
 {%- endmacro %}
 
 
-{%- for jsTemplate in jsTemplates %}
-    {% include jsTemplate %}
-{% endfor -%}
+{% include "multipage.js.j2" %}
+{% include "shrinkWrapText.js.j2" %}
