@@ -263,3 +263,231 @@ def test_config_styles_tokens_override(tmp_path):
     css = (tmp_path / "css" / "styles.css").read_text()
     assert "--fontSize: 9.5px" in css
     assert "--fontFamily: 'Roboto', 'Helvetica', sans-serif" in css
+
+
+# --- data_root tests ---
+
+from build import resolve_build_config
+from types import SimpleNamespace
+import os
+
+def test_data_root_auto_detect_from_toml():
+    """Auto-detect data_root as the TOML file's containing directory."""
+    toml_path = str(test_dir.parent / "testdata" / "cv" / "single_page.toml")
+    args = SimpleNamespace(cv=toml_path, type="cv")
+    config = resolve_build_config(args, yaml_files=None, config_file_path=toml_path)
+    expected = str((test_dir.parent / "testdata" / "cv").resolve())
+    assert config.data_root == expected
+
+
+def test_data_root_explicit_in_args():
+    """--data-root CLI flag should take precedence over auto-detect."""
+    toml_path = str(test_dir.parent / "testdata" / "cv" / "single_page.toml")
+    custom_root = str(test_dir.parent / "testdata")
+    args = SimpleNamespace(cv=toml_path, type="cv", data_root=custom_root)
+    config = resolve_build_config(args, yaml_files=None, config_file_path=toml_path)
+    assert config.data_root == str((test_dir.parent / "testdata").resolve())
+
+
+def test_data_root_toml_relative():
+    """data_root = '..' in TOML args resolves relative to the TOML file directory."""
+    toml_path = str(test_dir.parent / "testdata" / "cv" / "single_page.toml")
+    args = SimpleNamespace(cv=toml_path, type="cv", data_root="..")
+    config = resolve_build_config(args, yaml_files=None, config_file_path=toml_path)
+    expected = str(test_dir.parent / "testdata")
+    assert config.data_root == expected
+
+
+def test_data_root_cli_without_toml_falls_back_to_cwd():
+    """CLI-only without a TOML should set data_root to CWD."""
+    cwd = str(Path.cwd().resolve())
+    args = SimpleNamespace(type="cv")
+    config = resolve_build_config(args, yaml_files=None, config_file_path=None)
+    assert config.data_root == cwd
+
+
+def test_yaml_files_resolved_against_data_root():
+    """YAML file paths in TOML should be resolved relative to data_root."""
+    toml_path = str(test_dir.parent / "testdata" / "cv" / "single_page.toml")
+    args = SimpleNamespace(cv=toml_path, type="cv")
+    config = resolve_build_config(
+        args,
+        yaml_files=["../yaml/personal_details.yaml"],
+        config_file_path=toml_path,
+    )
+    expected = str(test_dir.parent / "testdata" / "yaml" / "personal_details.yaml")
+    assert config.yaml_files is not None
+    assert expected in config.yaml_files
+
+
+def test_data_root_warning_bad_root(tmp_path):
+    """Warning when data_root does not exist."""
+    import subprocess
+    result = subprocess.run(
+        [
+            sys.executable, "src/build.py",
+            "--data-root", str(tmp_path / "nonexistent"),
+            "--type", "CV",
+            "--yaml", str(test_dir.parent / "testdata" / "yaml" / "personal_details.yaml"),
+            "--output", str(tmp_path / "out.pdf"),
+            "--intermediate-dir", str(tmp_path),
+        ],
+        capture_output=True, text=True
+    )
+    assert "does not exist" in result.stdout or "does not exist" in result.stderr
+
+
+def test_data_root_warning_no_yaml_dir(tmp_path):
+    """Warning when data_root exists but has no yaml/ subdirectory."""
+    import subprocess
+    # Create a TOML file in a subdirectory so we can use auto-detect
+    toml_dir = tmp_path / "conf"
+    toml_dir.mkdir()
+    toml_file = toml_dir / "test.toml"
+    toml_file.write_text("""type = "cv"\nyaml = []\n""")
+    result = subprocess.run(
+        [
+            sys.executable, "src/build.py",
+            "--cv", str(toml_file),
+            "--output", str(tmp_path / "out.pdf"),
+            "--intermediate-dir", str(tmp_path),
+        ],
+        capture_output=True, text=True
+    )
+    assert "no yaml/ directory found" in result.stdout or "no yaml/ directory found" in result.stderr
+
+
+def test_resolve_user_images_copies_and_rewrites(tmp_path):
+    """resolve_user_images should copy image and rewrite path to ../img/<name>."""
+    from build import resolve_user_images
+
+    # Setup: create a real image file in data_root
+    data_root = str(tmp_path / "data")
+    img_src_dir = tmp_path / "data" / "photos"
+    img_src_dir.mkdir(parents=True)
+    img_file = img_src_dir / "profile.jpg"
+    img_file.write_bytes(b"fake image data")
+
+    img_dir = str(tmp_path / "output" / "img")
+    os.makedirs(img_dir, exist_ok=True)
+
+    data = {
+        "data": {
+            "details": {
+                "photo": "photos/profile.jpg",
+                "firstName": "Test",
+            }
+        }
+    }
+
+    resolve_user_images(data, data_root, img_dir)
+
+    assert data["data"]["details"]["photo"] == "../img/profile.jpg"
+    assert data["data"]["details"]["firstName"] == "Test"
+    dest = os.path.join(img_dir, "profile.jpg")
+    assert os.path.isfile(dest)
+    assert open(dest, "rb").read() == b"fake image data"
+
+
+def test_resolve_user_images_skips_urls_and_abs_paths(tmp_path):
+    """URLs and absolute paths should be left untouched."""
+    from build import resolve_user_images
+
+    data_root = str(tmp_path)
+    img_dir = str(tmp_path / "output" / "img")
+    os.makedirs(img_dir, exist_ok=True)
+
+    data = {
+        "data": {
+            "details": {
+                "photo": "https://example.com/photo.jpg",
+            }
+        },
+        "sender": {
+            "signaturePhoto": "/absolute/path/sig.png",
+        },
+    }
+
+    resolve_user_images(data, data_root, img_dir)
+
+    assert data["data"]["details"]["photo"] == "https://example.com/photo.jpg"
+    assert data["sender"]["signaturePhoto"] == "/absolute/path/sig.png"
+
+
+def test_resolve_user_images_keeps_original_on_missing_file(tmp_path):
+    """When image file doesn't exist, keep original path and warn."""
+    from build import resolve_user_images
+
+    data_root = str(tmp_path)
+    img_dir = str(tmp_path / "output" / "img")
+    os.makedirs(img_dir, exist_ok=True)
+
+    data = {
+        "data": {
+            "details": {
+                "photo": "img/missing.jpg",
+            }
+        }
+    }
+
+    resolve_user_images(data, data_root, img_dir)
+
+    assert data["data"]["details"]["photo"] == "img/missing.jpg"
+
+
+def test_data_root_integration(tmp_path):
+    """End-to-end: build with a TOML config and verify image is resolved."""
+    import subprocess
+
+    data_dir = tmp_path / "data"
+    yaml_dir = data_dir / "yaml"
+    img_dir = data_dir / "img"
+    conf_dir = data_dir / "conf"
+    yaml_dir.mkdir(parents=True)
+    img_dir.mkdir(parents=True)
+    conf_dir.mkdir(parents=True)
+
+    # Create a test image
+    test_img = img_dir / "profile.jpg"
+    test_img.write_bytes(b"fake image data")
+
+    # Create a minimal YAML with a relative image path
+    yaml_file = yaml_dir / "details.yaml"
+    yaml_file.write_text("""data:
+  details:
+    photo: img/profile.jpg
+    firstName:
+      def: Test
+    candidateTitle:
+      def: "Test CV"
+    template: "preambule.html.j2"
+""")
+
+    # Create a TOML config with data_root pointing up from conf/
+    toml_file = conf_dir / "test.toml"
+    toml_file.write_text("""type = "cv"
+data_root = ".."
+yaml = ['yaml/details.yaml']
+
+[layout]
+sections = ['details']
+""")
+
+    out_dir = tmp_path / "output"
+    result = subprocess.run(
+        [
+            sys.executable, "src/build.py",
+            "--cv", str(toml_file),
+            "--intermediate-dir", str(out_dir),
+            "--output", str(tmp_path / "out.pdf"),
+        ],
+        capture_output=True, text=True
+    )
+
+    assert result.returncode == 0, result.stderr
+
+    copied_img = out_dir / "img" / "profile.jpg"
+    assert copied_img.is_file()
+
+    html = (out_dir / "html" / "tmp.html").read_text()
+    assert "../img/profile.jpg" in html

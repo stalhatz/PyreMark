@@ -201,6 +201,7 @@ class BuildConfig:
     styles: dict | None = None
     data_override: dict | None = None
     intermediate_dir: str = "./output"
+    data_root: str | None = None
 
 
 def showHTML(htmlFile: str) -> None:
@@ -533,6 +534,55 @@ def copy_theme_images(image_paths: list[str], output_img_dir: str) -> None:
                 shutil.copy2(src, join(output_img_dir, filename))
 
 
+_IMAGE_FIELDS = [
+    (("data", "details"), "photo"),
+    (("sender",), "signaturePhoto"),
+]
+
+
+def resolve_user_images(data: dict, data_root: str, img_dir: str) -> None:
+    """Resolve user image paths against data_root, copy to build output, rewrite paths.
+
+    data: the full data dictionary (mutated in-place).
+    data_root: base directory for resolving relative image paths.
+    img_dir: directory to copy resolved images into.
+
+    Side-effects: copies image files to img_dir, mutates data by rewriting paths.
+    """
+    for dict_path, field in _IMAGE_FIELDS:
+        d = data
+        for key in dict_path:
+            if isinstance(d, dict):
+                d = d.get(key, {})
+            else:
+                d = {}
+        if not isinstance(d, dict):
+            continue
+        value = d.get(field)
+        if not value or not isinstance(value, str):
+            continue
+        if value.startswith("http://") or value.startswith("https://"):
+            continue
+        if os.path.isabs(value):
+            continue
+
+        resolved = os.path.join(data_root, value)
+        resolved = os.path.abspath(resolved)
+        dotpath = '.'.join(dict_path)
+        if not os.path.exists(resolved):
+            logger.warning(f"Image '{dotpath}.{field}': file '{resolved}' not found — keeping original path")
+            continue
+        if not os.path.isfile(resolved):
+            logger.warning(f"Image '{dotpath}.{field}': path '{resolved}' is a directory — skipping")
+            continue
+
+        basename = os.path.basename(resolved)
+        dest = os.path.join(img_dir, basename)
+        shutil.copy2(resolved, dest)
+        d[field] = f"../img/{basename}"
+        logger.info(f"Resolved image '{dotpath}.{field}': {value!r} → {d[field]!r}")
+
+
 def parse_cli_args() -> argparse.Namespace:
     """Parse command-line arguments.
 
@@ -564,6 +614,9 @@ def parse_cli_args() -> argparse.Namespace:
     parser.add_argument("--intermediate-dir", default=None,
                         help="Directory for intermediate build artifacts (html/, css/, js/, img/ subdirs). Defaults to the current directory.")
 
+    parser.add_argument("--data-root", default=None,
+                        help="Root directory for resolving relative paths in TOML and YAML files")
+
     return parser.parse_args()
 
 
@@ -590,11 +643,13 @@ def overlay_args(toml_config: dict, cli_args_dict: dict) -> SimpleNamespace:
     return SimpleNamespace(**args)
 
 
-def resolve_build_config(args: SimpleNamespace | argparse.Namespace, yaml_files: list[str] | None = None) -> BuildConfig:
+def resolve_build_config(args: SimpleNamespace | argparse.Namespace, yaml_files: list[str] | None = None,
+                         config_file_path: str | None = None) -> BuildConfig:
     """Validate CLI arguments and resolve templates, theme, and output paths.
 
     args: parsed CLI arguments or merged TOML+CLI namespace.
     yaml_files: list of YAML file paths to use (overrides args.yaml).
+    config_file_path: path to the TOML config file, if one was used.
 
     Returns: populated BuildConfig.
 
@@ -669,6 +724,29 @@ def resolve_build_config(args: SimpleNamespace | argparse.Namespace, yaml_files:
     if template is None:
         raise ValueError("No html template provided")
 
+    # data_root resolution (priority: CLI > TOML > auto-detect > CWD)
+    data_root = getattr(args, "data_root", None)
+    if data_root is not None and config_file_path is not None:
+        data_root = os.path.join(os.path.dirname(os.path.abspath(config_file_path)),
+                                  data_root)
+        data_root = os.path.abspath(data_root)
+    elif data_root is not None:
+        data_root = os.path.abspath(data_root)
+    elif config_file_path is not None:
+        data_root = os.path.dirname(os.path.abspath(config_file_path))
+    else:
+        data_root = os.path.abspath(os.getcwd())
+
+    # Resolve yaml_files against data_root
+    if yaml_files is not None:
+        resolved = []
+        for f in yaml_files:
+            if os.path.isabs(f):
+                resolved.append(f)
+            else:
+                resolved.append(os.path.normpath(os.path.join(data_root, f)))
+        yaml_files = resolved
+
     cfg = dict(
         theme=theme,
         local_theming_dir=local_theming_dir,
@@ -686,6 +764,7 @@ def resolve_build_config(args: SimpleNamespace | argparse.Namespace, yaml_files:
         layout=layout,
         styles=styles,
         data_override=getattr(args, "data", None),
+        data_root=data_root,
     )
     intermediate_dir = getattr(args, "intermediate_dir", None)
     if intermediate_dir is not None:
@@ -761,8 +840,17 @@ if __name__ == "__main__":
     elif getattr(args, "yaml", None) is not None:
         yaml_files = args.yaml
 
-    config = resolve_build_config(args, yaml_files=yaml_files)
+    config = resolve_build_config(args, yaml_files=yaml_files,
+                                  config_file_path=cli_args.cv if cli_args.cv else None)
     setup_logging(config.verbose)
+
+    if config.data_root:
+        if not os.path.isdir(config.data_root):
+            logger.warning(f"data_root '{config.data_root}' does not exist")
+        else:
+            yaml_dir = os.path.join(config.data_root, "yaml")
+            if not os.path.isdir(yaml_dir):
+                logger.warning(f"data_root '{config.data_root}': no yaml/ directory found — are you sure this is the correct root?")
 
     data = load_and_merge_data(config.yaml_files, config.data_override)
     data = prepare_data(data, config.lang)
@@ -828,6 +916,8 @@ if __name__ == "__main__":
 
     if config.theme_active and resolver is not None:
         copy_theme_images(resolver.image_search_paths(), img_dir)
+
+    resolve_user_images(data, config.data_root, img_dir)
 
     renderTemplateAndWriteToFile(config.template, data, htmlFile, search_paths)
 

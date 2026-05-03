@@ -1,6 +1,6 @@
 type = "coverletter"
 yaml = [
-    './testdata/yaml/cover_letter.yaml',
+    '../yaml/cover_letter.yaml',
 ]
 lang = "en"
 

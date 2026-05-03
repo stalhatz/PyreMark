@@ -1,18 +1,18 @@
 type = "cv"
 yaml = [
-    './testdata/yaml/personal_details.yaml',
-    './testdata/yaml/experience.yaml',
-    './testdata/yaml/education.yaml',
-    './testdata/yaml/publications.yaml',
-    './testdata/yaml/patents.yaml',
-    './testdata/yaml/microcredits.yaml',
-    './testdata/yaml/projects.yaml',
-    './testdata/yaml/knowhow.yaml',
-    './testdata/yaml/soft_skills.yaml',
-    './testdata/yaml/knowledge.yaml',
-    './testdata/yaml/languages.yaml',
-    './testdata/yaml/competencies.yaml',
-    './testdata/yaml/qr_code.yaml',
+    '../yaml/personal_details.yaml',
+    '../yaml/experience.yaml',
+    '../yaml/education.yaml',
+    '../yaml/publications.yaml',
+    '../yaml/patents.yaml',
+    '../yaml/microcredits.yaml',
+    '../yaml/projects.yaml',
+    '../yaml/knowhow.yaml',
+    '../yaml/soft_skills.yaml',
+    '../yaml/knowledge.yaml',
+    '../yaml/languages.yaml',
+    '../yaml/competencies.yaml',
+    '../yaml/qr_code.yaml',
 ]
 lang = "en"
 
