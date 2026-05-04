@@ -83,15 +83,29 @@ def write_lines(path: str, lines: List[str]) -> None:
         f.writelines(line + "\n" for line in lines)
 
 
+def transform_md_to_yaml(markdown_content: str) -> list[str]:
+    """Parse markdown with optional YAML front matter into YAML lines.
+
+    markdown_content: raw markdown string (may start with --- frontmatter).
+
+    Returns: list of YAML lines containing metadata and body text.
+
+    Raises:
+        ValueError: if frontmatter is present with no closing delimiter or is not a mapping.
+    """
+    if markdown_content.startswith("---\n"):
+        metadata, body = split_frontmatter_body(markdown_content)
+    else:
+        metadata, body = {}, markdown_content
+
+    html_lines = body_to_html_lines(body)
+    return metadata_to_yaml_lines(metadata) + build_text_yaml(html_lines)
+
+
 def transform_md_to_yaml_html(input_path: str, output_path: str) -> None:
     text = read_file(input_path)
-    metadata, body = split_frontmatter_body(text)
-
-    lines = metadata_to_yaml_lines(metadata)
-    html_lines = body_to_html_lines(body)
-    text_yaml_lines = build_text_yaml(html_lines)
-
-    write_lines(output_path, lines + text_yaml_lines)
+    lines = transform_md_to_yaml(text)
+    write_lines(output_path, lines)
 
 def main() -> None:
     if len(sys.argv) != 3:

@@ -13,6 +13,7 @@ from transform_md_to_yaml_html import (
     body_to_html_lines,
     build_text_yaml,
     write_lines,
+    transform_md_to_yaml,
     transform_md_to_yaml_html,
 )
 
@@ -188,3 +189,67 @@ def test_with_fixture_file(tmp_path):
     assert "<p>I am writing to express my interest.</p>" in result
     assert "<p>Throughout my career, I have led teams.</p>" in result
     assert "<p>I look forward to hearing from you.</p>" in result
+
+
+# Branch analysis for transform_md_to_yaml:
+# 1. Branch tree:
+#    if markdown_content.startswith("---\n") → split_frontmatter_body
+#    else → metadata={}, body=markdown_content
+#    return metadata_to_yaml_lines(metadata) + build_text_yaml(body_to_html_lines(body))
+# 2. Input domain: str with frontmatter, str without, empty str, str with --- in body
+# 3. Call sites: transform_md_to_yaml_html — pass raw markdown text
+# 4. Contract: Parse markdown with optional YAML front matter (between --- markers).
+#    Returns list of YAML lines containing both metadata and body text.
+
+def test_transform_md_to_yaml_with_frontmatter():
+    content = "---\ntitle: Hello\n---\n\nBody text"
+    result = transform_md_to_yaml(content)
+    result_str = "\n".join(result)
+    assert "title: Hello" in result_str
+    assert "<p>Body text</p>" in result_str
+
+def test_transform_md_to_yaml_no_frontmatter():
+    content = "Just body text"
+    result = transform_md_to_yaml(content)
+    result_str = "\n".join(result)
+    assert "<p>Just body text</p>" in result_str
+
+def test_transform_md_to_yaml_multiline_body():
+    content = "---\na: 1\n---\n\nLine 1\nLine 2"
+    result = transform_md_to_yaml(content)
+    result_str = "\n".join(result)
+    assert "a: 1" in result_str
+    assert "<p>Line 1</p>" in result_str
+    assert "<p>Line 2</p>" in result_str
+
+def test_transform_md_to_yaml_empty_metadata():
+    content = "---\n---\n\nBody"
+    result = transform_md_to_yaml(content)
+    result_str = "\n".join(result)
+    assert "<p>Body</p>" in result_str
+
+def test_transform_md_to_yaml_empty_string():
+    """Empty string: body_to_html_lines returns [], build_text_yaml produces {'text': []}."""
+    result = transform_md_to_yaml("")
+    result_str = "\n".join(result)
+    assert "text:" in result_str
+
+def test_transform_md_to_yaml_dash_in_body():
+    """--- embedded in body text line (not on its own line) is handled correctly."""
+    content = "---\ntitle: Test\n---\n\nBody with --- inline."
+    result = transform_md_to_yaml(content)
+    result_str = "\n".join(result)
+    assert "title: Test" in result_str
+    assert "Body with --- inline" in result_str
+
+def test_transform_md_to_yaml_dash_line_in_body():
+    """--- on its own line in body is treated as body content (markdown horizontal rule).
+    This is a known limitation: split_frontmatter_body finds the first --- as closing."""
+    content = "---\ntitle: Test\n---\n\nParagraph 1\n\n---\n\nParagraph 2"
+    result = transform_md_to_yaml(content)
+    result_str = "\n".join(result)
+    assert "title: Test" in result_str
+    assert "Paragraph 1" in result_str
+    # --- in body is converted to <hr /> by markdown2
+    assert "<hr />" in result_str
+    assert "Paragraph 2" in result_str

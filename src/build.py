@@ -323,6 +323,8 @@ def renderTemplateAndWriteToFile(template_filename: str | None, data: dict, outp
     """
     if template_filename is None:
         raise ValueError("template_filename is required")
+    if template_filename == "":
+        raise TemplateNotFound("")
     if search_paths is None:
         search_paths = ["."]
     logger.debug(f"Using template file : {template_filename}")
@@ -459,8 +461,13 @@ def generate_qr_code(url: str, output_path: str) -> None:
     url: URL the QR code will encode.
     output_path: path for the generated PNG file.
 
+    Raises:
+        AttributeError: if url is None.
+
     Side-effects: writes a PNG file to output_path.
     """
+    if url is None:
+        raise AttributeError("url is required")
     qr = qrcode.QRCode(
         version=3,
         error_correction=qrcode.constants.ERROR_CORRECT_M,  # pyright: ignore[reportAttributeAccessIssue]
@@ -492,14 +499,14 @@ def tr(prop: Any, lang: str | None = None, default: Any = None) -> Any:
         else:
             return default
 
-def createQRCode(data: dict, lang: str, path: str) -> None:
+def createQRCode(data: dict, lang: str, img_dir: str) -> None:
     """Generate QR code images for sections with template "qr-code.html.j2".
 
     data: the full data dictionary (mutated in-place).
     lang: language code for resolving multilingual link fields.
-    path: directory path to write QR code images into.
+    img_dir: directory path to write QR code images into.
 
-    Side-effects: writes PNG files to path, mutates data by setting section["qr_image"].
+    Side-effects: writes PNG files to img_dir, mutates data by setting section["qr_image"].
     """
     # Access the nested data dict where sections are stored
     sections_data = data.get("data", {})
@@ -511,7 +518,7 @@ def createQRCode(data: dict, lang: str, path: str) -> None:
             if link:
                 url_hash = hashlib.sha256(link.encode()).hexdigest()[:16]
                 filename = f"qr_{url_hash}.png"
-                output_path = os.path.join(path, filename)
+                output_path = os.path.join(img_dir, filename)
                 generate_qr_code(link, output_path)
                 # Relative path from html output to img directory
                 section["qr_image"] = f"../img/{filename}"
