@@ -5,9 +5,9 @@ from pathlib import Path
 from copy import deepcopy
 
 test_dir = Path(__file__).resolve().parent
-sys.path.insert(0, str(test_dir.parent / "src"))
+sys.path.insert(0, str(test_dir.parent))
 
-from build import yearInDateString
+from src.data import yearInDateString
 
 def test_yearInDateString_one_date():
     assert yearInDateString("Hello_World_2030") == "2030"
@@ -18,7 +18,7 @@ def test_yearInDateString_consecutive_numbers():
 def test_yearInDateString_no_numbers():
     assert yearInDateString("Hello_World") is None
 
-from build import findDateField
+from src.data import findDateField
 def test_findDateField_single_level():
     inputDate = ("a",{"date":"2023"})
     assert findDateField(inputDate) == 2023
@@ -30,7 +30,7 @@ def test_findDateField_not_a_tuple():
     with pytest.raises(TypeError):
         findDateField(inputDate)
 
-from build import sortDict
+from src.data import sortDict
 def test_sortLines_int():
     inputData = {"a": 1, "v":45 , "c":2}
     # Ascending
@@ -56,7 +56,7 @@ def compareDicts(a,b):
     print(llb)
     return lla == llb
 
-from build import sortData
+from src.data import sortData
 def test_sortData():
     d2010 = {"py" : {"date":"2010" , "test":"python"}}
     d2005 = {"by":{"date":"2005" , "best":"bython"}}
@@ -79,7 +79,7 @@ def test_sortData():
 
 # --- Theme system tests ---
 
-from build import ThemeResolver, ThemeLoader
+from src.theme import ThemeResolver, ThemeLoader
 
 def test_theme_resolver_search_paths():
     resolver = ThemeResolver("default_cv")
@@ -142,7 +142,7 @@ def test_default_cv_build_output(tmp_path):
     html_file = tmp_path / "tmp.html"
     result = subprocess.run(
         [
-            sys.executable, "src/build.py",
+            sys.executable, "-m", "src.main",
             "--cv", "testdata/cv/single_page.toml",
             "--output", str(tmp_path / "out.pdf"),
         ],
@@ -157,7 +157,7 @@ def test_new_cv_example_renders(tmp_path):
     import subprocess
     result = subprocess.run(
         [
-            sys.executable, "src/build.py",
+            sys.executable, "-m", "src.main",
             "--cv", "testdata/cv/single_page.toml",
             "--theme", "new_cv_example",
             "--intermediate-dir", str(tmp_path),
@@ -177,7 +177,7 @@ def test_ext_default_cv_example_override(tmp_path):
     import subprocess
     result = subprocess.run(
         [
-            sys.executable, "src/build.py",
+            sys.executable, "-m", "src.main",
             "--cv", "testdata/cv/single_page.toml",
             "--theme", "ext_default_cv_example",
             "--intermediate-dir", str(tmp_path),
@@ -197,7 +197,7 @@ def test_pre_styles_inserted_at_beginning(tmp_path):
     import subprocess
     result = subprocess.run(
         [
-            sys.executable, "src/build.py",
+            sys.executable, "-m", "src.main",
             "--cv", "testdata/cv/single_page.toml",
             "--theme-pre-styles", "testdata/pre.css",
             "--intermediate-dir", str(tmp_path),
@@ -215,7 +215,7 @@ def test_post_styles_inserted_at_end(tmp_path):
     import subprocess
     result = subprocess.run(
         [
-            sys.executable, "src/build.py",
+            sys.executable, "-m", "src.main",
             "--cv", "testdata/cv/single_page.toml",
             "--theme-post-styles", "testdata/post.css",
             "--intermediate-dir", str(tmp_path),
@@ -233,7 +233,7 @@ def test_local_theming_dir_override_priority(tmp_path):
     import subprocess
     result = subprocess.run(
         [
-            sys.executable, "src/build.py",
+            sys.executable, "-m", "src.main",
             "--cv", "testdata/cv/single_page.toml",
             "--theme", "default_cv",
             "--local-theming-dir", "testdata/theme",
@@ -252,7 +252,7 @@ def test_config_styles_tokens_override(tmp_path):
     import subprocess
     result = subprocess.run(
         [
-            sys.executable, "src/build.py",
+            sys.executable, "-m", "src.main",
             "--cv", "testdata/cv/tokens_tweaked.toml",
             "--intermediate-dir", str(tmp_path),
             "--output", str(tmp_path / "out.pdf"),
@@ -267,7 +267,7 @@ def test_config_styles_tokens_override(tmp_path):
 
 # --- data_root tests ---
 
-from build import resolve_build_config
+from src.config import resolve_build_config
 from types import SimpleNamespace
 import os
 
@@ -325,7 +325,7 @@ def test_data_root_warning_bad_root(tmp_path):
     import subprocess
     result = subprocess.run(
         [
-            sys.executable, "src/build.py",
+            sys.executable, "-m", "src.main",
             "--data-root", str(tmp_path / "nonexistent"),
             "--type", "CV",
             "--yaml", str(test_dir.parent / "testdata" / "yaml" / "personal_details.yaml"),
@@ -347,7 +347,7 @@ def test_data_root_warning_no_yaml_dir(tmp_path):
     toml_file.write_text("""type = "cv"\nyaml = []\n""")
     result = subprocess.run(
         [
-            sys.executable, "src/build.py",
+            sys.executable, "-m", "src.main",
             "--cv", str(toml_file),
             "--output", str(tmp_path / "out.pdf"),
             "--intermediate-dir", str(tmp_path),
@@ -359,7 +359,7 @@ def test_data_root_warning_no_yaml_dir(tmp_path):
 
 def test_resolve_user_images_copies_and_rewrites(tmp_path):
     """resolve_user_images should copy image and rewrite path to ../img/<name>."""
-    from build import resolve_user_images
+    from src.images import resolve_user_images
 
     # Setup: create a real image file in data_root
     data_root = str(tmp_path / "data")
@@ -391,7 +391,7 @@ def test_resolve_user_images_copies_and_rewrites(tmp_path):
 
 def test_resolve_user_images_skips_urls_and_abs_paths(tmp_path):
     """URLs and absolute paths should be left untouched."""
-    from build import resolve_user_images
+    from src.images import resolve_user_images
 
     data_root = str(tmp_path)
     img_dir = str(tmp_path / "output" / "img")
@@ -416,7 +416,7 @@ def test_resolve_user_images_skips_urls_and_abs_paths(tmp_path):
 
 def test_resolve_user_images_keeps_original_on_missing_file(tmp_path):
     """When image file doesn't exist, keep original path and warn."""
-    from build import resolve_user_images
+    from src.images import resolve_user_images
 
     data_root = str(tmp_path)
     img_dir = str(tmp_path / "output" / "img")
@@ -476,7 +476,7 @@ sections = ['details']
     out_dir = tmp_path / "output"
     result = subprocess.run(
         [
-            sys.executable, "src/build.py",
+            sys.executable, "-m", "src.main",
             "--cv", str(toml_file),
             "--intermediate-dir", str(out_dir),
             "--output", str(tmp_path / "out.pdf"),
@@ -505,7 +505,8 @@ sections = ['details']
 # 4. Contract: Recursively merge two dicts, bundling conflicting leaf values into lists
 #    unless replace=True (then d2 wins).
 
-from build import deep_merge, tr, overlay
+from src.data import deep_merge, tr
+from src.config import overlay
 
 class TestDeepMerge:
     @pytest.mark.parametrize("d1,d2,replace,expected", [
@@ -606,7 +607,7 @@ class TestOverlay:
 # 3. Call sites: load_and_merge_data(config.yaml_files) — passes list of resolved yaml paths
 # 4. Contract: Read and merge YAML files left-to-right via deep_merge (replace=False).
 
-from build import readYamlData
+from src.data import readYamlData
 import yaml
 
 def test_read_yaml_data_single_file(tmp_yaml_file):
@@ -655,7 +656,7 @@ def test_read_yaml_data_invalid_yaml(tmp_path):
 # 4. Contract: Load jinja2 template from search_paths, render with data, write to output_filename.
 #    Raises ValueError for None template, TemplateNotFound for missing/unfound template.
 
-from build import renderTemplateAndWriteToFile
+from src.rendering import renderTemplateAndWriteToFile
 from jinja2 import TemplateNotFound as JinjaTemplateNotFound
 
 def test_render_template_basic(tmp_jinja2_template, tmp_path):
@@ -703,7 +704,7 @@ def test_render_template_empty_string_raises(tmp_path):
 # 3. Call sites: createQRCode — generate_qr_code(link, output_path)
 # 4. Contract: Generate a QR code PNG for url and save to output_path.
 
-from build import generate_qr_code
+from src.images import generate_qr_code
 
 def test_generate_qr_code_valid_url(tmp_path):
     output = tmp_path / "qr.png"
@@ -736,7 +737,7 @@ def test_generate_qr_code_none_raises(tmp_path):
 # 3. Call sites: __main__ — createQRCode(data, config.lang, img_dir)
 # 4. Contract: Generates QR images for qr-code.html.j2 template sections; sets qr_image path.
 
-from build import createQRCode
+from src.images import createQRCode
 
 def test_create_qr_code_single_section_i18n_link(tmp_path):
     img_dir = str(tmp_path / "img")

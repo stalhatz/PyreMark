@@ -12,11 +12,10 @@
 | `/css`      | Holds compiled css files                                   |
 | `/html`     | Holds compiled html files                                  |
 | `/img`      | Static assets                                              |
-| `/j2`       | Jinja2 templates (both css, html and js)                   |
 | `/js`       | Holds compiled js files                                    |
 | `/pdf`      | Holds rendered pdf files                                   |
 | `/specs`    | Contains specs for future features, bugfixes and refactors |
-| `/src`      | Contains python code                                       |
+| `/src`      | Contains python package                                    |
 | `/tests`    | Contains tests                                             |
 | `/userdata` | Contains user data (`.yaml` + `.toml` files )              |
 

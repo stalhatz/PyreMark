@@ -1,29 +1,23 @@
 import asyncio
 import logging
 import os
-import sys
 import tempfile
 
-from transform_md_to_yaml_html import transform_md_to_yaml_html
-
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
-
-from src.config import (BuildConfig, load_toml_config, overlay_args, parse_cli_args,
-                         resolve_build_config, setup_logging, overlay)
-from src.data import (deep_merge, tr, readYamlData, yearInDateString, findDateField,
-                       sortDict, sortData, load_and_merge_data, prepare_data)
-from src.theme import (ThemeLoader, ThemeResolver, copy_theme_images)
+from src.config import (load_toml_config, overlay_args, parse_cli_args,
+                        resolve_build_config, setup_logging)
+from src.data import load_and_merge_data, prepare_data
+from src.theme import ThemeResolver, copy_theme_images
 from src.rendering import (renderTemplateAndWriteToFile, showHTML, viewPDF,
                             html_to_pdf_chromium)
-from src.images import (generate_qr_code, createQRCode, resolve_user_images,
-                         _IMAGE_FIELDS)
+from src.images import createQRCode, resolve_user_images
+from src.transform_md_to_yaml_html import transform_md_to_yaml_html
 
 logger = logging.getLogger(__name__)
 FORMAT = '[%(funcName)s] : %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.INFO)
 
 
-if __name__ == "__main__":
+def main() -> None:
     cli_args = parse_cli_args()
 
     if cli_args.cv is not None:
@@ -129,3 +123,7 @@ if __name__ == "__main__":
         asyncio.run(html_to_pdf_chromium(os.path.abspath(htmlFile), os.path.abspath(pdfFile)))
         if config.show == "pdf":
             viewPDF(pdfFile)
+
+
+if __name__ == "__main__":
+    main()

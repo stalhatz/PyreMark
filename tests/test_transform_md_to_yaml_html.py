@@ -4,9 +4,9 @@ import tempfile
 from pathlib import Path
 
 test_dir = Path(__file__).resolve().parent
-sys.path.insert(0, str(test_dir.parent / "src"))
+sys.path.insert(0, str(test_dir.parent))
 
-from transform_md_to_yaml_html import (
+from src.transform_md_to_yaml_html import (
     read_file,
     split_frontmatter_body,
     metadata_to_yaml_lines,
