@@ -3,14 +3,14 @@ status: draft
 area: testing
 ---
 
-# Enhance unit-test coverage for `src/build.py` and `src/transform_md_to_yaml_html.py`
+# Enhance unit-test coverage for python source code
 
 ## Goal
 
 Bring the two Python modules under systematic unit-test coverage by:
 
 1. Writing tests for every callable that lacks them.
-2. ~~Adding type hints and docstrings~~ *(completed — every function signature in both modules is now annotated; docstrings added to all 29 functions in build.py)*
+2. ~~Adding type hints and docstrings~~ *(completed — every function signature in both modules is now annotated; docstrings added to all 29 functions)*
 3. ~~Cleaning up test infrastructure~~ *(completed — all file-writing tests use `tmp_path` via `--intermediate-dir`, no more hardcoded `css/styles.css` or `html/tmp.html`)*
 
 ---
@@ -327,12 +327,12 @@ and ensures the subdirectories exist via `os.makedirs`.
 
 ## What success looks like
 
-- Every function in `src/build.py` and `src/transform_md_to_yaml_html.py` has at least one test case.
+- Every function in source files has at least one test case.
 - ✅ All file-writing tests use `tmp_path` — no hardcoded `css/styles.css` or `html/tmp.html`.
 - `deep_merge`, `tr`, `overlay`, `readYamlData`, `generate_qr_code`, `createQRCode`, `renderTemplateAndWriteToFile`, `transform_md_to_yaml` have full branch coverage.
 - `createQRCode` accepts an optional `img_dir` parameter.
 - ✅ Type hints — completed on every function signature in both modules.
-- ✅ Docstrings — completed on all 29 functions in build.py (compact format: params, Returns, Raises, Side-effects).
+- ✅ Docstrings — completed on all 29 functions in source (compact format: params, Returns, Raises, Side-effects).
 - ✅ `overlay` (`mergeDicts`) — already returns a new dict, no mutation occurs.
 - ✅ `--intermediate-dir` CLI flag — controls build artifact paths, tests use it via `tmp_path`.
 - `conftest.py` exists with reusable fixtures.

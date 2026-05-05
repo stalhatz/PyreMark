@@ -1,7 +1,10 @@
 import asyncio
 import logging
 import os
+import sys
 import tempfile
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
 from src.config import (load_toml_config, overlay_args, parse_cli_args,
                         resolve_build_config, setup_logging)

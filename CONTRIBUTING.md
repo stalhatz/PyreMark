@@ -72,7 +72,7 @@ def my_function(param: str) -> bool:
 
 
 # Mechanism
-- build.py gets the template list and feeds it to the root template corresponding to each document type. 
+- main.py gets the template list and feeds it to the root template corresponding to each document type. 
 - the root template traverses a list of sections (corresponding to the names of the data objects) and instantiates the templates each object specifies
     - This happens in a recursive manner as templates can instantate other templates
 

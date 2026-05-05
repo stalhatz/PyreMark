@@ -36,7 +36,7 @@ git clone https://github.com/stalhatz/PyreMark
 cd PyreMark
 poetry install
 playwright install chromium
-poetry run python ./src/build.py --cv ./testdata/cv/single_page.toml -o ./pdf/output.pdf
+poetry run python ./src/main.py --cv ./testdata/cv/single_page.toml -o ./pdf/output.pdf
 ```
 
 ## Future features
