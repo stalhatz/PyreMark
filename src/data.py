@@ -149,13 +149,22 @@ def sortData(data: Any, dsc: bool = False) -> None:
                 sortData(data[k],dsc)
 
 
-def load_and_merge_data(yaml_files: list[str] | None, data_override: dict | None = None) -> dict:
-    """Read YAML files, sort sections by date, and apply optional data override.
+def load_and_merge_data(
+    yaml_files: list[str] | None,
+    data_override: dict | None = None,
+    body_data: dict | None = None,
+    frontmatter_data: dict | None = None,
+) -> dict:
+    """Read YAML files, sort sections by date, and apply optional data overrides.
 
     yaml_files: list of YAML file paths (may be None).
-    data_override: optional dict that overwrites matching keys in the merged data.
+    data_override: optional dict from TOML [data] section (priority 3).
+    body_data: optional dict from markdown body (priority 4, cover letter only).
+    frontmatter_data: optional dict from markdown frontmatter data: (priority 4).
 
     Returns: the fully merged and sorted data dictionary.
+
+    Merge priority (low → high): YAML files < data_override < body_data < frontmatter_data.
     """
     data = {}
     if yaml_files is not None:
@@ -164,6 +173,10 @@ def load_and_merge_data(yaml_files: list[str] | None, data_override: dict | None
     yaml_data = data.get("data", {})
     if data_override is not None:
         yaml_data = deep_merge(yaml_data, data_override, replace=True)
+    if body_data is not None:
+        yaml_data = deep_merge(yaml_data, body_data, replace=True)
+    if frontmatter_data is not None:
+        yaml_data = deep_merge(yaml_data, frontmatter_data, replace=True)
     data["data"] = yaml_data
     return data
 

@@ -15,6 +15,8 @@ from src.transform_md_to_yaml_html import (
     write_lines,
     transform_md_to_yaml,
     transform_md_to_yaml_html,
+    parse_markdown_config,
+    body_to_data_dict,
 )
 
 
@@ -253,3 +255,125 @@ def test_transform_md_to_yaml_dash_line_in_body():
     # --- in body is converted to <hr /> by markdown2
     assert "<hr />" in result_str
     assert "Paragraph 2" in result_str
+
+
+# --- parse_markdown_config ---
+
+def test_parse_md_config_valid(tmp_path):
+    md_file = tmp_path / "note.md"
+    md_file.write_text("""\
+---
+pyremark:
+  extends: /absolute/path/to/config.toml
+  config:
+    lang: fr
+  data:
+    sender:
+      name: Alex
+---
+
+Body text here.
+""")
+    result = parse_markdown_config(str(md_file))
+    assert result["extends"] == "/absolute/path/to/config.toml"
+    assert result["config"] == {"lang": "fr"}
+    assert result["data"] == {"sender": {"name": "Alex"}}
+    assert result["body"] == "\nBody text here.\n"
+
+
+def test_parse_md_config_missing_pyremark(tmp_path):
+    md_file = tmp_path / "note.md"
+    md_file.write_text("---\ntitle: My Note\n---\n\nBody")
+    with pytest.raises(ValueError, match="must include a 'pyremark' key"):
+        parse_markdown_config(str(md_file))
+
+
+def test_parse_md_config_pyremark_not_dict(tmp_path):
+    md_file = tmp_path / "note.md"
+    md_file.write_text("---\npyremark: not_a_dict\n---\n\nBody")
+    with pytest.raises(ValueError, match="must be a mapping"):
+        parse_markdown_config(str(md_file))
+
+
+def test_parse_md_config_missing_extends(tmp_path):
+    md_file = tmp_path / "note.md"
+    md_file.write_text("---\npyremark:\n  config:\n    lang: fr\n---\n\nBody")
+    with pytest.raises(ValueError, match="must include an 'extends' key"):
+        parse_markdown_config(str(md_file))
+
+
+def test_parse_md_config_relative_extends(tmp_path):
+    md_file = tmp_path / "note.md"
+    md_file.write_text("---\npyremark:\n  extends: relative/path/config.toml\n---\n\nBody")
+    with pytest.raises(ValueError, match="must be absolute"):
+        parse_markdown_config(str(md_file))
+
+
+def test_parse_md_config_unknown_key_inside_pyremark(tmp_path):
+    md_file = tmp_path / "note.md"
+    md_file.write_text("""\
+---
+pyremark:
+  extends: /absolute/config.toml
+  unknown_key: value
+---
+Body
+""")
+    with pytest.raises(ValueError, match="Unknown keys in 'pyremark'"):
+        parse_markdown_config(str(md_file))
+
+
+def test_parse_md_config_non_pyremark_keys_ignored(tmp_path):
+    md_file = tmp_path / "note.md"
+    md_file.write_text("""\
+---
+title: My Application
+author: Alex
+pyremark:
+  extends: /absolute/config.toml
+  config:
+    lang: fr
+---
+Body text.
+""")
+    result = parse_markdown_config(str(md_file))
+    assert result["extends"] == "/absolute/config.toml"
+    assert result["config"] == {"lang": "fr"}
+    assert result["data"] is None
+    assert result["body"] == "Body text.\n"
+
+
+def test_parse_md_config_body_preserved(tmp_path):
+    md_file = tmp_path / "note.md"
+    md_file.write_text("---\npyremark:\n  extends: /absolute/config.toml\n---\n\nLine one.\n\nLine two.\n")
+    result = parse_markdown_config(str(md_file))
+    assert result["config"] is None
+    assert result["data"] is None
+    assert result["body"] == "\nLine one.\n\nLine two.\n"
+
+
+def test_parse_md_config_no_frontmatter(tmp_path):
+    md_file = tmp_path / "note.md"
+    md_file.write_text("Just body, no frontmatter")
+    with pytest.raises(ValueError, match="must start with '---'"):
+        parse_markdown_config(str(md_file))
+
+
+# --- body_to_data_dict ---
+
+def test_body_to_data_dict_normal():
+    body = "First paragraph.\n\nSecond paragraph."
+    result = body_to_data_dict(body)
+    assert result is not None
+    assert "text" in result
+    assert len(result["text"]) == 2
+    assert "<p>First paragraph.</p>" in result["text"]
+    assert "<p>Second paragraph.</p>" in result["text"]
+
+
+def test_body_to_data_dict_empty():
+    assert body_to_data_dict("") is None
+
+
+def test_body_to_data_dict_whitespace_only():
+    assert body_to_data_dict("  \n  \n  ") is None

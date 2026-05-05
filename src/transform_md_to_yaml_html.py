@@ -1,3 +1,4 @@
+import os
 import sys
 import logging
 from pathlib import Path
@@ -100,6 +101,90 @@ def transform_md_to_yaml(markdown_content: str) -> list[str]:
 
     html_lines = body_to_html_lines(body)
     return metadata_to_yaml_lines(metadata) + build_text_yaml(html_lines)
+
+
+def parse_markdown_config(md_path: str) -> dict:
+    """Parse a markdown file with PyreMark-namespaced frontmatter.
+
+    The frontmatter must contain a ``pyremark`` key whose value is a dict with
+    the build instructions.  All other top-level keys are free-form metadata
+    and are silently ignored.
+
+    md_path: absolute or relative path to a .md file.
+
+    Returns: {"extends": str, "config": dict|None, "data": dict|None, "body": str}
+
+    Raises:
+        ValueError: if pyremark is missing or not a dict, if extends is
+        missing inside pyremark, if extends is not an absolute path, or if
+        unknown keys appear inside pyremark.
+        FileNotFoundError: if the file does not exist.
+    """
+    PYREMARK_VALID_KEYS = {"extends", "config", "data"}
+    text = read_file(md_path)
+    metadata, body = split_frontmatter_body(text)
+
+    pyremark = metadata.get("pyremark")
+    if pyremark is None:
+        raise ValueError(
+            "Markdown frontmatter must include a 'pyremark' key containing "
+            "the build configuration (extends, config, data)."
+        )
+    if not isinstance(pyremark, dict):
+        raise ValueError(
+            "'pyremark' must be a mapping (dict) containing the build configuration."
+        )
+
+    if "extends" not in pyremark:
+        raise ValueError(
+            "'pyremark' must include an 'extends' key with an absolute path "
+            "to a TOML build configuration."
+        )
+
+    extends_path = pyremark.get("extends")
+    if not os.path.isabs(extends_path):
+        raise ValueError(
+            f"extends path must be absolute, got relative path: '{extends_path}'"
+        )
+
+    config_block = pyremark.get("config")
+    if config_block is not None and not isinstance(config_block, dict):
+        raise ValueError(
+            f"'pyremark.config' must be a mapping (dict), got: {type(config_block).__name__}"
+        )
+
+    data_block = pyremark.get("data")
+    if data_block is not None and not isinstance(data_block, dict):
+        raise ValueError(
+            f"'pyremark.data' must be a mapping (dict), got: {type(data_block).__name__}"
+        )
+
+    unknown = set(pyremark.keys()) - PYREMARK_VALID_KEYS
+    if unknown:
+        raise ValueError(
+            f"Unknown keys in 'pyremark' frontmatter: {sorted(unknown)}. "
+            f"Allowed keys are: {sorted(PYREMARK_VALID_KEYS)}."
+        )
+
+    return {
+        "extends": extends_path,
+        "config": config_block,
+        "data": data_block,
+        "body": body,
+    }
+
+
+def body_to_data_dict(body: str) -> dict | None:
+    """Convert markdown body text to a cover-letter data dict.
+
+    body: raw markdown body text (paragraphs separated by blank lines).
+
+    Returns: {"text": [html_paragraphs]} or None if body is empty/whitespace-only.
+    """
+    html_lines = body_to_html_lines(body)
+    if not html_lines:
+        return None
+    return {"text": html_lines}
 
 
 def transform_md_to_yaml_html(input_path: str, output_path: str) -> None:

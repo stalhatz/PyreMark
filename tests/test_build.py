@@ -867,3 +867,128 @@ def test_create_qr_code_multiple_sections(tmp_path):
     assert len(qr_files) == 2
     assert data["data"]["qr1"]["qr_image"].startswith("../img/")
     assert data["data"]["qr2"]["qr_image"].startswith("../img/")
+
+
+# --- Markdown CV / parse_markdown_config integration ---
+
+from src.transform_md_to_yaml_html import parse_markdown_config, body_to_data_dict
+from src.data import load_and_merge_data
+
+
+def test_load_and_merge_data_with_body_data(tmp_path):
+    yaml_file = tmp_path / "data.yaml"
+    yaml_file.write_text("data:\n  sender:\n    name: Original\n  other: value\n")
+    body_data = {"text": ["<p>Hello</p>"]}
+    result = load_and_merge_data([str(yaml_file)], body_data=body_data)
+    assert result["data"]["text"] == ["<p>Hello</p>"]
+    assert result["data"]["sender"]["name"] == "Original"
+
+
+def test_load_and_merge_data_with_frontmatter_data(tmp_path):
+    yaml_file = tmp_path / "data.yaml"
+    yaml_file.write_text("data:\n  sender:\n    name: Original\n")
+    frontmatter = {"sender": {"name": "Alex"}}
+    result = load_and_merge_data([str(yaml_file)], frontmatter_data=frontmatter)
+    assert result["data"]["sender"]["name"] == "Alex"
+
+
+def test_load_and_merge_data_body_before_frontmatter(tmp_path):
+    yaml_file = tmp_path / "data.yaml"
+    yaml_file.write_text("data:\n  key: base\n")
+    body_data = {"key": "from_body"}
+    frontmatter_data = {"key": "from_frontmatter"}
+    result = load_and_merge_data([str(yaml_file)], body_data=body_data, frontmatter_data=frontmatter_data)
+    assert result["data"]["key"] == "from_frontmatter"
+
+
+def test_load_and_merge_data_data_override_below_body(tmp_path):
+    yaml_file = tmp_path / "data.yaml"
+    yaml_file.write_text("data:\n  key: base\n")
+    data_override = {"key": "from_toml"}
+    body_data = {"key": "from_body"}
+    result = load_and_merge_data([str(yaml_file)], data_override=data_override, body_data=body_data)
+    assert result["data"]["key"] == "from_body"
+
+
+def test_load_and_merge_data_no_overrides(tmp_path):
+    yaml_file = tmp_path / "data.yaml"
+    yaml_file.write_text("data:\n  key: value\n")
+    result = load_and_merge_data([str(yaml_file)])
+    assert result["data"]["key"] == "value"
+
+
+def test_parse_md_config_with_real_toml_path(tmp_path):
+    toml_path = test_dir.parent / "testdata" / "cv" / "single_page.toml"
+    md_file = tmp_path / "note.md"
+    md_file.write_text(f"""\
+---
+pyremark:
+  extends: {toml_path}
+  config:
+    lang: fr
+  data:
+    sender:
+      name: Alex
+---
+
+This body should be ignored for CV.
+""")
+    result = parse_markdown_config(str(md_file))
+    assert result["extends"] == str(toml_path)
+    assert result["config"] == {"lang": "fr"}
+    assert result["data"] == {"sender": {"name": "Alex"}}
+    assert "body" in result
+
+
+def test_resolve_build_config_md_requires_type():
+    from src.config import resolve_build_config
+    from types import SimpleNamespace
+    args = SimpleNamespace(
+        md="/some/path/note.md",
+        type=None,
+        theme=None, template=None, css=None, js=None,
+        lang=None, verbose="info", show="None",
+        layout=None, styles=None, data=None,
+        data_root=None, intermediate_dir=None,
+        local_theming_dir=None, theme_pre_styles=None, theme_post_styles=None,
+        output=None,
+    )
+    with pytest.raises(ValueError, match="type"):
+        resolve_build_config(args)
+
+
+def test_resolve_build_config_md_with_type_works():
+    from src.config import resolve_build_config
+    from types import SimpleNamespace
+    args = SimpleNamespace(
+        md="/some/path/note.md",
+        type="cv",
+        theme=None, template=None, css=None, js=None,
+        lang=None, verbose="info", show="None",
+        layout=None, styles=None, data=None,
+        data_root=None, intermediate_dir=None,
+        local_theming_dir=None, theme_pre_styles=None, theme_post_styles=None,
+        output=None,
+        theming_options=None,
+    )
+    config = resolve_build_config(args)
+    assert config.template == "resume.html.j2"
+
+
+def test_resolve_build_config_md_no_longer_defaults_cover_letter():
+    from src.config import resolve_build_config
+    from types import SimpleNamespace
+    args = SimpleNamespace(
+        md="/some/path/note.md",
+        type="cv",
+        theme=None, template=None, css=None, js=None,
+        lang=None, verbose="info", show="None",
+        layout=None, styles=None, data=None,
+        data_root=None, intermediate_dir=None,
+        local_theming_dir=None, theme_pre_styles=None, theme_post_styles=None,
+        output=None,
+        theming_options=None,
+    )
+    config = resolve_build_config(args)
+    assert config.template != "cover_letter.html.j2"
+    assert config.template == "resume.html.j2"

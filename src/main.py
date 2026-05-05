@@ -2,18 +2,17 @@ import asyncio
 import logging
 import os
 import sys
-import tempfile
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 
-from src.config import (load_toml_config, overlay_args, parse_cli_args,
+from src.config import (load_toml_config, overlay, overlay_args, parse_cli_args,
                         resolve_build_config, setup_logging)
 from src.data import load_and_merge_data, prepare_data
 from src.theme import ThemeResolver, copy_theme_images
 from src.rendering import (renderTemplateAndWriteToFile, showHTML, viewPDF,
                             html_to_pdf_chromium)
 from src.images import createQRCode, resolve_user_images
-from src.transform_md_to_yaml_html import transform_md_to_yaml_html
+from src.transform_md_to_yaml_html import parse_markdown_config, body_to_data_dict
 
 logger = logging.getLogger(__name__)
 FORMAT = '[%(funcName)s] : %(message)s'
@@ -26,19 +25,34 @@ def main() -> None:
     if cli_args.cv is not None:
         toml_config = load_toml_config(cli_args.cv)
         args = overlay_args(toml_config, vars(cli_args))
+        config_file_path = cli_args.cv
+    elif cli_args.md is not None:
+        md_config = parse_markdown_config(cli_args.md)
+        toml_config = load_toml_config(md_config["extends"])
+        merged = overlay(toml_config, md_config.get("config") or {})
+        args = overlay_args(merged, vars(cli_args))
+        config_file_path = md_config["extends"]
     else:
         args = cli_args
+        config_file_path = None
 
-    yaml_files = None
-    if args.md is not None:
-        yaml_files = [tempfile.mkstemp(suffix=".yaml")[1]]
-        logger.info(f"Using {yaml_files[0]} as temporary .yaml file")
-        transform_md_to_yaml_html(args.md, yaml_files[0])
+    yaml_files = getattr(args, "yaml", None)
+    body_data = None
+    frontmatter_data = None
+
+    if cli_args.md is not None:
+        yaml_files = toml_config.get("yaml", [])
+        if cli_args.yaml is not None:
+            yaml_files = list(cli_args.yaml)
+        doc_type = str(getattr(args, "type", "cv")).lower()
+        if doc_type != "cv":
+            body_data = body_to_data_dict(md_config["body"])
+        frontmatter_data = md_config.get("data")
     elif getattr(args, "yaml", None) is not None:
         yaml_files = args.yaml
 
     config = resolve_build_config(args, yaml_files=yaml_files,
-                                  config_file_path=cli_args.cv if cli_args.cv else None)
+                                  config_file_path=config_file_path)
     setup_logging(config.verbose)
 
     if config.data_root:
@@ -49,7 +63,8 @@ def main() -> None:
             if not os.path.isdir(yaml_dir):
                 logger.warning(f"data_root '{config.data_root}': no yaml/ directory found — are you sure this is the correct root?")
 
-    data = load_and_merge_data(config.yaml_files, config.data_override)
+    data = load_and_merge_data(config.yaml_files, config.data_override,
+                              body_data, frontmatter_data)
     data = prepare_data(data, config.lang)
 
     idir = config.intermediate_dir

@@ -198,12 +198,11 @@ def resolve_build_config(args: SimpleNamespace | argparse.Namespace, yaml_files:
     if md is not None:
         if os.path.splitext(md)[1] != ".md":
             raise ValueError("Expected a .md file as input")
-        if yaml_files is not None and getattr(args, "yaml", None) is not None:
-            raise ValueError("Args --yaml and --md are incompatible")
-        theme = theme or "default_cover_letter"
-        template = "cover_letter.html.j2"
-        if css is None:
-            css = "cover_letter.css.j2"
+        if getattr(args, "type", None) is None:
+            raise ValueError(
+                "Document type not specified. The referenced TOML config must have a "
+                "'type' field (e.g. type = 'cv' or type = 'coverletter'), or use --type flag."
+            )
 
     if template is None:
         raise ValueError("No html template provided")
