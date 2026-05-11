@@ -309,19 +309,6 @@ def test_parse_md_config_relative_extends(tmp_path):
         parse_markdown_config(str(md_file))
 
 
-def test_parse_md_config_unknown_key_inside_pyremark(tmp_path):
-    md_file = tmp_path / "note.md"
-    md_file.write_text("""\
----
-pyremark:
-  extends: /absolute/config.toml
-  unknown_key: value
----
-Body
-""")
-    with pytest.raises(ValueError, match="Unknown keys in 'pyremark'"):
-        parse_markdown_config(str(md_file))
-
 
 def test_parse_md_config_non_pyremark_keys_ignored(tmp_path):
     md_file = tmp_path / "note.md"

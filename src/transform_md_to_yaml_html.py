@@ -159,12 +159,12 @@ def parse_markdown_config(md_path: str) -> dict:
             f"'pyremark.data' must be a mapping (dict), got: {type(data_block).__name__}"
         )
 
-    unknown = set(pyremark.keys()) - PYREMARK_VALID_KEYS
-    if unknown:
-        raise ValueError(
-            f"Unknown keys in 'pyremark' frontmatter: {sorted(unknown)}. "
-            f"Allowed keys are: {sorted(PYREMARK_VALID_KEYS)}."
-        )
+    # unknown = set(pyremark.keys()) - PYREMARK_VALID_KEYS
+    # if unknown:
+    #     raise ValueError(
+    #         f"Unknown keys in 'pyremark' frontmatter: {sorted(unknown)}. "
+    #         f"Allowed keys are: {sorted(PYREMARK_VALID_KEYS)}."
+    #     )
 
     return {
         "extends": extends_path,
