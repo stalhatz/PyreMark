@@ -26,49 +26,49 @@
     <div class="canvas-container">
         <div class="addresses">
             <div class="senderAddress">
-                <p> <strong>{{tr(sender.name)}} </strong> 
-                <br> {{tr(sender.streetNameAndNumber)}} 
-                <br> {{tr(sender.postalCode)}}, {{tr(sender.city)}}
-                {% if sender.country is defined -%}
-                  <br> {{tr(sender.country)}}
+                <p> <strong>{{tr(data.sender.name)}} </strong> 
+                <br> {{tr(data.sender.streetNameAndNumber)}} 
+                <br> {{tr(data.sender.postalCode)}}, {{tr(data.sender.city)}}
+                {% if data.sender.country is defined -%}
+                  <br> {{tr(data.sender.country)}}
                 {%- endif %}      
                 </p>
             </div>
         
             <div class="receiverAddress">
-                <p> <strong>{{tr(receiver.name)}} </strong> <br> {{tr(receiver.fullPosition)}} <br> {{tr(receiver.address1)}} <br> {{tr(receiver.address2)}}</p>
+                <p> <strong>{{tr(data.receiver.name)}} </strong> <br> {{tr(data.receiver.fullPosition)}} <br> {{tr(data.receiver.address1)}} <br> {{tr(data.receiver.address2)}}</p>
             </div>
         </div>
         <div class="date">
-            <p> {{tr(sender.city)}}, {{tr(date)}} </p>
+            <p> {{tr(data.sender.city)}}, {{tr(data.date)}} </p>
         </div>
         
         <div class="salutation">
-          {% if receiver.position is defined -%}
-            <p>{{tr(receiver.call)}} {{tr(receiver.genderedCall)}} {{tr(receiver.position)}},</p>
+          {% if data.receiver.position is defined -%}
+            <p>{{tr(data.receiver.call)}} {{tr(data.receiver.genderedCall)}} {{tr(data.receiver.position)}},</p>
           {%- else -%}
-            {% if receiver.call is defined -%}
-              <p>{{tr(receiver.call)}} {{tr(receiver.genderedCall)}},</p>
+            {% if data.receiver.call is defined -%}
+              <p>{{tr(data.receiver.call)}} {{tr(data.receiver.genderedCall)}},</p>
             {%- else -%}
-              <p>{{tr(receiver.genderedCall)}},</p>
+              <p>{{tr(data.receiver.genderedCall)}},</p>
             {%- endif %}
           {%- endif %}
         </div>
 
         <div class="text">
-          {%- for l in text %}
+          {%- for l in data.text %}
             {{ tr(l) -}}
           {% endfor %}
         </div>
         <div class="signature">
           <div class="signature_wrapper">
-          {% if sender.signaturePhoto is defined -%}
+          {% if data.sender.signaturePhoto is defined -%}
             <div class="signature-photo">
-              <img class="signature-photo_" src="{{tr(sender.signaturePhoto)}}">
+              <img class="signature-photo_" src="{{tr(data.sender.signaturePhoto)}}">
             </div>
           {%- endif %}
             <div>
-              {{tr(sender.name)}}
+              {{tr(data.sender.name)}}
             </div>
           </div>
         </div>
