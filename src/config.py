@@ -37,6 +37,8 @@ class BuildConfig:
     data_override: dict | None = None
     intermediate_dir: str = "./output"
     data_root: str | None = None
+    export_data_path: str | None = None
+    export_data_and_conf_path: str | None = None
 
 
 def overlay(base: dict, top: dict) -> dict:
@@ -100,6 +102,11 @@ def parse_cli_args() -> argparse.Namespace:
 
     parser.add_argument("--data-root", default=None,
                         help="Root directory for resolving relative paths in TOML and YAML files")
+
+    parser.add_argument("--export-data", default=None,
+                        help="Export the merged document data (data key only) to a YAML file")
+    parser.add_argument("--export-data-and-conf", default=None,
+                        help="Export the full merged data dict (data + config) to a YAML file")
 
     return parser.parse_args()
 
@@ -248,6 +255,8 @@ def resolve_build_config(args: SimpleNamespace | argparse.Namespace, yaml_files:
         styles=styles,
         data_override=getattr(args, "data", None),
         data_root=data_root,
+        export_data_path=getattr(args, "export_data", None),
+        export_data_and_conf_path=getattr(args, "export_data_and_conf", None),
     )
     intermediate_dir = getattr(args, "intermediate_dir", None)
     if intermediate_dir is not None:

@@ -13,6 +13,7 @@ from src.rendering import (renderTemplateAndWriteToFile, showHTML, viewPDF,
                             html_to_pdf_chromium)
 from src.images import createQRCode, resolve_user_images
 from src.transform_md_to_yaml_html import parse_markdown_config, body_to_data_dict
+import yaml
 
 logger = logging.getLogger(__name__)
 FORMAT = '[%(funcName)s] : %(message)s'
@@ -66,6 +67,14 @@ def main() -> None:
     data = load_and_merge_data(config.yaml_files, config.data_override,
                               body_data, frontmatter_data)
     data = prepare_data(data, config.lang)
+
+    if config.export_data_path is not None:
+        with open(config.export_data_path, "w") as f:
+            yaml.dump(data.get("data", {}), f, default_flow_style=False, allow_unicode=True)
+
+    if config.export_data_and_conf_path is not None:
+        with open(config.export_data_and_conf_path, "w") as f:
+            yaml.dump(data, f, default_flow_style=False, allow_unicode=True)
 
     idir = config.intermediate_dir
     html_dir = os.path.join(idir, "html")
