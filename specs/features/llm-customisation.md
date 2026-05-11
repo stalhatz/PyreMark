@@ -284,3 +284,139 @@ Future: configurable SearXNG instance, or a `company_context` file path.
 - **Grammar-constrained decoding as requirement** — the OpenAI-compatible API
   baseline uses `response_format`, not grammars. Grammar backends (llama.cpp)
   are secondary.
+
+---
+
+## Appendix A — Granular source material for LLM distillation
+
+### Problem
+
+The LLM pipeline described in this spec receives a section's data and submits
+it to the model for tailoring. Currently, every entry-type section
+(experience, education, projects, etc.) carries a single `text` field — a blob
+of pre-composed prose per language. This means the LLM can only paraphrase or
+trim that blob; it cannot reason about individual claims inside it.
+
+For a listing that asks for "cloud infrastructure experience," the LLM should
+be able to drop irrelevant achievements from a role (mentoring, legacy
+maintenance) and promote relevant ones (migration strategy, Kubernetes
+architecture). With a monolithic `text` field, that selection is impossible —
+every rewrite is a shot in the dark because the model doesn't know which parts
+are independently real.
+
+Additionally, a single real-world tenure may need different text for different
+target roles. A Project Manager profile and a Cloud Engineer profile for the
+same Microsoft experience ought to emphasise different aspects. The current
+approach forces the user to duplicate the experience entry across two YAML
+files (one per profile), violating DRY.
+
+### Solution overview
+
+Two changes work together:
+
+1. **A new optional field** on every entry model holds the atomic statements —
+   small, self-contained assertions about the role. This field is the LLM's
+   source material. It has no rendering role in manual mode.
+2. **A file organisation convention** separates ground truth (the atomic
+   statements plus stable metadata like `date` and `title`) from
+   profile-specific presentation text (`text`). The deep-merge pipeline
+   combines them at build time.
+
+### The atomic statement field
+
+Each entry may optionally carry a list of atomic statements. The field name is
+`claims` — chosen because a CV contains claims (assertions the candidate can
+defend in an interview), not facts. The term carries no implication of
+priority, completeness, or spin. It is raw material for distillation.
+
+```yaml
+senior_engineer:
+  date: 2022 - Present
+  title:
+    en: Senior Software Engineer, TechCorp Global
+  claims:
+    - en: Led development of cloud-native microservices architecture serving 2M+ daily users
+    - en: Reduced API latency by 40% through optimized caching strategies
+    - en: Mentored a team of 5 junior developers
+    - en: Maintained legacy services during migration period
+  text:
+    en: Led development of cloud-native microservices architecture…
+```
+
+- Type: `list[TranslatableStr] | None = None`
+- Each item is a single, self-contained statement that can be kept, dropped,
+  or rephrased independently.
+- Existing YAML files without `claims` work unchanged (backward compatible).
+- Limit hint: `x_limit_hint={"max_items": N}` — advisory, not enforced as
+  error.
+
+### File organisation convention
+
+The deep-merge pipeline makes it possible to split the source of truth from
+profile-specific presentation without code changes:
+
+```
+userdata/
+  corpus/
+    experience.yaml          # claims + stable metadata (date, title, …)
+    education.yaml
+    projects.yaml
+  profiles/
+    PM/
+      experience_overrides.yaml   # text only (PM-flavoured prose)
+    CE/
+      experience_overrides.yaml   # text only (CE-flavoured prose)
+```
+
+A TOML config references both:
+
+```toml
+# profiles/PM/config.toml
+[yaml]
+files = [
+  "corpus/experience.yaml",
+  "corpus/education.yaml",
+  "profiles/PM/experience_overrides.yaml",
+]
+```
+
+Merge order (low → high priority) means the corpus file provides `claims` +
+`date` + `title`, and the profile override provides `text` (and may override
+`title`, `date`, etc.). The result is a single entry carrying both `claims`
+(from corpus) and `text` (from profile), consumed differently depending on
+pipeline mode.
+
+### Behaviour by pipeline mode
+
+| Mode | `claims` present? | What happens |
+|------|-------------------|--------------|
+| **Manual** (`--llm` off) | No → renders `text` | Existing behaviour unchanged. |
+| Manual (`--llm` off) | Yes, `text` present | Renders `text`. `claims` is invisible at render time. |
+| Manual (`--llm` off) | Yes, `text` absent | Renderer may join `claims` as bullet points (future convenience — out of scope of this spec). |
+| **LLM** (`--llm` on) | Yes | Prompt receives `claims` as source material. LLM selects/synthesises → output replaces `text`. |
+| LLM (`--llm` on) | No (falls back to `text`) | Prompt receives `text` as source. Same flow as before this appendix — no regression but less granularity. |
+
+### Example LLM prompt sketch (experience section)
+
+> You are tailoring a CV experience section for the following listing:
+> {listing}
+>
+> The candidate's original claims for this role are:
+> {claims}
+>
+> Constraints:
+> - Select at most 4 claims most relevant to the listing.
+> - You may merge or rephrase claims for conciseness.
+> - Output as a list of strings (the new claims) and a single "text" field
+>   (the composed prose for this entry).
+>
+> Return a valid JSON object matching the schema.
+
+### Validation and limits
+
+- At Pydantic level, each item in `claims` goes through `TranslatableStr`
+  validation.
+- `x_limit_hint` on the `claims` field defines `max_items` — the prompt
+  includes this constraint.
+- When the LLM returns more items than the limit, the validator logs a warning
+  (soft limit, not a hard rejection).
