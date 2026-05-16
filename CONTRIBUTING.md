@@ -34,6 +34,13 @@
         - `perf: `
         - `test:`
         - `spec:`
+- Version numbers follow SemVer (major.minor.patch).
+- The version in `pyproject.toml` is bumped automatically by the agent when committing:
+  - `feat:` → bump minor (`0.1.0` → `0.2.0`)
+  - `fix:` → bump patch (`0.1.0` → `0.1.1`)
+  - `feat!:` or `BREAKING CHANGE` → bump major (`0.1.0` → `1.0.0`)
+  - `chore:`, `refactor:`, `docs:`, `test:`, `style:`, `ci:`, `spec:` → no bump
+- The agent stages the version bump but does not commit it — it is part of the staged changes for review.
 
 # Architecture
 - Build configuration declares data files to be included in the current build
