@@ -44,15 +44,17 @@
         </div>
         
         <div class="salutation">
-          {% if data.receiver.position is defined -%}
-            <p>{{tr(data.receiver.call)}} {{tr(data.receiver.genderedCall)}} {{tr(data.receiver.position)}},</p>
-          {%- else -%}
-            {% if data.receiver.call is defined -%}
-              <p>{{tr(data.receiver.call)}} {{tr(data.receiver.genderedCall)}},</p>
-            {%- else -%}
-              <p>{{tr(data.receiver.genderedCall)}},</p>
-            {%- endif %}
+          <p>
+          {% if data.receiver.call is defined -%}
+            {{tr(data.receiver.call)}}
           {%- endif %}
+          {% if data.receiver.genderedCall is defined -%}
+            {{tr(data.receiver.genderedCall)}}
+          {%- endif %}
+          {% if data.receiver.position is defined -%}
+            {{tr(data.receiver.position)}}
+          {%- endif %}
+          ,</p>
         </div>
 
         <div class="text">

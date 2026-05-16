@@ -108,6 +108,9 @@ def parse_cli_args() -> argparse.Namespace:
     parser.add_argument("--export-data-and-conf", default=None,
                         help="Export the full merged data dict (data + config) to a YAML file")
 
+    parser.add_argument("--tags", action="append", default=None,
+                        help="Document tags for XMP metadata (can be specified multiple times)")
+
     return parser.parse_args()
 
 

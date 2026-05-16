@@ -13,6 +13,8 @@ from src.rendering import (renderTemplateAndWriteToFile, showHTML, viewPDF,
                             html_to_pdf_chromium)
 from src.images import createQRCode, resolve_user_images
 from src.transform_md_to_yaml_html import parse_markdown_config, body_to_data_dict
+from src.xmp_metadata import compute_data_hash, build_xmp_metadata, inject_xmp_metadata
+from src.git_utils import get_git_hash, get_project_version
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -67,6 +69,11 @@ def main() -> None:
     data = load_and_merge_data(config.yaml_files, config.data_override,
                               body_data, frontmatter_data)
     data = prepare_data(data, config.lang)
+
+    if getattr(args, "tags", None) is not None:
+        if "data" not in data:
+            data["data"] = {}
+        data["data"]["tags"] = args.tags
 
     if config.export_data_path is not None:
         with open(config.export_data_path, "w") as f:
@@ -148,6 +155,17 @@ def main() -> None:
     if config.output_name is not None:
         pdfFile = config.output_name
         asyncio.run(html_to_pdf_chromium(os.path.abspath(htmlFile), os.path.abspath(pdfFile)))
+
+        data_hash = compute_data_hash(data)
+        pyremark_version = get_project_version()
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        pyremark_git = get_git_hash(project_root)
+        data_git = get_git_hash(config.data_root) if config.data_root else None
+        tags = data.get("data", {}).get("tags", [])
+
+        xmp = build_xmp_metadata(data_hash, pyremark_version, pyremark_git, data_git, tags)
+        inject_xmp_metadata(pdfFile, xmp)
+
         if config.show == "pdf":
             viewPDF(pdfFile)
 

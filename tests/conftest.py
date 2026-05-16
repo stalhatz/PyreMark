@@ -1,5 +1,6 @@
 import pytest
 from pathlib import Path
+import subprocess
 
 
 @pytest.fixture
@@ -45,3 +46,16 @@ def sample_data_dict():
         "sections": ["details", "experience"],
         "lang": "en",
     }
+
+
+@pytest.fixture
+def tmp_git_repo(tmp_path):
+    """Create a temporary git repository with an initial commit."""
+    subprocess.run(["git", "init"], cwd=tmp_path, capture_output=True)
+    subprocess.run(["git", "config", "user.email", "test@test.com"], cwd=tmp_path, capture_output=True)
+    subprocess.run(["git", "config", "user.name", "Test"], cwd=tmp_path, capture_output=True)
+    test_file = tmp_path / "test.txt"
+    test_file.write_text("test")
+    subprocess.run(["git", "add", "."], cwd=tmp_path, capture_output=True)
+    subprocess.run(["git", "commit", "-m", "initial"], cwd=tmp_path, capture_output=True)
+    return tmp_path
