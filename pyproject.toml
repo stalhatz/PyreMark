@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "css-resume"
+name = "PyreMark"
 version = "0.1.0"
 description = "Resume creation from html and css"
 authors = ["stalhatz <stalhatz@gmail.com>"]

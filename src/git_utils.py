@@ -49,6 +49,6 @@ def get_project_version() -> str:
     """
     try:
         from importlib.metadata import version
-        return version("css-resume")
+        return version("PyreMark")
     except Exception:
         return "0.1.0"
