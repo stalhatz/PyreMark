@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "PyreMark"
-version = "0.1.0"
+version = "0.2.0"
 description = "Resume creation from html and css"
 authors = ["stalhatz <stalhatz@gmail.com>"]
 readme = "README.md"
