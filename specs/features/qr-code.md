@@ -1,5 +1,7 @@
 ---
 size: small
+modified_date: 2026-04-23
+implemented_git_tag: specs/features/qr-code/implemented
 ---
 
 Add a qr code template.

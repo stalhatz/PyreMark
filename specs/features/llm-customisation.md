@@ -1,6 +1,7 @@
 ---
 size: medium
 depends-on: pydantic-classes.md, markdown-cv.md
+modified_date: 2026-05-11
 ---
 
 # LLM-driven CV / Cover Letter customisation

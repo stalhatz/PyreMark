@@ -1,5 +1,7 @@
 ---
 size: small
+modified_date: 2026-05-06
+implemented_git_tag: specs/features/markdown-cv/implemented
 ---
 
 # Extend and improve structure of Markdown interface to include CV creation

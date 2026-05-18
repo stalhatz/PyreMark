@@ -1,4 +1,9 @@
-# Write a README.md file reflecting the current state of the projects
+---
+modified_date: 2026-04-27
+implemented_git_tag: specs/documentation/README-spec/implemented
+---
+
+# Write a README.md file reflecting the current state of the projects
 
 - One-line explanation of the project
 - Write a quick pitch introducing major use cases

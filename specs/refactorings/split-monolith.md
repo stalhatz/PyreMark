@@ -3,6 +3,8 @@ status: draft
 area: architecture
 size: medium
 depends_on: specs/testing/test-enhancement-spec.md (execution items 5–8)
+modified_date: 2026-05-04
+implemented_git_tag: specs/refactorings/split-monolith/implemented
 ---
 
 # Split `src/build.py` into a proper Python package

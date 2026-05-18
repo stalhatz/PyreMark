@@ -1,3 +1,7 @@
+---
+modified_date: 2026-05-06
+---
+
 # Architecture Decisions
 
 ## Decision 1: TranslatableStr type

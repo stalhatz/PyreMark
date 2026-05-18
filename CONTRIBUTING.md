@@ -42,6 +42,38 @@
   - `chore:`, `refactor:`, `docs:`, `test:`, `style:`, `ci:`, `spec:` → no bump
 - The agent stages the version bump but does not commit it — it is part of the staged changes for review.
 
+# Specs
+
+Every file in `specs/` carries YAML frontmatter with traceability metadata:
+
+```yaml
+---
+modified_date: 2026-05-16
+implemented_git_tag: specs/features/xmp-metadata/implemented
+size: medium
+---
+```
+
+| Field | Required | Description |
+|---|---|---|
+| `modified_date` | Yes | Date (`YYYY-MM-DD`) of last significant change. Set on creation and updated on every meaningful edit. |
+| `implemented_git_tag` | No | Git tag pointing to the implementation commit. **Presence means the spec is implemented.** Omitted for unimplemented specs. |
+
+**Tag naming**: `specs/<relative-path>/implemented` (e.g., `specs/features/xmp-metadata/implemented`).
+
+**When to update**:
+| Event | Action |
+|---|---|
+| Spec created | Set `modified_date` |
+| Significant modification | Update `modified_date` |
+| Spec implemented | Add `implemented_git_tag`, run `git tag <tag> HEAD` |
+| Implementation rework | Move tag: `git tag -f <tag> HEAD`. Spec text stays frozen. |
+| Extension needed | Create a new spec. Do not modify an implemented one. |
+
+Implemented specs are **frozen** — no feature creep or extensions. Bugfixes and factual corrections are allowed (update the date, move the tag). For extensions, create a new spec.
+
+Full rationale: [specs/documentation/spec-frontmatter.md](./specs/documentation/spec-frontmatter.md)
+
 # Architecture
 - Build configuration declares data files to be included in the current build
     - Build configuration can overwrite data variables: This way we are surfacing the most impactful parts of data to the topmost file so with some appropriate commentary we can quickly show the decisions made in this particular configuration

@@ -1,5 +1,7 @@
 ---
 size: medium
+modified_date: 2026-05-16
+implemented_git_tag: specs/features/xmp-metadata/implemented
 ---
 
 # XMP Metadata Embedding
